@@ -1,6 +1,17 @@
-#include <iostream>
-#include "exception.hpp"
-#include "server.hpp"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/24 19:58:49 by yanaranj          #+#    #+#             */
+/*   Updated: 2025/11/24 20:19:27 by alounici         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "Exception.hpp"
+#include "Server.hpp"
 
 int check_port(char *port)
 {
