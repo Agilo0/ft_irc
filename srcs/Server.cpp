@@ -1,26 +1,49 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Server.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
+/*   Updated: 2025/11/26 16:59:58 by yanaranj         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#include "server.hpp"
-#include <iostream>
-#include <sys/socket.h>
+#include "Server.hpp"
 
+Server::Server() : _port(0), _servFd(-1) {}
 
+bool Server::_sigFlag = false;//no signal received yet
 
-server::server()
+void Server::sigHandler(int signum)
 {
-
+	(void)signum;
+	_sigFlag = true;
 }
 
-server::server(int port, char *pw) : _port(port), _pw(pw)
+void Server::createSocket()
 {
-    init_serv();
+	struct sockaddr_in add;//used to store socket addresses for the Internet domain
+	//struct socket
+	add.sin_family = AF_INET; //specify the IPv4 address protocol
+	add.sin_addr.s_addr = INADDR_ANY; //accept connections from any IP address
+	add.sin_port = htons(this->_port); //convert port number to network byte order
+	
+	//create socket
+	this->_servFd = socket(AF_INET, SOCK_STREAM, 0);
+	if (this->_servFd < 0)
+	{
+		std::cerr << RED << "Error creating socket" << std::endl;
+		std::cerr << "Error:" << strerror(errno) << NC << std::endl;
+		exit(EXIT_FAILURE);
+	}
 }
 
-server::~server()
-{
 
-}
+void Server::initServer(int port, std::string pwd){
+	this->_port = port;
+	this->_pwd = pwd;
 
-void server::init_serv()
-{
-    _fd = socket(AF_INET, SOCK_STREAM, 0);
+	createSocket();
 }
