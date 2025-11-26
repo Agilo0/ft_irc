@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 19:58:49 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/11/24 20:19:27 by alounici         ###   ########.fr       */
+/*   Updated: 2025/11/26 18:50:50 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ int check_port(char *port)
 
 int main(int argc, char** argv)
 {
+	signal(SIGINT, Server::sigHandler);
+	signal(SIGQUIT, Server::sigHandler);
     int port = 0;
 
     if (argc != 3)
@@ -50,9 +52,10 @@ int main(int argc, char** argv)
     {
         std::cerr << e.what() << '\n';
     }
-    server serv(port, argv[2]);
-    // std::cout << port << std::endl;
-    return (0);
+	 
+    Server Server;
+	Server.initServer(port, argv[2]);
+	return (0);
 }
 
 //manage signal ctrl c + ctrl /
