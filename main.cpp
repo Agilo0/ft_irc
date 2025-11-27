@@ -6,12 +6,13 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 19:58:49 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/11/26 18:50:50 by alounici         ###   ########.fr       */
+/*   Updated: 2025/11/27 19:39:46 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Exception.hpp"
 #include "Server.hpp"
+#include "Client.hpp"
 
 int check_port(char *port)
 {
@@ -27,7 +28,7 @@ int check_port(char *port)
         res = res * 10 + (port[i] - '0');
         i++;
     }
-    if (res < 49152 || res > 65535)
+    if (res != 6667)
         throw IncorrectPortRange();
     return (res);
 }

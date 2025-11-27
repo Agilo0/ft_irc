@@ -6,11 +6,12 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/11/26 18:50:40 by alounici         ###   ########.fr       */
+/*   Updated: 2025/11/27 19:36:18 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+
 
 Server::Server() : _port(0), _servFd(-1) {}
 
@@ -46,4 +47,56 @@ void Server::initServer(int port, std::string pwd){
 	this->_pwd = pwd;
 
 	createSocket();
+
+
+	clientQueue();
+}
+
+void Server::clientQueue()
+{
+
+	std::vector<pollfd> pollFds;
+
+	pollfd serverPollFd;
+	serverPollFd.fd = _servFd;
+	serverPollFd.events = POLLIN;
+	pollFds.push_back(serverPollFd);
+
+	while (1)
+	{
+		int activity = poll(pollFds.data(), pollFds.size(), -1);
+		if (activity == -1)
+		{
+			std::cerr << "poll() crashed! :(" << std::endl;
+			break;
+		}
+		unsigned long i = 0;
+		while (i < pollFds.size())
+		{
+			if (pollFds[i].revents & POLLIN)
+			{
+				if (pollFds[i].fd == _servFd)
+				{
+					sockaddr_in clientAddr;
+					socklen_t	clientLen = sizeof(clientAddr);
+					int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
+					if (clientFd == -1)
+					{
+						std::cerr << "Error accepting new client. :(" << std::endl;
+						continue; 
+					}
+					std::cout << "New client connected!" << std::endl;
+					pollfd clientPollfd = {clientFd, POLLIN, 0};
+					pollFds.push_back(clientPollfd);
+					Client newclient(clientFd);
+					_clients.push_back(newclient);
+				}
+				else
+				{
+					//client a envoyer data ou cmd
+				}
+			}
+			i++;
+		}
+	}
 }

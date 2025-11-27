@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+         #
+#    By: alounici <alounici@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 16:35:30 by yanaranj          #+#    #+#              #
-#    Updated: 2025/11/26 16:57:12 by yanaranj         ###   ########.fr        #
+#    Updated: 2025/11/27 19:37:27 by alounici         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,13 +28,13 @@ SRCSDIR = ./srcs/
 OBJDIR = ./objs/
 
 #files
-SRCS_FILES = Server.cpp
+SRCS_FILES = Server.cpp Client.cpp ../main.cpp
 
 #sources & objects files
 SRCS = $(addprefix $(SRCSDIR), $(SRCS_FILES))
 OBJS = $(SRCS:$(SRCSDIR)%.cpp=$(OBJDIR)%.o)
 
-HEADER = ./inc/Server.hpp ./inc/Utils.hpp
+HEADER = ./inc/Server.hpp ./inc/Utils.hpp .inc/Client.hpp
 
 #compile .cpp to .o
 $(OBJDIR)%.o: $(SRCSDIR)%.cpp | $(OBJSDIR) #$(HEADER) Makefile

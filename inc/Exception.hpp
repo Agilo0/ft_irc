@@ -19,7 +19,7 @@ class IncorrectPortRange : public std::exception
     public:
         virtual const char *what() const throw()
         {
-            return ("Invalid port: has to be between 49152 and 65535.");
+            return ("Invalid port: has to be 6667.");
         }
 };
 
