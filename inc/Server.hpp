@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/11/27 19:38:00 by alounici         ###   ########.fr       */
+/*   Updated: 2025/11/28 21:24:51 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,11 @@ class Server
 		void createSocket();
         
         
-        
+        //agi
         void clientQueue();
+        unsigned long client_event(std::vector<pollfd> &pollfds, unsigned long i);
+        void manage_msg(std::string msg, int index);
+
 
 };
 

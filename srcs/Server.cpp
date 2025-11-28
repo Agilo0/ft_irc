@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/11/27 19:36:18 by alounici         ###   ########.fr       */
+/*   Updated: 2025/11/28 21:24:13 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ void Server::clientQueue()
 	serverPollFd.events = POLLIN;
 	pollFds.push_back(serverPollFd);
 
+	std::cout << "waiting for client..." << std::endl;
 	while (1)
 	{
 		int activity = poll(pollFds.data(), pollFds.size(), -1);
@@ -73,30 +74,64 @@ void Server::clientQueue()
 		unsigned long i = 0;
 		while (i < pollFds.size())
 		{
-			if (pollFds[i].revents & POLLIN)
+			if (_sigFlag == true)
 			{
-				if (pollFds[i].fd == _servFd)
-				{
-					sockaddr_in clientAddr;
-					socklen_t	clientLen = sizeof(clientAddr);
-					int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
-					if (clientFd == -1)
-					{
-						std::cerr << "Error accepting new client. :(" << std::endl;
-						continue; 
-					}
-					std::cout << "New client connected!" << std::endl;
-					pollfd clientPollfd = {clientFd, POLLIN, 0};
-					pollFds.push_back(clientPollfd);
-					Client newclient(clientFd);
-					_clients.push_back(newclient);
-				}
-				else
-				{
-					//client a envoyer data ou cmd
-				}
+				std::cerr << "Exiting..." << std::endl;
+				return ;
 			}
+			i = client_event(pollFds, i);
 			i++;
 		}
 	}
+}
+
+unsigned long Server::client_event(std::vector<pollfd> &pollFds, unsigned long i)
+{
+	if (pollFds[i].revents & POLLIN)
+	{
+		if (pollFds[i].fd == _servFd)
+		{
+			sockaddr_in clientAddr;
+			socklen_t	clientLen = sizeof(clientAddr);
+			int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
+			if (clientFd == -1)
+			{
+				std::cerr << "Error accepting new client. :(" << std::endl;
+				return (i); 
+			}
+			std::cout << "New client connected!" << std::endl;
+			pollfd clientPollfd = {clientFd, POLLIN, 0};
+			pollFds.push_back(clientPollfd);
+			Client newclient(clientFd);
+			_clients.push_back(newclient);
+		}
+		else
+		{
+			char buffer[1024];
+			
+			int bytes = recv(pollFds[i].fd, buffer, sizeof(buffer), 0);
+			if (bytes <= 0)
+			{
+				close(pollFds[i].fd);
+				pollFds.erase(pollFds.begin() + i);
+				_clients.erase(_clients.begin() + (i - 1));
+				i--;
+			}
+			else
+			{
+				std::string msg(buffer, bytes);
+				manage_msg(msg, i);
+			}
+		}
+	}
+	return (i);
+}
+
+
+
+
+void Server::manage_msg(std::string msg, int index)
+{
+	(void)msg;
+	(void)index;
 }
