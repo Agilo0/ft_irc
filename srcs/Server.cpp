@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/11/28 21:24:13 by alounici         ###   ########.fr       */
+/*   Updated: 2025/11/29 17:06:57 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,12 @@ void Server::initServer(int port, std::string pwd){
 void Server::clientQueue()
 {
 
+	if (listen(_servFd, 10) == -1)
+	{
+		std::cerr << "listen() crashed! :(" << std::endl;
+		close(_servFd);
+		return; 
+	}
 	std::vector<pollfd> pollFds;
 
 	pollfd serverPollFd;
@@ -62,9 +68,14 @@ void Server::clientQueue()
 	serverPollFd.events = POLLIN;
 	pollFds.push_back(serverPollFd);
 
-	std::cout << "waiting for client..." << std::endl;
+	std::cout << "Waiting for client..." << std::endl;
 	while (1)
 	{
+		if (_sigFlag == true)
+		{
+			std::cerr << "Exiting..." << std::endl;
+			break;
+		}
 		int activity = poll(pollFds.data(), pollFds.size(), -1);
 		if (activity == -1)
 		{
@@ -74,15 +85,12 @@ void Server::clientQueue()
 		unsigned long i = 0;
 		while (i < pollFds.size())
 		{
-			if (_sigFlag == true)
-			{
-				std::cerr << "Exiting..." << std::endl;
-				return ;
-			}
 			i = client_event(pollFds, i);
 			i++;
 		}
 	}
+	close_fds(pollFds);
+	
 }
 
 unsigned long Server::client_event(std::vector<pollfd> &pollFds, unsigned long i)
@@ -134,4 +142,17 @@ void Server::manage_msg(std::string msg, int index)
 {
 	(void)msg;
 	(void)index;
+}
+
+
+void Server::close_fds(std::vector<pollfd> &pollFds)
+{
+	int i = pollFds.size() - 1;
+	
+	while (i >= 0)
+	{
+		close(pollFds[i].fd);
+		i--;
+	}
+	close(_servFd);
 }

@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 19:58:49 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/11/27 19:39:46 by alounici         ###   ########.fr       */
+/*   Updated: 2025/11/29 15:09:24 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ int main(int argc, char** argv)
     catch(const std::exception& e)
     {
         std::cerr << e.what() << '\n';
+        return (1);
     }
 	 
     Server Server;
