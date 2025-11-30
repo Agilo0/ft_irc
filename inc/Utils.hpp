@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 16:24:32 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/11/26 16:59:52 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/11/30 13:31:20 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,10 @@
 #include  <arpa/inet.h>
 #include <fcntl.h>
 #include <cerrno>
-
-
+#include <unistd.h>
+#include <poll.h>
+#include <vector>
+#include <iostream>
 
 /*	/---------------\
    |	COLORS	 	 |

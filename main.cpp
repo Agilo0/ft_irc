@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 19:58:49 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/11/29 15:09:24 by alounici         ###   ########.fr       */
+/*   Updated: 2025/11/30 19:16:51 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,15 @@ int check_port(char *port)
 
 int main(int argc, char** argv)
 {
-	signal(SIGINT, Server::sigHandler);
-	signal(SIGQUIT, Server::sigHandler);
+    std::string line;
+	signal(SIGINT, Server::sigHandler);//^C. Interrupt the process
+	signal(SIGQUIT, Server::sigHandler);//^\ Quit process
+    
+    //right now we cannot handle ^D, because is not a signal
+/*    if(!std::getline(std::cin, line)){
+        std::cout << "Pressing ^D";
+        return (0);
+    }*/
     int port = 0;
 
     if (argc != 3)
@@ -56,7 +63,14 @@ int main(int argc, char** argv)
     }
 	 
     Server Server;
-	Server.initServer(port, argv[2]);
+    try{
+	    Server.initServer(port, argv[2]);
+    }
+    catch (const std::exception &ex){
+        //Server.close_fds() //ideal to close all files when get an exception
+        std::cerr << RED << ex.what() << std::endl;
+        return (1);
+    }
 	return (0);
 }
 
