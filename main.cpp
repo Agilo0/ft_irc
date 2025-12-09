@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 19:58:49 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/11/30 19:16:51 by yaja             ###   ########.fr       */
+/*   Updated: 2025/12/09 10:43:09 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int main(int argc, char** argv)
 {
     std::string line;
 	signal(SIGINT, Server::sigHandler);//^C. Interrupt the process
-	signal(SIGQUIT, Server::sigHandler);//^\ Quit process
+	signal(SIGQUIT, Server::sigHandler);//^\ Quit process (9/12/25->SEGV )
     
     //right now we cannot handle ^D, because is not a signal
 /*    if(!std::getline(std::cin, line)){

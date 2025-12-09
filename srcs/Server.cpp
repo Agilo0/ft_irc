@@ -6,11 +6,12 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/08 15:58:07 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/09 12:52:02 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
+#include "Utils.hpp"
 
 Server::Server() : _port(0), _servFd(-1) {}
 
@@ -19,8 +20,8 @@ bool Server::_sigFlag = false;//no signal received yet
 void Server::sigHandler(int signum)
 {
 	(void)signum;
-	_sigFlag = true;
 	std::cout << PURPLE << "Flag is true! " << signum << NC << std::endl;
+	_sigFlag = true;
 }
 
 void Server::createSocket()
@@ -29,7 +30,7 @@ void Server::createSocket()
 	struct sockaddr_in add;//used to store socket addresses for the Internet domain
 	struct pollfd serverPollFd;
 	
-	//struct socket
+	//socket struct
 	add.sin_family = AF_INET; //specify the IPv4 address protocol
 	add.sin_addr.s_addr = INADDR_ANY; //accept connections from any IP address
 	add.sin_port = htons(this->_port); //convert port number to network byte order
@@ -62,8 +63,8 @@ void Server::createSocket()
 	
 	//poll is the one who monitors the socket
 	serverPollFd.fd = _servFd;
-	serverPollFd.events = POLLIN;
-	serverPollFd.revents = 0;
+	serverPollFd.events = POLLIN;//requested events
+	serverPollFd.revents = 0;//returned events
 	_pollFds.push_back(serverPollFd);
 	
 }
@@ -104,7 +105,7 @@ unsigned long Server::client_event(std::vector<pollfd> &pollFds, unsigned long i
 {
 	if (pollFds[i].revents & POLLIN)
 	{
-		if (pollFds[i].fd == _servFd)
+		if (pollFds[i].fd == _servFd)//new client
 		{
 			sockaddr_in clientAddr;
 			socklen_t	clientLen = sizeof(clientAddr);
@@ -121,14 +122,18 @@ unsigned long Server::client_event(std::vector<pollfd> &pollFds, unsigned long i
 			Client newclient(clientFd);
 			_clients.push_back(newclient);
 			std::cout << PURPLE << "New client added!" << NC << std::endl;
+			std::cout << GREEN << "Client <" << clientFd << "> Connected" << NC << std::endl;
+}
+
 			//we have add a new client
 		}
-		else
+		else//existing client
 		{
 			char buffer[1024];
+			memset(buffer, 0, sizeof(buffer));//clears the buffer
 			
 			int bytes = recv(pollFds[i].fd, buffer, sizeof(buffer), 0);
-			if (bytes <= 0) //this should handle ^D?
+			if (bytes <= 0) //is the client disconnected?
 			{
 				close(pollFds[i].fd);
 				pollFds.erase(pollFds.begin() + i);
@@ -138,11 +143,10 @@ unsigned long Server::client_event(std::vector<pollfd> &pollFds, unsigned long i
 			else
 			{
 				std::string msg(buffer, bytes);
+				std::cout << TURQUOISE << "Message received from client <" << pollFds[i].fd << ">: " << msg << NC << std::endl;
 				manage_msg(msg, i);
 			}
-			std::cout << BLUE << "Cannot add a new Client. :(" << NC << std::endl;
 		}
-	}
 	return (i);
 }
 
@@ -166,4 +170,13 @@ void Server::close_fds(std::vector<pollfd> &pollFds)
 		i--;
 	}
 	close(_servFd);
+}
+
+//this function makes sure that we are sending the proper response
+void Server::sendResponse(int clientFd, const std::string &response){
+	std::string formatResponse = convertResponse(response);
+
+	if (send(clientFd, formatResponse.c_str(), formatResponse.size(), 0) == -1){
+		std::cerr << RED << "Error sending response to: " << clientFd << " client." << NC << std::endl;
+	}
 }
