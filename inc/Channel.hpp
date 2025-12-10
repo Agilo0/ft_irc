@@ -6,16 +6,30 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/09 12:37:53 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/10 12:49:44 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-//#include "Utils.hpp"
-#include "Channel.hpp"
 #include "Server.hpp"
+
+enum CommandType{
+	//PASS,
+	//NICK,
+	//USER,
+	//CAP,
+	//CAP END,
+	JOIN,
+	WHO,
+	PRIVMSG,
+	KICK,
+	INVITE,
+	TOPIC,
+	MODE,
+	UKNW
+};
 
 
 class Channel{
@@ -32,15 +46,47 @@ class Channel{
 		std::set<int> _clients;//all the clients that we have in the channel (store FDs)
 		std::set<int> _operators;//operator is the one that has more privileges in the channel
 		std::set<int> _invited;//clients that are invited to the channel
+	
 	public:
 		Channel(const std::string &name);
-		~Channel();
-		std::string getName() const;
+		
+		/*getters*/
+		std::string getName() const;//get channel name
+		std::string getTopic() const;
+		std::string getKey() const;
+		int			getMaxUsers() const;
+		const std::set<int> &getClients() const;
+		
+		/*setters*/
 		void setTopic(const std::string &topic);
-		void hasTopic();
+		void setKey(const std::string &key);
+		void setMaxUsers(int max);
 		
 		void setModeI(bool active);
-		void isModeI();
+		void setModeT(bool active);
+		void setModeK(bool active);
+		void setModeO(bool active);
+		void setModeL(bool active);
+		
+		/*booleans*/
+		bool hasTopic() const;
+		bool isModeI() const;
+		bool isModeT() const;
+		bool isModeK() const;
+		bool isModeO() const;
+		bool isModeL() const;
+
+		bool addClient(int fd, bool isOperator = false);
+		bool isMember(int fd) const;
+		bool isOperator(int fd) const;
+		bool isInvited(int fd) const;
+
+		void removeClient(int fd);
+		void addOperator(int fd);
+		void removeOperator(int fd);
+		void inviteClient(int fd);
+		void removeInvite(int fd);
+
 };
 
 

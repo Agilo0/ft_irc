@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/09 12:52:02 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/10 10:17:35 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,10 +123,10 @@ unsigned long Server::client_event(std::vector<pollfd> &pollFds, unsigned long i
 			_clients.push_back(newclient);
 			std::cout << PURPLE << "New client added!" << NC << std::endl;
 			std::cout << GREEN << "Client <" << clientFd << "> Connected" << NC << std::endl;
-}
+		}
 
 			//we have add a new client
-		}
+	}
 		else//existing client
 		{
 			char buffer[1024];
@@ -172,11 +172,49 @@ void Server::close_fds(std::vector<pollfd> &pollFds)
 	close(_servFd);
 }
 
-//this function makes sure that we are sending the proper response
-void Server::sendResponse(int clientFd, const std::string &response){
-	std::string formatResponse = convertResponse(response);
 
-	if (send(clientFd, formatResponse.c_str(), formatResponse.size(), 0) == -1){
-		std::cerr << RED << "Error sending response to: " << clientFd << " client." << NC << std::endl;
+//We have to complete with Agi's commands too
+void Server::parseCommand(Client *cli, const std::string &command)
+{
+	if (command.empty())
+		return ;
+	if (cli->getStatus() != AUTHENTICATED){
+		//handle authentication client commands
+		return ;
 	}
+	//handle other commands
+	std::vector <std::string> tokens = split(command, ' ');
+	if (tokens.empty())
+		return ;
+	std::string cmd = tokens[0];
+	for(size_t i = 0; i < cmd.size(); i++){//++i?
+		std::cout << TURQUOISE << "Converting: " << cmd[i] << NC << std::endl;
+		cmd[i] = std::toupper(cmd[i]);
+	}
+	
+	//client commands (Agi's part)
+	
+	switch (isCommand(cmd))
+	{
+		case JOIN: handleJoin(cli, tokens); break;//do we need a code for error handle???
+		//case WHO: handleWho(cli, tokens); break;	//what exactly who do?
+	
+		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
+	default:
+		break;
+	}
+}
+CommandType Server::isCommand(const std::string &cmd){
+	
+	//Add here what's left
+	
+	if (cmd == "JOIN") return (JOIN);
+	else if (cmd == "WHO") return (WHO);
+	else if (cmd == "PRIVMSG") return (PRIVMSG);
+	else if (cmd == "KICK") return (KICK);
+	else if (cmd == "INVITE") return (INVITE);
+	else if (cmd == "TOPIC") return (TOPIC);
+	else if (cmd == "MODE") return (MODE);
+	else
+		return UKNW;
 }

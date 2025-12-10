@@ -28,6 +28,7 @@ class Client
         ~Client();
 		
 		Status getStatus() const;
+		int getClientFd() const;//<--socket FD of the client
 };
 
 

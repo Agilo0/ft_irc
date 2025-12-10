@@ -6,15 +6,15 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/09 12:52:00 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/10 10:15:10 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-//#include "Utils.hpp"
 #include "Server.hpp"
 
 
-//this functio will handle to convert all \n into \r\n, so everything will have the IRC format
+/*	FORMATING RESPONSES	*/
+//this function will handle to convert all \n into \r\n, so everything will have the IRC format
 std::string convertResponse(const std::string &response){
 	std::string finalResponse;
 
@@ -31,4 +31,13 @@ std::string convertResponse(const std::string &response){
 		finalResponse += "\r\n";
 	}
 	return finalResponse;
+}
+
+//this function makes sure that we are sending the proper response
+void Server::sendResponse(int clientFd, const std::string &response){
+	std::string formatResponse = convertResponse(response);
+
+	if (send(clientFd, formatResponse.c_str(), formatResponse.size(), 0) == -1){
+		std::cerr << RED << "Error sending response to: " << clientFd << " client." << NC << std::endl;
+	}
 }
