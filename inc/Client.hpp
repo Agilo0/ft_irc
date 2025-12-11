@@ -16,19 +16,22 @@ class Client
 {
     private:
         int _clientFd;
-        //std::string username;
-        //std::string nickname;
+        std::string _username;
+
         //char **channels;
-		Status _status;
+		//Status _status;
 
 
     public:
         Client();
-        Client(int fd);
         ~Client();
 		
-		Status getStatus() const;
+		//Status getStatus() const;
+
+		void setClientFd(int fd);
+		void setUsername(std::string username);
 		int getClientFd() const;//<--socket FD of the client
+		std::string getUsername() const;
 };
 
 

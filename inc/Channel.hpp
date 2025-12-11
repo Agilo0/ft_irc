@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/10 12:49:44 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/11 11:55:08 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ class Channel{
 		std::string	_name;
 		std::string _topic;
 		std::string _key;//optional key to join the channel
-		int			_maxUsers;
+		size_t		_maxUsers;
 		bool		_iMode;//(-/= invite only)
 		bool		_tMode;//(topic set by operators only)
 		bool		_kMode;
@@ -54,7 +54,7 @@ class Channel{
 		std::string getName() const;//get channel name
 		std::string getTopic() const;
 		std::string getKey() const;
-		int			getMaxUsers() const;
+		size_t		getMaxUsers() const;
 		const std::set<int> &getClients() const;
 		
 		/*setters*/

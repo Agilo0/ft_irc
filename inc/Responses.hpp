@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/09 12:37:42 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/11 11:47:38 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,5 +15,24 @@
 
 // JOIN
 #define ERR_NOSUCHCHANNEL(channel) (std::string("403 ") + channel + " :No such channel")
+#define ERR_CHANNELISFULL(nickname, channel) (std::string(":server_name 471 " + nickname + " " + channel + " :Cannot join channel (+l)"))
+#define ERR_INVITEONLYCHAN(channel) (std::string("473 " + channel + " :Cannot join channel (+i)"))
+#define ERR_BADCHANNELKEY(nickname, channel) (std::string("475 " + nickname + " " + channel + " :Cannot join channel (+k)"))
+#define RPL_JOIN(nickname, username, hostname, channel) \
+    (std::string(":" + nickname + "!" + username + "@" + hostname + " JOIN :" + channel))
+#define RPL_NAMREPLY(servername, nickname, channel, clientlist) \
+    (std::string(":" + servername + " 353 " + nickname + " = " + channel + " :" + clientlist))
+#define RPL_ENDOFNAMES(nickname, channel) (std::string(":" + server.getServerName() + " 366 " + nickname + " " + channel + " :End of /NAMES list"))
 
+
+// WELCOME
+#define RPL_WELCOME(nickname, servername, hostname) \
+    (std::string(":" + servername + " 001 " + nickname + \
+    " :Welcome to the " + servername + " Network, " + nickname + "!" + hostname))
+#define RPL_YOURHOST(servername, nickname) \
+    (std::string(":" + servername + " 002 " + nickname + " Your host is " + servername + ", running version 1.0"))
+#define RPL_CREATED(servername, time) \
+    (std::string(":" + servername + " 003 This server was created " + time))
+#define RPL_MYINFO(servername, nickname) \
+    (std::string(":" + servername + " 004 " + nickname + " " + servername))
 #endif
