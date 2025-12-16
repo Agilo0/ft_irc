@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 16:24:32 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/10 08:33:34 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/12 12:28:42 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 #include <vector>
 #include <iostream>
 #include <set>
+#include <sstream>
 
 /*	/---------------\
    |	COLORS	 	 |
@@ -53,6 +54,11 @@
 #define ORANGE "\e[1;38;2;255;128;0m"
 
 //no utils class needed
-static std::vector<std::string>	split(const std::string &str, char delimiter);//is not defined yet 
+class Utils{
+	public:
+		static std::vector<std::string>	split(const std::string &str, char delimiter);//is not defined yet 
+};
+
+//static std::vector<std::string>	split(const std::string &str, char delimiter);//is not defined yet 
 std::string convertResponse(const std::string &response);
 #endif

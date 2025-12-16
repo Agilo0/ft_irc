@@ -16,7 +16,10 @@ class Client
 {
     private:
         int _clientFd;
+        std::string _nickname;
         std::string _username;
+		std::string _ip;
+		std::string _buffer;
 
         //char **channels;
 		//Status _status;
@@ -24,15 +27,22 @@ class Client
 
     public:
         Client();
+        Client(int fd);
         ~Client();
 		
 		//Status getStatus() const;
 
 		void setClientFd(int fd);
-		void setUsername(std::string username);
+		void setClientInfo(std::string username, std::string nickname);//TMP!!!
+		void setClientIP(const std::string &newIP);
 		int getClientFd() const;//<--socket FD of the client
-		std::string getUsername() const;
-};
 
+		std::string getUsername() const;
+		std::string getNickname() const;
+		std::string getClientIP() const;
+		std::string &getBuff();//
+
+		void addBuffer(const std::string &data);
+};
 
 #endif

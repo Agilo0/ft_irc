@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/11 11:55:08 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/12 10:28:44 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #define CHANNEL_HPP
 
 #include "Server.hpp"
+#include "Utils.hpp"
 
 enum CommandType{
 	//PASS,

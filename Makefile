@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: alounici <alounici@student.42.fr>          +#+  +:+       +#+         #
+#    By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 16:35:30 by yanaranj          #+#    #+#              #
-#    Updated: 2025/11/27 19:37:27 by alounici         ###   ########.fr        #
+#    Updated: 2025/12/12 12:26:23 by yanaranj         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,8 @@ SRCSDIR = ./srcs/
 OBJDIR = ./objs/
 
 #files
-SRCS_FILES = Server.cpp Client.cpp ../main.cpp
+SRCS_FILES = Server.cpp Client.cpp Channel.cpp \
+	ServerAux.cpp ServerCommands.cpp Utils.cpp ../main.cpp \
 
 #sources & objects files
 SRCS = $(addprefix $(SRCSDIR), $(SRCS_FILES))

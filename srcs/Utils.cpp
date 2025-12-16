@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/10 10:15:10 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/12 12:29:25 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,4 +40,15 @@ void Server::sendResponse(int clientFd, const std::string &response){
 	if (send(clientFd, formatResponse.c_str(), formatResponse.size(), 0) == -1){
 		std::cerr << RED << "Error sending response to: " << clientFd << " client." << NC << std::endl;
 	}
+}
+
+//split all the tokens for proper parsing
+std::vector<std::string> Utils::split(const std::string &str, char delimiter){
+	std::vector<std::string> tokens;
+	std::stringstream ss(str);
+	std::string token;
+
+	while(std::getline(ss, token, delimiter))
+		tokens.push_back(token);
+	return tokens;
 }
