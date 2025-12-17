@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+         #
+#    By: alounici <alounici@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 16:35:30 by yanaranj          #+#    #+#              #
-#    Updated: 2025/12/12 12:26:23 by yanaranj         ###   ########.fr        #
+#    Updated: 2025/12/17 17:42:37 by alounici         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,35 +15,31 @@ RED = \e[1;91m
 GREEN = \e[1;92m
 YELLOW = \e[1;93m
 BLUE = \e[1;94m
-
+TURQUOISE = \e[1;38;5;80m
+FUCSIA = \e[1;38;5;201m
+PURPLE = \e[1;38;5;135m
+ORANGE = \e[1;38;2;255;128;0m
 
 NAME = ircserv
 
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -I ./inc/
+CFLAGS = -Wall -Wextra -Werror -std=c++98
 RM = rm -f
 
-#directories
+
+INCDIR = ./includes/
 SRCSDIR = ./srcs/
-OBJDIR = ./objs/
+OBJSDIR = ./objs/
 
-#files
-SRCS_FILES = Server.cpp Client.cpp Channel.cpp \
-	ServerAux.cpp ServerCommands.cpp Utils.cpp ../main.cpp \
+INC = -I $(INCDIR)Server.hpp \
+	  -I $(INCDIR)Exceptions.hpp \
 
-#sources & objects files
-SRCS = $(addprefix $(SRCSDIR), $(SRCS_FILES))
-OBJS = $(SRCS:$(SRCSDIR)%.cpp=$(OBJDIR)%.o)
+SRCS = $(SRCSDIR)Server.cpp
+OBJS = $(SRCS:$(SRCSDIR)%.cpp=$(OBJSDIR)%.o)
 
-HEADER = ./inc/Server.hpp ./inc/Utils.hpp .inc/Client.hpp
-
-#compile .cpp to .o
-$(OBJDIR)%.o: $(SRCSDIR)%.cpp | $(OBJSDIR) #$(HEADER) Makefile
-	@mkdir -p $(dir $@)
-	@echo "$(YELLOW)Compiling... $(patsubst $(DIR_BUILD)%,%,$@)"
-	@$(CC) $(CFLAGS) -c $< -o $@
 
 all: $(NAME)
+	@mkdir -p $(OBJSDIR)
 
 $(NAME): $(OBJS)
 	@echo "$(GREEN)[✔] $(NAME) compiled successfully!$(NC)"
@@ -52,11 +48,11 @@ $(NAME): $(OBJS)
 
 clean:
 	@$(RM) $(OBJS)
-	@echo "$(RED)objects had been removed$(NC)"
+	@echo "$(RED)objects had been removed"
 
 fclean: clean
 	@$(RM) $(NAME)
-	@echo "$(RED)Bye!🫰 $(NC)"
+	@echo "$(RED)Bye!🫰"
 
 re: fclean all
 
