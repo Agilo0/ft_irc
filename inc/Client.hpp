@@ -18,7 +18,7 @@ class Client
         int _clientFd;
         std::string _nickname;
         std::string _username;
-		std::string _ip;
+		std::string _ip;//or host
 		std::string _buffer;
 
         //char **channels;

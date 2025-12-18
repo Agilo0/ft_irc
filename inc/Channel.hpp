@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/12 10:28:44 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/18 18:24:59 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ class Channel{
 		bool isModeK() const;
 		bool isModeO() const;
 		bool isModeL() const;
+		bool hasKey() const;
 
 		bool addClient(int fd, bool isOperator = false);
 		bool isMember(int fd) const;

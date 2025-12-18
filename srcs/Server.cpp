@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/16 18:53:47 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/18 20:05:01 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,31 +70,33 @@ void Server::createSocket()
 }
 void Server::checkNewClient(){//we have to add this client to the list
 	sockaddr_in clientAddr;
-			socklen_t	clientLen = sizeof(clientAddr);
-			int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
-			if (clientFd == -1){
-				if (errno == EAGAIN || errno == EWOULDBLOCK)
-					return  ;
-				std::cout << RED;
-				std::perror("!Error: accept.");
-				std::cout << NC;
-			}
-			if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1){
-				::close(_servFd);
-				throw std::runtime_error("!Error: NONBLOCK");
-			}
-			std::cout << "New client accepted!" << std::endl;
-			
-			pollfd clientPollfd = {clientFd, POLLIN, 0};//new poll and its struct
-			
-			Client newclient;
-			newclient.setClientFd(clientFd);
-			newclient.setClientIP(inet_ntoa(clientAddr.sin_addr));//this how we set the IP
-			
-			_pollFds.push_back(clientPollfd);
-			_clients.push_back(newclient);
-			
-			std::cout << PURPLE << "<" << clientFd << "> Connected!" << NC << std::endl;
+	socklen_t	clientLen = sizeof(clientAddr);
+	int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
+	if (clientFd == -1){
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return  ;
+		std::cout << RED;
+		std::perror("!Error: accept.");
+		std::cout << NC;
+	}
+	if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1){
+		::close(_servFd);
+		throw std::runtime_error("!Error: NONBLOCK");
+	}
+	std::cout << "New client accepted!" << std::endl;
+	
+	pollfd clientPollfd = {clientFd, POLLIN, 0};//new poll and its struct
+	
+	Client newclient;
+	newclient.setClientFd(clientFd);
+	//newclient.setClientInfo("Uname", "Nname");
+	newclient.setClientIP(inet_ntoa(clientAddr.sin_addr));//this how we set the IP
+	
+	_pollFds.push_back(clientPollfd);
+	_clients.push_back(newclient);
+	
+	std::cout << PURPLE << "<" << clientFd << "> Connected!" << NC << std::endl;
+	std::cout << "IP: " << newclient.getClientIP() << std::endl;
 }
 
 void Server::checkNewData(int fd){//this will give us the commands that are sending the clients
@@ -102,23 +104,22 @@ void Server::checkNewData(int fd){//this will give us the commands that are send
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));//clears the buffer
 	
-	std::cout << "buffer1: " << buffer << std::endl;
 	int bytes = recv(fd, buffer, sizeof(buffer), 0);
 	if (bytes <= 0) //is the client disconnected?
 	{
+		std::cout << "flag_3\n";
 		close(fd);//should be marked TO REMOVE LATER
 		//pollFds.erase(pollFds.begin());
 		//_clients.erase(_clients.begin() + (i - 1));
 		return ;
 	}
+	std::cout << "flag_4\n";
 	Client *cli = getClient(fd);
 	if (!cli)
 		return ;
 	cli->addBuffer(std::string(buffer, bytes));
 	std::string &buff = cli->getBuff();
 	
-	std::cout << "buffer2: " << buffer << std::endl;
-	std::cout << "buffer3: " << buff << std::endl;
 	size_t pos;
 
 	//vvvvv we will process only a complete line
@@ -126,13 +127,11 @@ void Server::checkNewData(int fd){//this will give us the commands that are send
 	while((pos = buff.find("\r\n")) != std::string::npos){
 		std::string cmd = buff.substr(0, pos);
 		buff.erase(0, pos + 2);
-		std::cout << "buffer4: " << buff << std::endl;
 		if (!cmd.empty()){
 			std::cout << YELLOW << "<" << fd << ">: command " << cmd << NC << std::endl;
 			parseCommand(cli, cmd);
 		}
 	}
-	
 }
 
 void Server::initServer(int port, std::string pwd){
@@ -161,19 +160,12 @@ void Server::initServer(int port, std::string pwd){
 			else
 				checkNewData(_pollFds[i].fd);
 		}
+		//std::cout << PURPLE << "Poll array ends\n";
 	}
 	//W.I.P
 	close_fds(_pollFds);
 	
 }
-
-//esto para??
-void Server::manage_msg(std::string msg, int index)
-{
-	(void)msg;
-	(void)index;
-}
-
 
 void Server::close_fds(std::vector<pollfd> &pollFds)
 {
@@ -203,7 +195,6 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		return ;
 	std::string cmd = tokens[0];
 	for(size_t i = 0; i < cmd.size(); i++){//++i?
-		std::cout << TURQUOISE << "Converting: " << cmd[i] << NC << std::endl;
 		cmd[i] = std::toupper(cmd[i]);
 	}
 	
@@ -213,6 +204,7 @@ void Server::parseCommand(Client *cli, const std::string &command)
 	{
 		std::cout << ORANGE << "switch statement commands" << std::endl;
 		case JOIN: handleJoin(cli, tokens); break;//do we need a code for error handle???
+		case PRIVMSG: handlePrivmsg(cli, tokens); break;
 		//case WHO: handleWho(cli, tokens); break;	//what exactly who do?
 	
 		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
@@ -223,7 +215,7 @@ void Server::parseCommand(Client *cli, const std::string &command)
 CommandType Server::isCommand(const std::string &cmd){
 	
 	//Add here what's left
-	
+	std::cout << ORANGE << cmd << std::endl;
 	if (cmd == "JOIN") return (JOIN);
 	else if (cmd == "WHO") return (WHO);
 	else if (cmd == "PRIVMSG") return (PRIVMSG);

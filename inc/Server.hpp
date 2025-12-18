@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/16 17:12:16 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/18 17:53:22 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ class Server
 		
 		/*		--	COMMANDS	--		*/
 		void handleJoin(Client *cli, const std::vector<std::string> &tokens);
+		void handlePrivmsg(Client *cli, const std::vector<std::string> &tokens);
+		//void handleWho(Client *cli, const std::vector<std::string> &tokens);
 
     public:
 		//yaja
