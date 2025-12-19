@@ -1,6 +1,14 @@
 #include "Server.hpp"
 
-Client::Client(int fd){ _clientFd = fd; }
+Client::Client(int fd)
+{ 
+	_clientFd = fd; 
+	hasNick = false;
+	hasUser = false;
+	hasPass = false;
+	logged = false;
+}
+
 Client::Client(){}
 Client::~Client(){}
 
@@ -27,6 +35,62 @@ std::string Client::getClientIP() const{
 }
 std::string &Client::getBuff(){
 	return _buffer;
+}
+
+
+
+bool Client::isLogged() const
+{
+	if (logged == true)
+		return (true);
+	return (false);
+}
+
+void Client::setPass() 
+{
+	hasPass = true;
+}
+
+bool Client::hasAll() const
+{
+	if (hasPass == true && hasNick == true && hasUser == true)
+		return (true);
+	return (false);
+}
+
+bool Client::hasNickname() const
+{
+	if (hasNick == true)
+		return (true);
+	return (false);
+}
+
+void Client::setFirstNick(std::string nick)
+{
+	_nickname = nick;
+	hasNick = true;
+}
+
+void Client::setNewNick(std::string nick)
+{
+	_oldnick = _nickname;
+	_nickname = nick;
+}
+
+
+void Client::setLog()
+{
+	logged = true;
+}
+
+std::string Client::getNick() const
+{
+	return (_nickname);
+}
+
+std::string Client::getOldnick() const
+{
+	return (_oldnick);
 }
 
 void Client::addBuffer(const std::string &data){

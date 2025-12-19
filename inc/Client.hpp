@@ -17,10 +17,12 @@ class Client
     private:
         int _clientFd;
         std::string _nickname;
+		std::string _oldnick;
         std::string _username;
 		std::string _ip;
 		std::string _buffer;
 
+		bool hasNick, hasUser, hasPass, logged;	
         //char **channels;
 		//Status _status;
 
@@ -41,6 +43,17 @@ class Client
 		std::string getNickname() const;
 		std::string getClientIP() const;
 		std::string &getBuff();//
+
+		bool isLogged() const;
+		void setPass();
+		bool hasAll() const;
+		bool hasNickname() const;
+		void setLog();
+		void setFirstNick(std::string nick);
+		void setNewNick(std::string nick);
+		std::string getNick() const;
+		std::string getOldnick() const;
+
 
 		void addBuffer(const std::string &data);
 };

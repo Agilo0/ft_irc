@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/12 12:29:25 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/19 20:25:38 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,34 @@ std::vector<std::string> Utils::split(const std::string &str, char delimiter){
 	while(std::getline(ss, token, delimiter))
 		tokens.push_back(token);
 	return tokens;
+}
+
+bool Server::checkNick(std::string &nick)
+{
+	if (nick.empty())
+		return (false);
+	int i = 0;
+	while (nick[i])
+	{
+		if (!isalnum(nick[i]) && nick[i] != '_')
+			return (false);
+		i++;
+	}
+	return (true);
+}
+
+bool Server::nickTaken(std::string &nick) const
+{
+	unsigned int i = 0;
+
+	while (i <= _clients.size())
+	{
+		if (_clients[i].getNick() == nick)
+		{
+			return (true);
+		}
+
+		i++;
+	}
+	return(false);
 }

@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/17 17:57:06 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/18 19:08:59 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,12 @@ class Server
 		
 		/*		--	COMMANDS	--		*/
 		void handleJoin(Client *cli, const std::vector<std::string> &tokens);
+
+		void passAuth(Client *cli, const std::vector<std::string> &tokens);
+		void nickAuth(Client *cli, const std::vector<std::string> &tokens);
+		bool checkNick(std::string &nick);
+		bool nickTaken(std::string &nick) const;
+
 
     public:
 		//yaja

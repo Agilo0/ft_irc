@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/12 10:28:44 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/18 17:43:31 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,11 @@
 #include "Utils.hpp"
 
 enum CommandType{
-	//PASS,
-	//NICK,
-	//USER,
-	//CAP,
-	//CAP END,
+	PASS,
+	NICK,
+	USER,
+	CAP,
+	//CAPEND,
 	JOIN,
 	WHO,
 	PRIVMSG,

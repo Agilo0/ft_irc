@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerCommands.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/16 18:37:10 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/19 20:30:18 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,4 +71,71 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 		if (chan->isOperator(*it))//this int is operator	
 			
 	} */
+}
+
+void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens)
+{
+	if (tokens.size() < 2)
+	{
+		sendResponse(cli->getClientFd(), ERR_NONICKNAMEGIVEN());
+		return;
+	}
+	std::string nick = tokens[1];
+	if (!checkNick(nick))
+	{
+		sendResponse(cli->getClientFd(), ERR_ERRONEUSNICKNAME(nick));
+		return;
+	}
+	
+	if (nickTaken(nick))
+	{
+		sendResponse(cli->getClientFd(), ERR_NICKNAMEINUSE(nick));
+		return;
+	}
+	if (!cli->hasNickname())
+		cli->setFirstNick(nick);
+	else
+	{
+		cli->setNewNick(nick);
+		sendResponse(cli->getClientFd(), NICK_UPDATE(cli->getOldnick(), nick));
+		// + send notification to all clients in the channel
+	}
+	
+	if (cli->hasAll())
+	{
+		cli->setLog();
+		sendResponse(cli->getClientFd(), RPL_WELCOME(nick));
+	}
+
+}
+
+void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
+{
+	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
+	if (tokens.size() < 2)
+	{
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick));
+		return;
+	}
+
+	if (cli->isLogged() == true)
+	{
+		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
+		return;
+	}
+
+	std::string pass = tokens[1];
+	if (pass != _pwd)
+	{
+		sendResponse(cli->getClientFd(), ERR_PASSWDMISMATCH(nick));
+		return;
+	}
+	else
+	{
+		cli->setPass();
+	}
+
+	if (cli->hasAll())
+		cli->setLog();
+
 }
