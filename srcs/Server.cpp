@@ -6,14 +6,14 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/19 20:24:27 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/20 19:01:42 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "../inc/Server.hpp"
 #include "Utils.hpp"
 
-Server::Server() : _port(0), _servFd(-1) {}
+Server::Server() : _port(0), _servFd(-1) , _serverName("IRC Server"){}
 
 bool Server::_sigFlag = false;//no signal received yet
 
@@ -144,7 +144,7 @@ void Server::initServer(int port, std::string pwd){
 	createSocket();
 	
 	std::cout << GREEN << "IRC Server Created!!" << std::endl;
-	std::cout << "Listeing on port: " << this->_port << NC << std::endl;
+	std::cout << "Listening on port: " << this->_port << NC << std::endl;
 	
 	//clientQueue();
 	std::cout << "Waiting for client..." << std::endl;
@@ -165,13 +165,6 @@ void Server::initServer(int port, std::string pwd){
 	//W.I.P
 	close_fds(_pollFds);
 	
-}
-
-//esto para??
-void Server::manage_msg(std::string msg, int index)
-{
-	(void)msg;
-	(void)index;
 }
 
 
@@ -216,11 +209,13 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		//case WHO: handleWho(cli, tokens); break;	//what exactly who do?
 	
 		case PASS: passAuth(cli, tokens); break;
-		case NICK: nickAuth(cli, tokens); break;
+		case NICK: nickAuth(cli, tokens, _serverName); break;
+		case USER: userAuth(cli, tokens); break;
 		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
 	default:
 		break;
 	}
+	// std::cout << "nik = " << cli->getNick();
 }
 CommandType Server::isCommand(const std::string &cmd){
 	
@@ -240,3 +235,4 @@ CommandType Server::isCommand(const std::string &cmd){
 	else
 		return UKNW;
 }
+

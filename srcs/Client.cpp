@@ -1,4 +1,5 @@
-#include "Server.hpp"
+#include "../inc/Server.hpp"
+#include "../inc/Client.hpp"
 
 Client::Client(int fd)
 { 
@@ -60,9 +61,17 @@ bool Client::hasAll() const
 
 bool Client::hasNickname() const
 {
-	if (hasNick == true)
-		return (true);
-	return (false);
+	return (hasNick);
+}
+
+bool Client::hasUsername() const
+{
+	return (hasUser);
+}
+
+bool Client::hasPassw() const
+{
+	return (hasPass);
 }
 
 void Client::setFirstNick(std::string nick)
@@ -91,6 +100,19 @@ std::string Client::getNick() const
 std::string Client::getOldnick() const
 {
 	return (_oldnick);
+}
+
+void Client::setChannel(Channel &channel)
+{
+	_channels.push_back(channel);
+}
+
+
+Channel *Client::getChannel(unsigned int index)
+{
+	if (_channels.size() > index)
+		return (&_channels[index]);
+	return (NULL);
 }
 
 void Client::addBuffer(const std::string &data){

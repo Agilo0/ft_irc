@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/18 19:08:59 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/20 18:51:03 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ class Server
         std::vector<Client> _clients;
 		std::vector<struct pollfd> _pollFds;
 		std::vector<Channel> _channels;
+		std::string _serverName;
 		
 
 		//yaja
@@ -45,10 +46,6 @@ class Server
 		/*		--	COMMANDS	--		*/
 		void handleJoin(Client *cli, const std::vector<std::string> &tokens);
 
-		void passAuth(Client *cli, const std::vector<std::string> &tokens);
-		void nickAuth(Client *cli, const std::vector<std::string> &tokens);
-		bool checkNick(std::string &nick);
-		bool nickTaken(std::string &nick) const;
 
 
     public:
@@ -68,6 +65,22 @@ class Server
         unsigned long client_event(std::vector<pollfd> &pollfds, unsigned long i);
         void manage_msg(std::string msg, int index);//que hace esto??
 		void close_fds(std::vector<pollfd> &pollFds);
+
+
+		std::string getServerName();
+
+		//authentification
+		void passAuth(Client *cli, const std::vector<std::string> &tokens);
+		void nickAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername);
+		void userAuth(Client *cli, const std::vector<std::string> &tokens);
+		bool checkNick(std::string nick);
+		bool checkUser(std::string user) const;
+		bool nickTaken(std::string nick) const;
+		void broadcastNewNick(Client *cli);
+
+
+		std::vector<int> notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok);
+		std::vector<int> appendVec(std::vector<int> a, std::vector<int> b);
 
 
 };

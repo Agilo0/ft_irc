@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/19 20:25:38 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/20 18:54:55 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ std::vector<std::string> Utils::split(const std::string &str, char delimiter){
 	return tokens;
 }
 
-bool Server::checkNick(std::string &nick)
+bool Server::checkNick(std::string nick)
 {
 	if (nick.empty())
 		return (false);
@@ -66,12 +66,25 @@ bool Server::checkNick(std::string &nick)
 	}
 	return (true);
 }
+bool Server::checkUser(std::string user) const
+{
+	if (user.empty())
+		return (false);
+	int i = 0;
+	while (user[i])
+	{
+		if (!isalnum(user[i]) && user[i] != '_'  && user[i] != '-' && user[i]!= '.')
+			return (false);
+		i++;
+	}
+	return (true);
+}
 
-bool Server::nickTaken(std::string &nick) const
+bool Server::nickTaken(std::string nick) const
 {
 	unsigned int i = 0;
 
-	while (i <= _clients.size())
+	while (i < _clients.size())
 	{
 		if (_clients[i].getNick() == nick)
 		{
@@ -81,4 +94,9 @@ bool Server::nickTaken(std::string &nick) const
 		i++;
 	}
 	return(false);
+}
+
+std::string Server::getServerName()
+{
+	return(_serverName);
 }

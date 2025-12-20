@@ -6,11 +6,11 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/19 20:30:18 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/20 18:56:38 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "../inc/Server.hpp"
 
 void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 	if (tokens.size() < 2){
@@ -63,6 +63,7 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 		}
 	}
 
+	cli->setChannel(*chan);
 	//HERE WE NEED THE 1ST NICKS LIST!! (CHECK WHY)
 	//std::ostringstream nicks;
 	/* for(std::set<int>::const_iterator it = members.begin(); it != members.end(); ++it){
@@ -73,8 +74,11 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 	} */
 }
 
-void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens)
+void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername)
 {
+	// (void)cli;
+	// (void)tokens;
+	(void)servername;
 	if (tokens.size() < 2)
 	{
 		sendResponse(cli->getClientFd(), ERR_NONICKNAMEGIVEN());
@@ -92,19 +96,20 @@ void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens)
 		sendResponse(cli->getClientFd(), ERR_NICKNAMEINUSE(nick));
 		return;
 	}
+
+	//nick checked, we update client info and check log info
 	if (!cli->hasNickname())
 		cli->setFirstNick(nick);
 	else
 	{
 		cli->setNewNick(nick);
-		sendResponse(cli->getClientFd(), NICK_UPDATE(cli->getOldnick(), nick));
-		// + send notification to all clients in the channel
+		broadcastNewNick(cli);
 	}
 	
 	if (cli->hasAll())
 	{
 		cli->setLog();
-		sendResponse(cli->getClientFd(), RPL_WELCOME(nick));
+		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
 	}
 
 }
@@ -138,4 +143,29 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 	if (cli->hasAll())
 		cli->setLog();
 
+}
+
+void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
+{
+	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
+	if (tokens.size() < 5)
+	{
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick));
+		return;
+	}
+	if (cli->hasUsername())
+	{
+		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
+		return;
+	}
+	if (!cli->hasPassw())
+	{
+		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
+		return;
+	}
+	std::string user = tokens[1];
+	if (checkUser(user))
+	{
+
+	}
 }

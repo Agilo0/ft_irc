@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 16:24:32 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/12 12:28:42 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/20 17:54:22 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@
 #include <iostream>
 #include <set>
 #include <sstream>
+#include <algorithm>
 
 /*	/---------------\
    |	COLORS	 	 |

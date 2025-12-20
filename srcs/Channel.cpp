@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:30:04 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/11 12:32:29 by yanaranj         ###   ########.fr       */
+/*   Updated: 2025/12/20 18:34:47 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "../inc/Server.hpp"
+#include "../inc/Channel.hpp"
 
 Channel::Channel(const std::string &name) :
 	_name(name),_topic(""),_key(""),
@@ -107,3 +108,7 @@ bool Channel::isOperator(int fd) const{
 bool Channel::isInvited(int fd) const{
 	return _clients.find(fd) != _clients.end();
 }
+
+
+
+

@@ -2,6 +2,8 @@
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
+#include "Channel.hpp"
+
 enum Status {
     NOT_AUTHENTICATED,
 	CAP_NEGOTIATED,
@@ -19,10 +21,12 @@ class Client
         std::string _nickname;
 		std::string _oldnick;
         std::string _username;
+        std::string _realname;
 		std::string _ip;
 		std::string _buffer;
 
-		bool hasNick, hasUser, hasPass, logged;	
+		bool hasNick, hasUser, hasPass, logged;
+		std::vector<Channel> _channels;
         //char **channels;
 		//Status _status;
 
@@ -47,12 +51,16 @@ class Client
 		bool isLogged() const;
 		void setPass();
 		bool hasAll() const;
+		bool hasPassw() const;
 		bool hasNickname() const;
+		bool hasUsername() const;
 		void setLog();
 		void setFirstNick(std::string nick);
 		void setNewNick(std::string nick);
 		std::string getNick() const;
 		std::string getOldnick() const;
+		void setChannel(Channel &channel);
+		Channel *getChannel(unsigned int index);
 
 
 		void addBuffer(const std::string &data);
