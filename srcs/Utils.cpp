@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/20 18:54:55 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/21 16:38:04 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,4 +99,18 @@ bool Server::nickTaken(std::string nick) const
 std::string Server::getServerName()
 {
 	return(_serverName);
+}
+
+std::string Server::appendToks( const std::vector<std::string> &tokens)
+{
+	std::string res;
+
+	unsigned int i = 4;
+	while (i < tokens.size())
+	{
+		res +=  tokens[i];
+		res += ' ';
+		i++;
+	}
+	return (res);
 }

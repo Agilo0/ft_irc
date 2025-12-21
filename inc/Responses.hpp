@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/20 16:56:32 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/21 17:06:39 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 //WELCOME
 #define RPL_WELCOME(nickname, servername, hostname) \
    (std::string(":" + servername + " 001 " + nickname + \
-   " :Welcome to the " + servername + " Network, " + nickname + "!" + hostname))
+   " :Welcome to the " + servername + " Network, " + nickname + "! " + hostname))
 #define RPL_YOURHOST(servername, nickname) \
     (std::string(":" + servername + " 002 " + nickname + " Your host is " + servername + ", running version 1.0"))
 #define RPL_CREATED(servername, time) \

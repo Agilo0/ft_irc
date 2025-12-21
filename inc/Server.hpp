@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/20 18:51:03 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/21 16:40:59 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,9 @@ class Server
 		std::string getServerName();
 
 		//authentification
-		void passAuth(Client *cli, const std::vector<std::string> &tokens);
+		void passAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername);
 		void nickAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername);
-		void userAuth(Client *cli, const std::vector<std::string> &tokens);
+		void userAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername);
 		bool checkNick(std::string nick);
 		bool checkUser(std::string user) const;
 		bool nickTaken(std::string nick) const;
@@ -80,7 +80,7 @@ class Server
 
 
 		std::vector<int> notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok);
-		std::vector<int> appendVec(std::vector<int> a, std::vector<int> b);
+		std::string appendToks( const std::vector<std::string> &tokens);
 
 
 };

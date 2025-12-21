@@ -10,7 +10,13 @@ Client::Client(int fd)
 	logged = false;
 }
 
-Client::Client(){}
+Client::Client()
+{
+	hasNick = false;
+	hasUser = false;
+	hasPass = false;
+	logged = false;
+}
 Client::~Client(){}
 
 void Client::setClientFd(int fd){
@@ -100,6 +106,17 @@ std::string Client::getNick() const
 std::string Client::getOldnick() const
 {
 	return (_oldnick);
+}
+
+void Client::setUser(std::string name)
+{
+	_username = name;
+	hasUser = true;
+}
+
+void Client::setRealName(std::string name)
+{
+	_realname = name;
 }
 
 void Client::setChannel(Channel &channel)

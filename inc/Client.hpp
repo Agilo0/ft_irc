@@ -48,18 +48,25 @@ class Client
 		std::string getClientIP() const;
 		std::string &getBuff();//
 
+		//bools
 		bool isLogged() const;
-		void setPass();
 		bool hasAll() const;
 		bool hasPassw() const;
 		bool hasNickname() const;
 		bool hasUsername() const;
+
+		//setters
+		void setPass();
 		void setLog();
 		void setFirstNick(std::string nick);
 		void setNewNick(std::string nick);
+		void setRealName(std::string name);
+		void setUser(std::string name);
+		void setChannel(Channel &channel);
+
+		//getter
 		std::string getNick() const;
 		std::string getOldnick() const;
-		void setChannel(Channel &channel);
 		Channel *getChannel(unsigned int index);
 
 

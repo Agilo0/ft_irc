@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/20 18:56:38 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/21 17:10:56 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,7 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 
 void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername)
 {
-	// (void)cli;
-	// (void)tokens;
-	(void)servername;
+
 	if (tokens.size() < 2)
 	{
 		sendResponse(cli->getClientFd(), ERR_NONICKNAMEGIVEN());
@@ -109,12 +107,14 @@ void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens, std::
 	if (cli->hasAll())
 	{
 		cli->setLog();
+	std::cout << "logged" << std::endl;
+
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
 	}
 
 }
 
-void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
+void Server::passAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername)
 {
 	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
 	if (tokens.size() < 2)
@@ -123,7 +123,7 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 		return;
 	}
 
-	if (cli->isLogged() == true)
+	if (cli->isLogged())
 	{
 		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
 		return;
@@ -141,21 +141,31 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 	}
 
 	if (cli->hasAll())
+	{
 		cli->setLog();
+	std::cout << "logged" << std::endl;
+		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
+	}
 
 }
 
-void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
+void Server::userAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername)
 {
 	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
+	std::string user = tokens[1];
+	std::string real;
 	if (tokens.size() < 5)
 	{
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick));
 		return;
 	}
+	if (tokens.size() > 5)
+		real = appendToks(tokens);
+	else
+		real = tokens[4];
 	if (cli->hasUsername())
 	{
-		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
+		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(cli->getUsername()));
 		return;
 	}
 	if (!cli->hasPassw())
@@ -163,9 +173,14 @@ void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
 		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
 		return;
 	}
-	std::string user = tokens[1];
 	if (checkUser(user))
 	{
-
+		cli->setUser(user);
+		cli->setRealName(real);
+	}
+	if (cli->hasAll())
+	{
+		cli->setLog();
+		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
 	}
 }

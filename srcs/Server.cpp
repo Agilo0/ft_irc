@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/20 19:01:42 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/21 16:42:19 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -208,14 +208,13 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case JOIN: handleJoin(cli, tokens); break;//do we need a code for error handle???
 		//case WHO: handleWho(cli, tokens); break;	//what exactly who do?
 	
-		case PASS: passAuth(cli, tokens); break;
+		case PASS: passAuth(cli, tokens, _serverName); break;
 		case NICK: nickAuth(cli, tokens, _serverName); break;
-		case USER: userAuth(cli, tokens); break;
+		case USER: userAuth(cli, tokens, _serverName); break;
 		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
 	default:
 		break;
 	}
-	// std::cout << "nik = " << cli->getNick();
 }
 CommandType Server::isCommand(const std::string &cmd){
 	
