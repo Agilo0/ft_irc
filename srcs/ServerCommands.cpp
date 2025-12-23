@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 19:05:06 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 19:08:51 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,7 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens, std::
 	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
 	if (tokens.size() < 2)
 	{
-		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick));
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick, tokens[0]));
 		return;
 	}
 
@@ -168,7 +168,7 @@ void Server::userAuth(Client *cli, const std::vector<std::string> &tokens, std::
 	std::string real;
 	if (tokens.size() < 5)
 	{
-		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick));
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick, tokens[0]));
 		return;
 	}
 	if (tokens.size() > 5)

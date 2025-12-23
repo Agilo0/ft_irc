@@ -22,7 +22,6 @@ class Client
 		std::string _oldnick;
         std::string _username;
         std::string _realname;
-		std::string _ip;
 		std::string _ip;//or host
 		std::string _buffer;
 

@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 19:02:50 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 19:08:22 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@
 
 
 //PASS
-#define ERR_NEEDMOREPARAMS(nick) (std::string("461 ") + nick + " PASS :Not enough parameters" )
+// #define ERR_NEEDMOREPARAMS(nick) (std::string("461 ") + nick + " PASS :Not enough parameters" )
 #define ERR_ALREADYREGISTERED(nick) ("462 :You may not reregister" )
 #define ERR_PASSWDMISMATCH(nick) ("464 :Password incorrect" )
 

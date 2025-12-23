@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 19:03:53 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 19:06:59 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,10 +167,7 @@ void Server::initServer(int port, std::string pwd){
 	
 }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/yaja
 void Server::close_fds(std::vector<pollfd> &pollFds)
 {
 	int i = pollFds.size() - 1;
