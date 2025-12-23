@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:30:04 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/20 18:34:47 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 19:03:27 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ void Channel::setTopic(const std::string &topic){
 }
 void Channel::setKey(const std::string &key){
 	_key = key;
+	_kMode = true;
 }
 void Channel::setMaxUsers(int max){
 	_maxUsers = max;
@@ -54,6 +55,7 @@ void Channel::setModeT(bool active){ _tMode = active;}
 void Channel::setModeK(bool active){ _kMode = active;}
 void Channel::setModeO(bool active){ _oMode = active;}
 void Channel::setModeL(bool active){ _lMode = active;}
+//bool Channel::hasKey(bool active) {_hasKey = active;}
 
 
 bool Channel::hasTopic() const {return !_topic.empty();}

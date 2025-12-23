@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/24 19:58:49 by yanaranj          #+#    #+#             */
+/*   Updated: 2025/12/23 19:01:33 by alounici         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "Exception.hpp"
 #include "Server.hpp"
@@ -30,7 +41,7 @@ int main(int argc, char** argv)
     
     //right now we cannot handle ^D, because is not a signal
 /*    if(!std::getline(std::cin, line)){
-        std::cout << "Pressing ^D";
+        std::cout << "Pressing ^D\n";
         return (0);
     }*/
     int port = 0;
@@ -56,6 +67,7 @@ int main(int argc, char** argv)
 	    Server.initServer(port, argv[2]);
     }
     catch (const std::exception &ex){
+		std::cout << "se viene error\n";
         //Server.close_fds() //ideal to close all files when get an exception
         std::cerr << RED << ex.what() << std::endl;
         return (1);

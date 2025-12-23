@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/21 16:40:59 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 19:03:15 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ class Server
 		
 		/*		--	COMMANDS	--		*/
 		void handleJoin(Client *cli, const std::vector<std::string> &tokens);
+		void handlePrivmsg(Client *cli, const std::vector<std::string> &tokens);
+		//void handleWho(Client *cli, const std::vector<std::string> &tokens);
 
 
 

@@ -23,6 +23,7 @@ class Client
         std::string _username;
         std::string _realname;
 		std::string _ip;
+		std::string _ip;//or host
 		std::string _buffer;
 
 		bool hasNick, hasUser, hasPass, logged;
