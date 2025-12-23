@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/21 17:10:56 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/21 18:06:39 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,7 +143,6 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens, std::
 	if (cli->hasAll())
 	{
 		cli->setLog();
-	std::cout << "logged" << std::endl;
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
 	}
 
