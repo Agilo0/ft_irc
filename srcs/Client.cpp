@@ -119,7 +119,7 @@ void Client::setRealName(std::string name)
 	_realname = name;
 }
 
-void Client::setChannel(Channel &channel)
+void Client::setChannel(Channel *channel)
 {
 	_channels.push_back(channel);
 }
@@ -128,10 +128,44 @@ void Client::setChannel(Channel &channel)
 Channel *Client::getChannel(unsigned int index)
 {
 	if (_channels.size() > index)
-		return (&_channels[index]);
+		return (_channels[index]);
 	return (NULL);
 }
 
 void Client::addBuffer(const std::string &data){
 	_buffer += data;
+}
+
+int Client::quitChannel(std::string channel)
+{
+	std::vector<Channel *>::iterator it = _channels.begin();
+	while (it != _channels.end())
+	{
+		std::string chan = (*it)->getName();
+		if (chan == channel)
+		{
+			(*it)->removeClient(getClientFd());
+			if ((*it)->isEmpty())
+			{
+				_channels.erase(it);
+				return (2);
+			}
+			return (0);
+		}
+		it++;
+	}
+	return (1);
+}
+
+std::string Client::createPartMessage()
+{
+	std::string res;
+
+	res.append(":");
+	res.append(_nickname);
+	res.append("!");
+	res.append(_username);
+	res.append("@");
+	res.append(_ip);
+	return (res);
 }

@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:48:05 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/20 18:39:26 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 21:12:28 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,4 +65,27 @@ std::vector<int> Server::notifChannel(Channel *chan, std::string old, std::strin
 
 	}
 	return (ok);
+}
+
+void Server::broadcastPart(std::string chann, std::string message, std::string reason)
+{
+
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end())
+	{
+		if (chann == (*it).getName())
+		{
+			std::set<int> clients = (*it).getClients();
+			std::set<int>::iterator itc = clients.begin();
+			while (itc != clients.end())
+			{
+				int fd = *itc;
+				sendResponse(fd, RPL_PART(message, (*it).getName(), reason));
+				itc++;
+			}
+			return;
+		}
+		it++;
+	}
 }

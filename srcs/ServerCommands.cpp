@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 19:08:51 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 21:25:44 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 			std::cout << "Invalid password for <" << channelName << ">\n";
 	}
 	if (channelName[0] != '#'){
-		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(channelName));//this will send the formated response, according to IRC protocol
+		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(cli->getNick(), channelName));//this will send the formated response, according to IRC protocol
 		return ;
 	}
 
@@ -76,6 +76,7 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 				sendResponse(currCli->getClientFd(), RPL_JOIN(cli->getNickname(), cli->getUsername(), cli->getClientIP(), channelName));
 		}
 	}
+	cli->setChannel(chan);
 	std::cout << YELLOW << "Finish sending notification to clients" << std::endl;
 	//HERE WE NEED THE 1ST NICKS LIST!! (CHECK WHY)
 	//std::ostringstream nicks;
@@ -172,7 +173,7 @@ void Server::userAuth(Client *cli, const std::vector<std::string> &tokens, std::
 		return;
 	}
 	if (tokens.size() > 5)
-		real = appendToks(tokens);
+		real = appendToks(tokens, 4);
 	else
 		real = tokens[4];
 	if (cli->hasUsername())
@@ -196,6 +197,42 @@ void Server::userAuth(Client *cli, const std::vector<std::string> &tokens, std::
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
 	}
 }
+
+void Server::handlePart(Client *cli, const std::vector<std::string> &tokens)
+{
+	// if (tokens.size() < 2 || checkSyn(tokens[1]))
+	// {
+	// 	sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[1]));
+	// 	return;
+	// }
+	std::vector<std::string> channels = Utils::split(tokens[1], ',');
+	std::string reason;
+	if (tokens.size() > 2)
+		reason = appendToks(tokens, 2);
+	else
+		reason = "";
+	std::vector<std::string>::iterator it = channels.begin();
+	int chanstat = 0;
+	while (it != channels.end())
+	{
+		if (channelExist((*it)) == true)
+		{
+			chanstat = cli->quitChannel((*it));
+			if (chanstat == 1)
+				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), (*it)));
+			std::string message = cli->createPartMessage();
+			sendResponse(cli->getClientFd(), RPL_PART(message, (*it), reason));
+			broadcastPart((*it), message, reason);
+			if (chanstat == 2)
+				removeChannel((*it));
+		}
+		else
+			sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(cli->getNickname(), (*it)));
+		it++;
+	}
+
+}
+
 //<PRIVMSG dest :message to send>
 //<PRIVMSG {, dest} :message to send> (check if this is correct)
 void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){

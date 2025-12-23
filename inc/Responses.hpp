@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 19:08:22 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 20:53:38 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define RESPONSE_HPP
 
 // JOIN
-#define ERR_NOSUCHCHANNEL(channel) (std::string("403 ") + channel + " :No such channel")
+//#define ERR_NOSUCHCHANNEL(channel) (std::string("403 ") + channel + " :No such channel")
 #define ERR_CHANNELISFULL(nickname, channel) (std::string(":server_name 471 " + nickname + " " + channel + " :Cannot join channel (+l)"))
 #define ERR_INVITEONLYCHAN(channel) (std::string("473 " + channel + " :Cannot join channel (+i)"))
 #define ERR_BADCHANNELKEY(nickname, channel) (std::string("475 " + nickname + " " + channel + " :Cannot join channel (+k)"))
@@ -64,3 +64,8 @@
 
 //USER
 #define ERR_NOTREGISTERED() ("451 :You have not registered")
+
+//PART
+#define ERR_NOSUCHCHANNEL(nick, channel) ("403 " + nick + channel + " :No such channel")
+#define ERR_NOTONCHANNEL(nick, channel) ("442 " + nick + channel + " :You're not on that channel")
+#define RPL_PART(message, channel, reason) (message + " PART " + channel + " " + reason)

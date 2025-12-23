@@ -26,7 +26,7 @@ class Client
 		std::string _buffer;
 
 		bool hasNick, hasUser, hasPass, logged;
-		std::vector<Channel> _channels;
+		std::vector<Channel *> _channels;
         //char **channels;
 		//Status _status;
 
@@ -62,7 +62,7 @@ class Client
 		void setNewNick(std::string nick);
 		void setRealName(std::string name);
 		void setUser(std::string name);
-		void setChannel(Channel &channel);
+		void setChannel(Channel *channel);
 
 		//getter
 		std::string getNick() const;
@@ -71,6 +71,8 @@ class Client
 
 
 		void addBuffer(const std::string &data);
+		int quitChannel(std::string channel);
+		std::string createPartMessage();
 };
 
 #endif

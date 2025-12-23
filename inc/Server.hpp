@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 19:03:15 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 21:09:52 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,24 +65,32 @@ class Server
         //agi
         //void clientQueue();
         unsigned long client_event(std::vector<pollfd> &pollfds, unsigned long i);
-        void manage_msg(std::string msg, int index);//que hace esto??
 		void close_fds(std::vector<pollfd> &pollFds);
 
 
-		std::string getServerName();
 
 		//authentification
 		void passAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername);
 		void nickAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername);
 		void userAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername);
+		void broadcastNewNick(Client *cli);
+		std::vector<int> notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok);
+		
+		
+		//part
+		void handlePart(Client *cli, const std::vector<std::string> &tokens);
+		void broadcastPart(std::string chann, std::string message, std::string reason);
+
+		//utils
+		std::string appendToks( const std::vector<std::string> &tokens, int index);
+		bool checkSyn(std::string channel);
+		std::string getServerName();
 		bool checkNick(std::string nick);
 		bool checkUser(std::string user) const;
 		bool nickTaken(std::string nick) const;
-		void broadcastNewNick(Client *cli);
+		bool channelExist(std::string channel);
+		void removeChannel(std::string chan);
 
-
-		std::vector<int> notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok);
-		std::string appendToks( const std::vector<std::string> &tokens);
 
 
 };

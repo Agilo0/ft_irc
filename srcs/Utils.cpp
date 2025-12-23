@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/21 16:38:04 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 21:21:49 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,11 +101,11 @@ std::string Server::getServerName()
 	return(_serverName);
 }
 
-std::string Server::appendToks( const std::vector<std::string> &tokens)
+std::string Server::appendToks( const std::vector<std::string> &tokens, int start)
 {
 	std::string res;
 
-	unsigned int i = 4;
+	unsigned int i = start;
 	while (i < tokens.size())
 	{
 		res +=  tokens[i];
@@ -113,4 +113,39 @@ std::string Server::appendToks( const std::vector<std::string> &tokens)
 		i++;
 	}
 	return (res);
+}
+
+bool Server::checkSyn(std::string channel)
+{
+	if (channel[0] != '#')
+		return (false);
+	return(true);
+}
+
+bool Server::channelExist(std::string channel)
+{
+	int i = 0;
+	std::vector<Channel>::iterator it = _channels.begin();
+	while (it != _channels.end())
+	{
+		if ((*it).getName() == channel)
+			return (true);
+		i++;
+	}
+	return (false);
+}
+
+void Server::removeChannel(std::string chan)
+{
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end())
+	{
+		if (chan == it->getName())
+		{
+			_channels.erase(it);
+			return;
+		}
+		it++;
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 19:06:59 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 19:14:42 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,6 +211,7 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case PASS: passAuth(cli, tokens, _serverName); break;
 		case NICK: nickAuth(cli, tokens, _serverName); break;
 		case USER: userAuth(cli, tokens, _serverName); break;
+		case PART: handlePart(cli, tokens); break;
 		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
 	default:
 		break;
@@ -230,7 +231,7 @@ CommandType Server::isCommand(const std::string &cmd){
 	else if (cmd == "PASS") return (PASS);
 	else if (cmd == "NICK") return (NICK);
 	else if (cmd == "USER") return (USER);
-	else if (cmd == "CAP") return (CAP);
+	else if (cmd == "PART") return (PART);
 	else
 		return UKNW;
 }

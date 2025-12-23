@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:30:04 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 19:03:27 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 21:15:27 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,11 +68,11 @@ bool Channel::isModeL() const {return _lMode; }
 
 ///						*WIP									*/
 //NOT quite sure if we should use clean or create an specific function
-void Channel::removeClient(int fd){
-	(void)fd;//but we should use the fd to know the exact client we are talking about
-	_clients.clear();
-	_operators.clear();
-}
+// void Channel::removeClient(int fd){
+// 	(void)fd;//but we should use the fd to know the exact client we are talking about
+// 	_clients.clear();
+// 	_operators.clear();
+// }
 void Channel::removeInvite(int fd){
 	(void)fd;
 	//remove the invitation
@@ -111,6 +111,15 @@ bool Channel::isInvited(int fd) const{
 	return _clients.find(fd) != _clients.end();
 }
 
+void Channel::removeClient(int fd)
+{
+	_clients.erase(fd);
+	_operators.erase(fd);
+}
 
-
-
+bool Channel::isEmpty() const
+{
+	if (_clients.empty())
+		return (true);
+	return (false);
+}

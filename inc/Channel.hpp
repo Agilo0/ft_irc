@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 19:01:51 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 20:23:15 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ enum CommandType{
 	PASS,
 	NICK,
 	USER,
-	CAP,
+	PART,
 	//CAPEND,
 	JOIN,
 	WHO,
@@ -78,6 +78,8 @@ class Channel{
 		bool isModeL() const;
 		bool hasKey() const;
 
+		bool isEmpty() const;
+
 		bool addClient(int fd, bool isOperator = false);
 		bool isMember(int fd) const;
 		bool isOperator(int fd) const;
@@ -88,6 +90,7 @@ class Channel{
 		void removeOperator(int fd);
 		void inviteClient(int fd);
 		void removeInvite(int fd);
+
 
 };
 
