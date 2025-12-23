@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 21:21:49 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 21:36:39 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,8 @@ std::string Server::appendToks( const std::vector<std::string> &tokens, int star
 
 bool Server::checkSyn(std::string channel)
 {
+	if (channel.empty())
+		return (false);
 	if (channel[0] != '#')
 		return (false);
 	return(true);

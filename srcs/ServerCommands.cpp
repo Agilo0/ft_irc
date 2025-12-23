@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 21:25:44 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/23 21:36:34 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,11 +200,11 @@ void Server::userAuth(Client *cli, const std::vector<std::string> &tokens, std::
 
 void Server::handlePart(Client *cli, const std::vector<std::string> &tokens)
 {
-	// if (tokens.size() < 2 || checkSyn(tokens[1]))
-	// {
-	// 	sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[1]));
-	// 	return;
-	// }
+	if (tokens.size() < 2 || !checkSyn(tokens[1]))
+	{
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[1]));
+		return;
+	}
 	std::vector<std::string> channels = Utils::split(tokens[1], ',');
 	std::string reason;
 	if (tokens.size() > 2)
