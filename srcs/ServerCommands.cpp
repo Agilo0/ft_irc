@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerCommands.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 21:36:34 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/26 17:19:15 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,6 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 	}
 	if (chan->isModeK()){
 		if (key.empty() || key != chan->getKey()){
-			std::cout << "flag_4\n";
 			sendResponse(cli->getClientFd(), ERR_BADCHANNELKEY(/*cli->_nickname (key is tmp)*/key, channelName));
 			return;
 		}
@@ -88,115 +87,6 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 	} */
 }
 
-void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername)
-{
-
-	if (tokens.size() < 2)
-	{
-		sendResponse(cli->getClientFd(), ERR_NONICKNAMEGIVEN());
-		return;
-	}
-	std::string nick = tokens[1];
-	if (!checkNick(nick))
-	{
-		sendResponse(cli->getClientFd(), ERR_ERRONEUSNICKNAME(nick));
-		return;
-	}
-	
-	if (nickTaken(nick))
-	{
-		sendResponse(cli->getClientFd(), ERR_NICKNAMEINUSE(nick));
-		return;
-	}
-
-	//nick checked, we update client info and check log info
-	if (!cli->hasNickname())
-		cli->setFirstNick(nick);
-	else
-	{
-		cli->setNewNick(nick);
-		broadcastNewNick(cli);
-	}
-	
-	if (cli->hasAll())
-	{
-		cli->setLog();
-	std::cout << "logged" << std::endl;
-
-		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
-	}
-
-}
-
-void Server::passAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername)
-{
-	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
-	if (tokens.size() < 2)
-	{
-		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick, tokens[0]));
-		return;
-	}
-
-	if (cli->isLogged())
-	{
-		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
-		return;
-	}
-
-	std::string pass = tokens[1];
-	if (pass != _pwd)
-	{
-		sendResponse(cli->getClientFd(), ERR_PASSWDMISMATCH(nick));
-		return;
-	}
-	else
-	{
-		cli->setPass();
-	}
-
-	if (cli->hasAll())
-	{
-		cli->setLog();
-		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
-	}
-
-}
-
-void Server::userAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername)
-{
-	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
-	std::string user = tokens[1];
-	std::string real;
-	if (tokens.size() < 5)
-	{
-		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick, tokens[0]));
-		return;
-	}
-	if (tokens.size() > 5)
-		real = appendToks(tokens, 4);
-	else
-		real = tokens[4];
-	if (cli->hasUsername())
-	{
-		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(cli->getUsername()));
-		return;
-	}
-	if (!cli->hasPassw())
-	{
-		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
-		return;
-	}
-	if (checkUser(user))
-	{
-		cli->setUser(user);
-		cli->setRealName(real);
-	}
-	if (cli->hasAll())
-	{
-		cli->setLog();
-		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
-	}
-}
 
 void Server::handlePart(Client *cli, const std::vector<std::string> &tokens)
 {
@@ -240,12 +130,10 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 		return ;
 	std::string origin;
 
-	
-	//IMP!!!!!!!!!!!!!! As a tmp mesurement, we'll use the client IP
 	if (cli->getNickname().empty())
 		origin = "*";
 	else
-		cli->getClientIP();
+		cli->getNickname();
 	//send a msg if we don't have all the params for this command
 	if (tokens.size() < 3){
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
@@ -258,12 +146,50 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 	//loop for join again the tokens, but only since the msg begins
 	for (size_t i = 3; i < tokens.size(); ++i)
 		msg += " " + tokens[i];
+
 	//split the targets of the msg (by commas)
-	//dist is a single user:
-	std::string target = tokens[1];
-	if (target == cli->getClientIP()){
-		sendResponse(cli->getClientFd(), RPL_PRIVMSG(tokens[0], target, msg));
+	std::vector<std::string>targets = Utils::split(tokens[1], ',');
+	for(size_t t = 0; t < targets.size(); ++t){
+		std::string dest = targets[t];
+		if (dest.empty())
+			continue;
+		//multiple dests
+		if (dest[0] == '#'){
+			Channel *chan = NULL;
+			for (size_t i = 0; i < _channels.size(); ++i){
+				if (_channels[i].getName() == dest){
+					chan = &_channels[i];
+					break ;
+				}
+			}
+			//is chan does not exist:
+			if (!chan){
+				sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(cli->getNickname(), dest));
+				continue;
+			}
+			//if the client is not part of the channel:
+			if (!chan->isMember(cli->getClientFd())){
+				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), dest));
+				continue;
+			}
+			const std::set<int>& users = chan->getClients();
+			for(std::set<int>::const_iterator it = users.begin(); it != users.end(); ++it){
+				if (*it != cli->getClientFd()){
+					Client *other = getClient(*it);
+					if (other)
+						sendResponse(cli->getClientFd(), RPL_PRIVMSG(cli->getNickname(), dest, msg));
+				}
+			}			
+		}
+		//single dest
+		else{
+			Client *targetCli = getClientByNick(dest);
+			if (!targetCli){
+				sendResponse(cli->getClientFd(), ERR_NOSUCHNICK(cli->getNickname(), dest));
+				continue;
+			}
+			else
+				sendResponse(targetCli->getClientFd(), RPL_PRIVMSG(cli->getNickname(), dest, msg));
+		}
 	}
-	else
-		std::cout << ">This client does not exist" << std::endl;
 }

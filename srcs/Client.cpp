@@ -2,12 +2,13 @@
 #include "../inc/Client.hpp"
 
 Client::Client(int fd)
-{ 
-	_clientFd = fd; 
+{
+	_clientFd = fd;
 	hasNick = false;
 	hasUser = false;
 	hasPass = false;
 	logged = false;
+	_status = NOT_AUTHENTICATED;
 }
 
 Client::Client()
@@ -16,35 +17,49 @@ Client::Client()
 	hasUser = false;
 	hasPass = false;
 	logged = false;
+	_status = NOT_AUTHENTICATED;
 }
-Client::~Client(){}
+Client::~Client() {}
 
-void Client::setClientFd(int fd){
+
+void Client::setStatus(Status status){
+	_status = status;
+}
+Status Client::getStatus() const
+{
+	return _status;
+}
+
+void Client::setClientFd(int fd)
+{
 	_clientFd = fd;
 }
 void Client::setClientIP(const std::string &newIP) { _ip = newIP; }
-void Client::setClientInfo(std::string username, std::string nickname){
+/*void Client::setClientInfo(std::string username, std::string nickname){
 	_username = username;
 	_nickname = nickname;
-}
-int Client::getClientFd() const{
+}*/
+int Client::getClientFd() const
+{
 	return _clientFd;
 }
 
-std::string Client::getUsername() const{
+std::string Client::getUsername() const
+{
 	return _username;
 }
-std::string Client::getNickname() const{
+std::string Client::getNickname() const
+{
 	return _nickname;
 }
-std::string Client::getClientIP() const{
+std::string Client::getClientIP() const
+{
 	return _ip;
 }
-std::string &Client::getBuff(){
+std::string &Client::getBuff()
+{
 	return _buffer;
 }
-
-
 
 bool Client::isLogged() const
 {
@@ -53,7 +68,7 @@ bool Client::isLogged() const
 	return (false);
 }
 
-void Client::setPass() 
+void Client::setPass()
 {
 	hasPass = true;
 }
@@ -92,7 +107,6 @@ void Client::setNewNick(std::string nick)
 	_nickname = nick;
 }
 
-
 void Client::setLog()
 {
 	logged = true;
@@ -124,7 +138,6 @@ void Client::setChannel(Channel *channel)
 	_channels.push_back(channel);
 }
 
-
 Channel *Client::getChannel(unsigned int index)
 {
 	if (_channels.size() > index)
@@ -132,7 +145,8 @@ Channel *Client::getChannel(unsigned int index)
 	return (NULL);
 }
 
-void Client::addBuffer(const std::string &data){
+void Client::addBuffer(const std::string &data)
+{
 	_buffer += data;
 }
 

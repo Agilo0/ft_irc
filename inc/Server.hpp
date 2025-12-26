@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 21:09:52 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/26 14:55:06 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,14 @@ class Server
 		
 
 		//yaja
+		/*DEL LATER*/
+		void printChannels(const std::vector<Channel>& _channels);
+		void printClients(const std::vector<Client>& _clients);
+		
+		
 		/*others*/
 		Client *getClient(int fd);
+		Client *getClientByNick(const std::string &dest);
 		
 		void parseCommand(Client *cli, const std::string &commad);//this handle the commands
 		CommandType isCommand(const std::string &cmd);//it will give us the code, so we can work with switch statement
@@ -47,7 +53,7 @@ class Server
 		void handleJoin(Client *cli, const std::vector<std::string> &tokens);
 		void handlePrivmsg(Client *cli, const std::vector<std::string> &tokens);
 		//void handleWho(Client *cli, const std::vector<std::string> &tokens);
-
+		void handShake(Client *cli, const std::string &command);
 
 
     public:

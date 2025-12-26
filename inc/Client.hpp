@@ -28,7 +28,7 @@ class Client
 		bool hasNick, hasUser, hasPass, logged;
 		std::vector<Channel *> _channels;
         //char **channels;
-		//Status _status;
+		Status _status;//fist we need to verify if client has all the requirements
 
 
     public:
@@ -36,10 +36,11 @@ class Client
         Client(int fd);
         ~Client();
 		
-		//Status getStatus() const;
+		Status getStatus() const;
+		void setStatus(Status status);
 
 		void setClientFd(int fd);
-		void setClientInfo(std::string username, std::string nickname);//TMP!!!
+		//void setClientInfo(std::string username, std::string nickname);//TMP!!!
 		void setClientIP(const std::string &newIP);
 		int getClientFd() const;//<--socket FD of the client
 

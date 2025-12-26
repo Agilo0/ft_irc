@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/26 12:37:41 by yaja             ###   ########.fr       */
+/*   Updated: 2025/12/26 20:58:46 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,12 +99,12 @@ void Server::checkNewClient(){//we have to add this client to the list
 }
 
 void Server::checkNewData(int fd){//this will give us the commands that are sending the clients
-	std::cout << YELLOW << "NEW DATA FUNCTION:" << std::endl;
+	std::cout << "NEW DATA FUNCTION:" << std::endl;
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));//clears the buffer
 	
-	int bytes = recv(fd, buffer, sizeof(buffer), 0);
-	if (bytes <= 0) //is the client disconnected?
+	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
+	if (bytes == 0) //is the client disconnected?
 	{
 		std::cout << "flag_3\n";
 		close(fd);//should be marked TO REMOVE LATER
@@ -112,18 +112,23 @@ void Server::checkNewData(int fd){//this will give us the commands that are send
 		//_clients.erase(_clients.begin() + (i - 1));
 		return ;
 	}
-	std::cout << "flag_4\n";
+	else if (bytes < 0) {
+    	if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return;
+	}
 	Client *cli = getClient(fd);
 	if (!cli)
 		return ;
 	cli->addBuffer(std::string(buffer, bytes));
 	std::string &buff = cli->getBuff();
 	
+	std::cout << RED << "BUFF: " << buff << std::endl;
 	size_t pos;
-
+	
 	//vvvvv we will process only a complete line
-	//from here we'll work the commands
-	while((pos = buff.find("\r\n")) != std::string::npos){
+	//while((pos = buff.find("\r\n")) != std::string::npos){ //the real loop should be like this. But netcat can work different in other OS
+	while((pos = buff.find("\n")) != std::string::npos){
+		std::cout << BLUE << "while loop checkNewData\n" << NC;
 		std::string cmd = buff.substr(0, pos);
 		buff.erase(0, pos + 2);
 		if (!cmd.empty()){
@@ -144,24 +149,24 @@ void Server::initServer(int port, std::string pwd){
 	std::cout << GREEN << "IRC Server Created!!" << std::endl;
 	std::cout << "Listening on port: " << this->_port << NC << std::endl;
 	
-	//clientQueue();
 	std::cout << "Waiting for client..." << std::endl;
 	while (Server::_sigFlag == false)
 	{
 		int activity = poll(_pollFds.data(), _pollFds.size(), -1);
 		if (activity == -1)
-			throw std::runtime_error("poll() crashed! :(");//with throw theres no need to break the loop
+			throw std::runtime_error("poll() crashed! :(");
 		for (int i = _pollFds.size()-1; i >= 0; --i){
 			if (!(_pollFds[i].revents & POLLIN))
 				continue;
 			if (_pollFds[i].fd == _servFd)//new client
 				checkNewClient();
 			else
-				checkNewData(_pollFds[i].fd);
+				checkNewData(_pollFds[i].fd);//we have to authenticat the client
 		}
-		//std::cout << PURPLE << "Poll array ends\n";
 	}
 	//W.I.P
+	printClients(_clients);
+	printChannels(_channels);
 	close_fds(_pollFds);
 	
 }
@@ -185,10 +190,12 @@ void Server::parseCommand(Client *cli, const std::string &command)
 {
 	if (command.empty())
 		return ;
-/* 	if (cli->getStatus() != AUTHENTICATED){
-		//handle authentication client commands
+	//if it´s the 1st time, we need to verify his identity
+	if (cli->getStatus() != AUTHENTICATED){
+		std::cout << "Time to AUTHENTICATED client\n" << NC;
+		handShake(cli, command);
 		return ;
-	} */
+	}
 	//handle other commands
 	std::vector <std::string> tokens = Utils::split(command, ' ');
 	if (tokens.empty())
