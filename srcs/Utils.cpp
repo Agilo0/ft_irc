@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 21:36:39 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/26 12:32:26 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,13 +126,13 @@ bool Server::checkSyn(std::string channel)
 
 bool Server::channelExist(std::string channel)
 {
-	int i = 0;
+	//int i = 0;
 	std::vector<Channel>::iterator it = _channels.begin();
 	while (it != _channels.end())
 	{
 		if ((*it).getName() == channel)
 			return (true);
-		i++;
+		it++;
 	}
 	return (false);
 }

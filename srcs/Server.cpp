@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 19:14:42 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/26 12:37:41 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,14 +89,13 @@ void Server::checkNewClient(){//we have to add this client to the list
 	
 	Client newclient;
 	newclient.setClientFd(clientFd);
-	//newclient.setClientInfo("Uname", "Nname");
 	newclient.setClientIP(inet_ntoa(clientAddr.sin_addr));//this how we set the IP
 	
 	_pollFds.push_back(clientPollfd);
 	_clients.push_back(newclient);
 	
 	std::cout << PURPLE << "<" << clientFd << "> Connected!" << NC << std::endl;
-	std::cout << "IP: " << newclient.getClientIP() << std::endl;
+	//std::cout << "IP: " << newclient.getClientIP() << std::endl;
 }
 
 void Server::checkNewData(int fd){//this will give us the commands that are sending the clients
