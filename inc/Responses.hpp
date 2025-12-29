@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Responses.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/26 17:13:23 by yaja             ###   ########.fr       */
+/*   Updated: 2025/12/29 20:13:24 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,6 @@
 
 
 //PASS
-// #define ERR_NEEDMOREPARAMS(nick) (std::string("461 ") + nick + " PASS :Not enough parameters" )
 #define ERR_ALREADYREGISTERED(nick) ("462 :You may not reregister" )
 #define ERR_PASSWDMISMATCH(nick) ("464 :Password incorrect" )
 
@@ -68,3 +67,11 @@
 #define ERR_NOSUCHCHANNEL(nick, channel) ("403 " + nick + channel + " :No such channel")
 #define ERR_NOTONCHANNEL(nick, channel) ("442 " + nick + channel + " :You're not on that channel")
 #define RPL_PART(message, channel, reason) (message + " PART " + channel + " " + reason)
+
+//KICK
+#define ERR_CHANOPRIVSNEEDED(nick, channel) ("482 " + nick + channel + " :You're not channel operator")
+#define ERR_USERNOTINCHANNEL(nick, targetnick, channel) ("441 " + nick + targetnick + channel + " :They aren't on that channel")
+#define RPL_KICK(message, channel, tagetNick, reason) (message + " KICK " + channel + " " + reason)
+
+//MODE
+#define ERR_UNKNOWNCOMMAND(servername, nick, command) (servername + " 421 " + nick + command + " :Unknown command")

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAux.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:48:05 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/26 20:56:47 by yaja             ###   ########.fr       */
+/*   Updated: 2025/12/29 20:45:03 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,30 @@ void Server::broadcastPart(std::string chann, std::string message, std::string r
 	}
 }
 
+void Server::broadcastKick(std::string chann, std::string message, std::string nick, std::string reason)
+{
+
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end())
+	{
+		if (chann == (*it).getName())
+		{
+			std::set<int> clients = (*it).getClients();
+			std::set<int>::iterator itc = clients.begin();
+			while (itc != clients.end())
+			{
+				int fd = *itc;
+				sendResponse(fd, RPL_KICK(message, chann, nick, reason));
+				itc++;
+			}
+			return;
+		}
+		it++;
+	}
+	(void)nick;
+}
+
 //I have to handle properly this. I think I should used differents setter for each status??
 //When the handShake is finish, I should recieve the RLP_WELCOME!!
 void Server::handShake(Client *cli, const std::string &command){
@@ -108,13 +132,17 @@ void Server::handShake(Client *cli, const std::string &command){
 	for(size_t i = 0; i < cmd.size(); ++i)
 		cmd[i] = std::toupper(cmd[i]);
 	if (cmd == "PASS")
-		passAuth(cli, tokens, _serverName);
+		passAuth(cli, tokens);
 	else if(cmd == "NICK")
-		nickAuth(cli, tokens, _serverName);
+		nickAuth(cli, tokens);
 	else if (cmd == "USER")
-		return ;
+		userAuth(cli, tokens);
 	else if (cmd == "JOIN")
 		handleJoin(cli, tokens);
+	else if (cmd == "KICK")
+		handleKick(cli, tokens);
+	else if (cmd == "MODE")
+		handleMode(cli, tokens);
 	//add rest of existing commands
 	else
 		std::cout << ORANGE << "WORK IN PROGRESS..." << std::endl;

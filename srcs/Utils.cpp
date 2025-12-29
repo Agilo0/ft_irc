@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/26 12:32:26 by yaja             ###   ########.fr       */
+/*   Updated: 2025/12/29 20:41:40 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,4 +150,110 @@ void Server::removeChannel(std::string chan)
 		}
 		it++;
 	}
+}
+
+bool Server::checkKick(std::vector<std::string> &tokens)
+{
+	if (tokens.size() < 3)
+		return (false);
+	if (tokens[1][0] != '#')
+		return (false);
+	return (true);
+}
+
+bool Server::emitorInChannel(int emitFd, std::string channel)
+{
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end())
+	{
+		if ((*it).getName() == channel)
+		{
+			if ((*it).isMember(emitFd))
+				return (true);
+		}
+		it++;
+	}
+	return(false);
+}
+
+bool Server::emitorOperator(int fd, std::string channel)
+{
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end())
+	{
+		if ((*it).getName() == channel)
+		{
+			if ((*it).isOperator(fd))
+				return (true);
+		}
+		it++;
+	}
+	return(false);
+}
+
+int Server::targetExist(std::string nick)
+{
+	std::vector<Client>::iterator it = _clients.begin();
+
+	while (it != _clients.end())
+	{
+		if ((*it).getNickname() == nick)
+		{
+			return ((*it).getClientFd());
+		}
+		it++;
+	}
+	return(0);
+}
+
+bool Server::targetInChannel(std::string channel, int targetFd)
+{
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end())
+	{
+		if ((*it).getName() == channel)
+		{
+			if ((*it).isMember(targetFd))
+				return (true);
+		}
+		it++;
+	}
+	return(false);
+}
+
+void Server::removeTarget(std::string channel, int targetFd)
+{
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end())
+	{
+		if ((*it).getName() == channel)
+		{
+			(*it).removeClient(targetFd);
+		}
+		it++;
+	}
+	return;
+}
+
+Channel *Server::findChannel(std::string channel)
+{
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end())
+	{
+		if ((*it).getName() == channel)
+			return &(*it);
+		it++;
+	}
+	return (NULL);
+}
+bool Server::isChangeMode(std::string mode)
+{
+	if (mode[0] == '+' || mode[0] == '-')
+		return (true);
+	return(false);
 }

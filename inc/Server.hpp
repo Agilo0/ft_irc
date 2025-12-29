@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/26 14:55:06 by yaja             ###   ########.fr       */
+/*   Updated: 2025/12/29 20:43:51 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,8 @@ class Server
 		void handlePrivmsg(Client *cli, const std::vector<std::string> &tokens);
 		//void handleWho(Client *cli, const std::vector<std::string> &tokens);
 		void handShake(Client *cli, const std::string &command);
+		void handleKick(Client *cli, std::vector<std::string> &tokens);
+		void handleMode(Client *cli, std::vector<std::string> &tokens);
 
 
     public:
@@ -76,9 +78,9 @@ class Server
 
 
 		//authentification
-		void passAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername);
-		void nickAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername);
-		void userAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername);
+		void passAuth(Client *cli, const std::vector<std::string> &tokens);
+		void nickAuth(Client *cli, const std::vector<std::string> &tokens);
+		void userAuth(Client *cli, const std::vector<std::string> &tokens);
 		void broadcastNewNick(Client *cli);
 		std::vector<int> notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok);
 		
@@ -86,6 +88,12 @@ class Server
 		//part
 		void handlePart(Client *cli, const std::vector<std::string> &tokens);
 		void broadcastPart(std::string chann, std::string message, std::string reason);
+
+		//kick
+		bool checkKick(std::vector<std::string> &tokens);
+		void removeTarget(std::string channel, int targetFd);
+		void broadcastKick(std::string chann, std::string message, std::string nick, std::string reason);
+
 
 		//utils
 		std::string appendToks( const std::vector<std::string> &tokens, int index);
@@ -96,6 +104,15 @@ class Server
 		bool nickTaken(std::string nick) const;
 		bool channelExist(std::string channel);
 		void removeChannel(std::string chan);
+		bool emitorInChannel(int emitFd, std::string channel);
+		bool emitorOperator(int fd, std::string channel);
+		int targetExist(std::string nick);
+		bool targetInChannel(std::string channel, int targetFd);
+		Channel *findChannel(std::string channel);
+		bool isChangeMode(std::string mode);
+
+
+
 
 
 

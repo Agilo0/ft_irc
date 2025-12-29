@@ -171,7 +171,7 @@ int Client::quitChannel(std::string channel)
 	return (1);
 }
 
-std::string Client::createPartMessage()
+std::string Client::createMessage()
 {
 	std::string res;
 

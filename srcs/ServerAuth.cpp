@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAuth.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/26 17:20:41 by yaja             ###   ########.fr       */
+/*   Updated: 2025/12/29 20:36:28 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Server.hpp"
 
-void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername)
+void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens)
 {
     std::cout << YELLOW << "1st status: " << NC << cli->getStatus();
 	if (tokens.size() < 2)
@@ -46,12 +46,12 @@ void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens, std::
 	{
 		cli->setLog();
 		std::cout << "logged" << std::endl;
-		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
+		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
 	}
 	cli->setStatus(NICK_OK);
 }
 
-void Server::passAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername)
+void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 {
 	std::cout << "DOING PASS AUTHENTIFICATION" << std::endl;
 	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
@@ -81,12 +81,12 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens, std::
 	if (cli->hasAll())
 	{
 		cli->setLog();
-		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
+		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
 	}
 	cli->setStatus(PASS_OK);
 }
 
-void Server::userAuth(Client *cli, const std::vector<std::string> &tokens, std::string servername)
+void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
 {
 	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
 	std::string user = tokens[1];
@@ -118,7 +118,7 @@ void Server::userAuth(Client *cli, const std::vector<std::string> &tokens, std::
 	if (cli->hasAll())
 	{
 		cli->setLog();
-		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, servername, cli->getClientIP()));
+		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
 	}
 	cli->setStatus(USER_OK);
 }

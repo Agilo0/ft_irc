@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/26 20:58:46 by yaja             ###   ########.fr       */
+/*   Updated: 2025/12/29 20:38:15 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,10 +214,12 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case PRIVMSG: handlePrivmsg(cli, tokens); break;
 		//case WHO: handleWho(cli, tokens); break;	//what exactly who do?
 	
-		case PASS: passAuth(cli, tokens, _serverName); break;
-		case NICK: nickAuth(cli, tokens, _serverName); break;
-		case USER: userAuth(cli, tokens, _serverName); break;
+		case PASS: passAuth(cli, tokens); break;
+		case NICK: nickAuth(cli, tokens); break;
+		case USER: userAuth(cli, tokens); break;
 		case PART: handlePart(cli, tokens); break;
+		case KICK: handleKick(cli, tokens); break;
+		case MODE: handleMode(cli, tokens); break;
 		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
 	default:
 		break;

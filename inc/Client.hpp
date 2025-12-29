@@ -73,7 +73,7 @@ class Client
 
 		void addBuffer(const std::string &data);
 		int quitChannel(std::string channel);
-		std::string createPartMessage();
+		std::string createMessage();
 };
 
 #endif
