@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/29 20:43:51 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/30 20:18:09 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,6 +110,9 @@ class Server
 		bool targetInChannel(std::string channel, int targetFd);
 		Channel *findChannel(std::string channel);
 		bool isChangeMode(std::string mode);
+		bool validMode(std::string mode);
+		int findTarget(std::string nick);
+		void broadcastMode(Channel *chann, std::string message);
 
 
 

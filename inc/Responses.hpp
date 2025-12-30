@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/29 20:13:24 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/30 19:21:00 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,3 +75,4 @@
 
 //MODE
 #define ERR_UNKNOWNCOMMAND(servername, nick, command) (servername + " 421 " + nick + command + " :Unknown command")
+#define ERR_INVALIDMODEPARAM(servername, nick, channel, mode, argument) (servername + " 696 " + nick + channel + mode + argument + " :Invalid mode parameter")

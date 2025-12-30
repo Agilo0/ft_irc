@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:48:05 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/29 20:45:03 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/30 20:11:18 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,6 +120,20 @@ void Server::broadcastKick(std::string chann, std::string message, std::string n
 		it++;
 	}
 	(void)nick;
+}
+
+void Server::broadcastMode(Channel *channel, const std::string message)
+{
+
+	std::set<int> clients = channel->getClients();
+	std::set<int>::iterator itc = clients.begin();
+	while (itc != clients.end())
+	{
+		int fd = *itc;
+		sendResponse(fd, message);
+		itc++;
+	}
+	return;
 }
 
 //I have to handle properly this. I think I should used differents setter for each status??

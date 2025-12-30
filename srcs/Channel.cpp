@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:30:04 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 21:15:27 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/30 20:00:28 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ void Channel::setModeT(bool active){ _tMode = active;}
 void Channel::setModeK(bool active){ _kMode = active;}
 void Channel::setModeO(bool active){ _oMode = active;}
 void Channel::setModeL(bool active){ _lMode = active;}
-//bool Channel::hasKey(bool active) {_hasKey = active;}
+// bool Channel::hasKey(bool active) {_hasKey = active;}
 
 
 bool Channel::hasTopic() const {return !_topic.empty();}
@@ -122,4 +122,104 @@ bool Channel::isEmpty() const
 	if (_clients.empty())
 		return (true);
 	return (false);
+}
+
+int Channel::manageModeChange(std::string mode, std::string arg, int targetFd)
+{
+	bool sign;
+	if (mode[0] == '+')
+		sign = true;
+	else
+		sign = false;
+	if (mode[1] == 'i')
+	{
+		setModeI(sign);
+		return(0);
+	}
+	else if (mode[1] == 't')
+	{
+		setModeT(sign);
+		return(0);
+	}
+	if (arg == "")
+	{
+		return(1);
+	}
+	if (mode[1] == 'k')
+	{
+		manageK(sign, arg);
+		return (0);
+	}
+	if (mode[1] == 'o')
+	{
+		if (manageO(sign, targetFd) == 1)
+			return (2);
+	}
+	if (mode[1] == 'l')
+	{
+		if (manageL(sign, arg) == 1)
+			return (3);
+	}
+	return (0);
+}
+
+void Channel::manageK(bool sign, std::string arg)
+{
+	setModeK(sign);
+	if (sign == true)
+	{
+		_key = arg;
+	}
+	else
+		_key.clear();
+
+}
+
+int Channel::manageO(bool sign, int targetFd)
+{
+	if (!isMember(targetFd))
+		return (1);
+	if (sign == true)
+		addOperator(targetFd);
+	else if (sign == false)
+		removeOperator(targetFd);
+	setModeO(sign);
+	return (0);
+}
+
+int Channel::manageL(bool sign, std::string arg)
+{
+	if (sign == true)
+	{
+		if (!isStrictNumber(arg))
+        	return (1); 
+
+		size_t limit;
+		std::stringstream ss(arg);
+		ss >> limit;
+
+		if (limit == 0)
+			return (1);
+		_maxUsers = limit;
+		setModeL(true);
+	}
+	else
+		setModeL(sign);
+	return (0);
+}
+
+bool Channel::isStrictNumber(const std::string &s)
+{
+    size_t i = 0;
+
+    if (s.empty())
+        return false;
+
+    while (i < s.size())
+    {
+        if (!std::isdigit(s[i]))
+            return false;
+        i++;
+    }
+    return true;
 }

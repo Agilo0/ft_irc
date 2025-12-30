@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/23 20:23:15 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/30 20:00:06 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,12 +85,20 @@ class Channel{
 		bool isOperator(int fd) const;
 		bool isInvited(int fd) const;
 
+		//client management
 		void removeClient(int fd);
 		void addOperator(int fd);
 		void removeOperator(int fd);
 		void inviteClient(int fd);
 		void removeInvite(int fd);
 
+		//modes
+		int manageModeChange(std::string mode, std::string arg, int targetFd);
+		void manageK(bool sign, std::string arg);
+		int manageO(bool sign, int targetFd);
+		int manageL(bool sign, std::string arg);
+		bool isStrictNumber(const std::string &s);
+		// void broadcastMode();
 
 };
 

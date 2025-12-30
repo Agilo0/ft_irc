@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/29 20:36:28 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/30 20:18:11 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,7 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 	std::string pass = tokens[1];
 	if (pass != _pwd)
 	{
+		std::cout << pass << tokens[0] << " is different " << _pwd << std::endl;
 		sendResponse(cli->getClientFd(), ERR_PASSWDMISMATCH(nick));
 		return;
 	}

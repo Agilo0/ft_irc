@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/29 20:45:22 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/30 19:58:58 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -263,10 +263,40 @@ void Server::handleMode(Client *cli, std::vector<std::string> &tokens)
 		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
 		return;
 	}
-	(void)channel;
-	// if (isChangeMode(tokens[2]))
-	// {
-	// 	//check if operator
-	// }
-	//else read mode
+	// (void)channel;
+	if (isChangeMode(tokens[2]) && validMode(tokens[2]))
+	{
+		if (channel->isOperator(cli->getClientFd()))
+		{
+				int success = 0;
+			int targetFd = -1;
+			std::string arg = "";
+
+			if (tokens.size() > 3)
+			{
+				arg = tokens[3];
+				targetFd = findTarget(arg);
+			}
+			success = channel->manageModeChange(tokens[2], arg, targetFd);
+			if (success == 1)
+			{
+				sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+				return;
+			}
+			else if (success == 2)
+			{
+				sendResponse(cli->getClientFd(), ERR_USERNOTINCHANNEL(cli->getNickname(), tokens[3], channel->getName()));
+				return;
+			}
+			else if (success == 3)
+			{
+				sendResponse(cli->getClientFd(), ERR_INVALIDMODEPARAM(_serverName, cli->getNickname(), channel->getName(), "l", tokens[3]));
+				return;
+			}
+		}
+		std::string message = cli->createMessage();
+		message.append(appendToks(tokens, 0));
+		broadcastMode(channel, message);
+	}
+
 }

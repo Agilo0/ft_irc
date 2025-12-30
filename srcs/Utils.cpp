@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/29 20:41:40 by alounici         ###   ########.fr       */
+/*   Updated: 2025/12/30 20:00:43 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,7 +253,31 @@ Channel *Server::findChannel(std::string channel)
 }
 bool Server::isChangeMode(std::string mode)
 {
-	if (mode[0] == '+' || mode[0] == '-')
+	if (mode.size() == 2 && (mode[0] == '+' || mode[0] == '-'))
 		return (true);
 	return(false);
+}
+
+bool Server::validMode(std::string mode)
+{
+	if (mode.size() == 2 && (mode[1] == 'i' || mode[1] == 't' || 
+		mode[1] == 'k' || mode[1] == 'o' || mode[1] == 'l'))
+		return (true);
+	if (mode.size() == 1 && (mode[0] == 'i' || mode[0] == 't' || 
+	mode[0] == 'k' || mode[0] == 'o' || mode[0] == 'l'))
+		return (true);
+	return (false);
+}
+
+int Server::findTarget(std::string nick)
+{
+	std::vector<Client>::iterator it = _clients.begin();
+
+	while (it != _clients.end())
+	{
+		if ((*it).getNickname() == nick)
+			return ((*it).getClientFd());
+		it++;
+	}
+	return (0);
 }
