@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/30 20:18:11 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/01 16:02:51 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens)
 	
 	if (cli->hasAll())
 	{
-		cli->setLog();
+		cli->setStatus(AUTHENTICATED);
 		std::cout << "logged" << std::endl;
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
 	}
@@ -68,9 +68,8 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 	}
 
 	std::string pass = tokens[1];
-	if (pass != _pwd)
+	if (tokens[1] != _pwd)
 	{
-		std::cout << pass << tokens[0] << " is different " << _pwd << std::endl;
 		sendResponse(cli->getClientFd(), ERR_PASSWDMISMATCH(nick));
 		return;
 	}
@@ -81,7 +80,7 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 
 	if (cli->hasAll())
 	{
-		cli->setLog();
+		cli->setStatus(AUTHENTICATED);
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
 	}
 	cli->setStatus(PASS_OK);
@@ -118,7 +117,7 @@ void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
 	}
 	if (cli->hasAll())
 	{
-		cli->setLog();
+		cli->setStatus(AUTHENTICATED);
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
 	}
 	cli->setStatus(USER_OK);

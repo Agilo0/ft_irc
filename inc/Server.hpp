@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/30 20:18:09 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/01 16:18:17 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ class Server
 		void handShake(Client *cli, const std::string &command);
 		void handleKick(Client *cli, std::vector<std::string> &tokens);
 		void handleMode(Client *cli, std::vector<std::string> &tokens);
+		void handleInvite(Client *cli, std::vector<std::string> &tokens);
 
 
     public:

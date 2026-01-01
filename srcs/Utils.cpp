@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/30 20:00:43 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/01 16:25:03 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,11 @@ std::vector<std::string> Utils::split(const std::string &str, char delimiter){
 	std::string token;
 
 	while(std::getline(ss, token, delimiter))
+	{
+		if (!token.empty() && token[token.size() - 1] == '\r')
+    		token.erase(token.size() - 1);
 		tokens.push_back(token);
+	}
 	return tokens;
 }
 
@@ -279,5 +283,5 @@ int Server::findTarget(std::string nick)
 			return ((*it).getClientFd());
 		it++;
 	}
-	return (0);
+	return (-1);
 }

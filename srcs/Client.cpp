@@ -23,6 +23,7 @@ Client::~Client() {}
 
 
 void Client::setStatus(Status status){
+	logged = true;
 	_status = status;
 }
 Status Client::getStatus() const
@@ -110,6 +111,7 @@ void Client::setNewNick(std::string nick)
 void Client::setLog()
 {
 	logged = true;
+	_status = AUTHENTICATED;
 }
 
 std::string Client::getNick() const

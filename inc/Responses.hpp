@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/30 19:21:00 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/01 16:48:47 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,10 +69,15 @@
 #define RPL_PART(message, channel, reason) (message + " PART " + channel + " " + reason)
 
 //KICK
-#define ERR_CHANOPRIVSNEEDED(nick, channel) ("482 " + nick + channel + " :You're not channel operator")
-#define ERR_USERNOTINCHANNEL(nick, targetnick, channel) ("441 " + nick + targetnick + channel + " :They aren't on that channel")
-#define RPL_KICK(message, channel, tagetNick, reason) (message + " KICK " + channel + " " + reason)
+#define ERR_CHANOPRIVSNEEDED(nick, channel) ("482 " + nick + " " + channel + " :You're not channel operator")
+#define ERR_USERNOTINCHANNEL(nick, targetnick, channel) ("441 " + nick + " " + targetnick + " "  + channel + " :They aren't on that channel")
+#define RPL_KICK(message, channel, targetNick, reason) (message + " KICK " + channel + targetNick + reason)
 
 //MODE
-#define ERR_UNKNOWNCOMMAND(servername, nick, command) (servername + " 421 " + nick + command + " :Unknown command")
-#define ERR_INVALIDMODEPARAM(servername, nick, channel, mode, argument) (servername + " 696 " + nick + channel + mode + argument + " :Invalid mode parameter")
+#define ERR_UNKNOWNCOMMAND(servername, nick, command) (":" + servername + " 421 " + nick + command + " :Unknown command")
+#define ERR_INVALIDMODEPARAM(servername, nick, channel, mode, argument) (":" + servername + " 696 " + nick + channel + mode + argument + " :Invalid mode parameter")
+
+//INVITE
+#define ERR_USERONCHANNEL(servername, nick, target, channel) (":" + servername + " 443 " + nick + " " + target + " " + channel + " :Is already on channel")
+#define RPL_INVITING(servername, nick, target, channel) (":" + servername + " 341 " + nick + " " + target + " " + channel)
+#define INVITE(message, nick, channel) (message + " INVITE " + nick + " " + channel)
