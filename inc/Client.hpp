@@ -1,12 +1,23 @@
-#include <string>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Client.hpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
+/*   Updated: 2026/01/01 19:20:21 by yaja             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef CLIENT_HPP
 # define CLIENT_HPP
 
-#include "Channel.hpp"
+#include <string>
+//#include "Channel.hpp"
 
 enum Status {
     NOT_AUTHENTICATED,
-	CAP_NEGOTIATED,
     PASS_OK,
     NICK_OK,
 	NICK_AGAIN,
@@ -14,8 +25,7 @@ enum Status {
     AUTHENTICATED
 };
 
-class Client
-{
+class Client{
     private:
         int _clientFd;
         std::string _nickname;
@@ -24,56 +34,51 @@ class Client
         std::string _realname;
 		std::string _ip;//or host
 		std::string _buffer;
-
+        Status _status;
 		bool hasNick, hasUser, hasPass, logged;
-		std::vector<Channel *> _channels;
-        //char **channels;
-		Status _status;//fist we need to verify if client has all the requirements
-
+        bool _toRemove;
 
     public:
         Client();
-        Client(int fd);
         ~Client();
-		
-		Status getStatus() const;
-		void setStatus(Status status);
-
-		void setClientFd(int fd);
-		//void setClientInfo(std::string username, std::string nickname);//TMP!!!
-		void setClientIP(const std::string &newIP);
+        
+        //getters
+        Status getStatus();
 		int getClientFd() const;//<--socket FD of the client
-
-		std::string getUsername() const;
+        std::string getUsername() const;
 		std::string getNickname() const;
 		std::string getClientIP() const;
-		std::string &getBuff();//
-
-		//bools
-		bool isLogged() const;
-		bool hasAll() const;
-		bool hasPassw() const;
-		bool hasNickname() const;
-		bool hasUsername() const;
-
-		//setters
-		void setPass();
+		std::string &getBuff();
+        std::string getNick() const;
+		std::string getOldnick() const;
+		//Channel *getChannel(unsigned int index);
+                
+        //setters
+        void setStatus(Status status);
+        void setClientFd(int fd);
+		void setClientIP(const std::string &newIP);
+        void setPass();
 		void setLog();
 		void setFirstNick(std::string nick);
 		void setNewNick(std::string nick);
 		void setRealName(std::string name);
 		void setUser(std::string name);
-		void setChannel(Channel *channel);
+		//void setChannel(Channel *channel);
 
-		//getter
-		std::string getNick() const;
-		std::string getOldnick() const;
-		Channel *getChannel(unsigned int index);
+        //bools
+		bool isLogged() const;
+		bool hasAll() const;
+		bool hasPassw() const;
+		bool hasNickname() const;
+		bool hasUsername() const;
+        bool isToRemove() const;
 
+        //others
+        void markForRevome();
+        void addBuffer(const std::string &data);
+		//int quitChannel(std::string channel);
+		//std::string createMessage();
 
-		void addBuffer(const std::string &data);
-		int quitChannel(std::string channel);
-		std::string createMessage();
 };
 
 #endif

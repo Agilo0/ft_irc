@@ -3,220 +3,87 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAux.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/10 10:48:05 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/30 20:11:18 by alounici         ###   ########.fr       */
+/*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
+/*   Updated: 2026/01/01 20:14:22 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Server.hpp"
+#include "../inc/Server.hpp"
+#include "Utils.hpp"
 
-Channel *Server::moveCreateChannel(const std::string &channelName){
-	//if we have the name on the list, we send the channel
-	for(size_t i = 0; i < _channels.size(); i++){
-		if (_channels[i].getName() == channelName)
-			return &_channels[i];
-	}
-	//if not, we add this new name on the vector
-	_channels.push_back(Channel(channelName));
-	return &_channels.back();
-}
+Server::Server() : _port(0), _servFd(-1) , _serverName("ircserv"){}
 
-//this will tell us the client we are talking about (but not its fd)
-Client *Server::getClient(int fd){
-	for (size_t i = 0; i < _clients.size(); ++i){
-		if (_clients[i].getClientFd() == fd)
-			return &_clients[i];
-	}
-	return NULL;
-}
+bool Server::_sigFlag = false;//no signal received yet
 
-Client *Server::getClientByNick(const std::string &dest){
-	for (size_t i = 0; i < _clients.size(); ++i){
-		if (_clients[i].getNickname() == dest)
-			return &_clients[i];
-	}
-	return NULL;
-}
-
-//Notification
-
-void Server::broadcastNewNick(Client *cli)
+void Server::sigHandler(int signum)
 {
-	int i = 0;
-	std::vector<int> clientFdsOk;
-	std::vector<int> res;
-	Channel *chan;
-
-	while ((chan = cli->getChannel(i)) != NULL)
-	{
-		clientFdsOk = notifChannel(chan, cli->getOldnick(), cli->getNickname(), clientFdsOk);
-		i++;
-	}
+	(void)signum;
+	std::cout << PURPLE << "Flag is true! " << signum << NC << std::endl;
+	_sigFlag = true;
 }
 
-std::vector<int> Server::notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok)
-{
-	std::set<int> clients = chan->getClients();
-	std::set<int>::iterator it = clients.begin();
+void Server::checkNewClient(){//we have to add this client to the list
+	sockaddr_in clientAddr;
+	socklen_t	clientLen = sizeof(clientAddr);
+	int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
+	if (clientFd == -1){
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return  ;
+		std::cout << RED;
+		std::perror("!Error: accept()");
+		std::cout << NC;
+		return ;
+	}
+	if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1){
+		::close(_servFd);
+		throw std::runtime_error("!Error: fcntl(O_NONBLOCK)");
+	}
+	pollfd clientPollfd = {clientFd, POLLIN, 0};//new poll and its struct	
+	Client newclient;
+	newclient.setClientFd(clientFd);
+	newclient.setClientIP(inet_ntoa(clientAddr.sin_addr));//this how we set the IP
 	
-	while (it != clients.end())
-	{
-		int fd = *it;
-		if (std::find(ok.begin(), ok.end(), fd) == ok.end())
-		{
-			sendResponse(fd, NICK_UPDATE(old, nick));
-			ok.push_back(fd);
-		}
-		it++;
-
-	}
-	return (ok);
+	_pollFds.push_back(clientPollfd);
+	_clients.push_back(newclient);
+	
+	std::cout << TURQUOISE << "<" << clientFd << "> Connected!" << NC << std::endl;
 }
 
-void Server::broadcastPart(std::string chann, std::string message, std::string reason)
-{
-
-	std::vector<Channel>::iterator it = _channels.begin();
-
-	while (it != _channels.end())
+//this will give us the commands that are sending the clients
+void Server::checkNewData(int fd){
+	char buffer[1024];
+	memset(buffer, 0, sizeof(buffer));//clears the buffer
+	
+	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
+	if (bytes == 0) //is the client disconnected?
 	{
-		if (chann == (*it).getName())
-		{
-			std::set<int> clients = (*it).getClients();
-			std::set<int>::iterator itc = clients.begin();
-			while (itc != clients.end())
-			{
-				int fd = *itc;
-				sendResponse(fd, RPL_PART(message, (*it).getName(), reason));
-				itc++;
-			}
+		std::cout << "flag_3\n";
+		clearClient(fd);
+		return ;
+	}
+	else if (bytes < 0) {
+    	if (errno == EAGAIN || errno == EWOULDBLOCK)
 			return;
-		}
-		it++;
 	}
-}
-
-void Server::broadcastKick(std::string chann, std::string message, std::string nick, std::string reason)
-{
-
-	std::vector<Channel>::iterator it = _channels.begin();
-
-	while (it != _channels.end())
-	{
-		if (chann == (*it).getName())
-		{
-			std::set<int> clients = (*it).getClients();
-			std::set<int>::iterator itc = clients.begin();
-			while (itc != clients.end())
-			{
-				int fd = *itc;
-				sendResponse(fd, RPL_KICK(message, chann, nick, reason));
-				itc++;
-			}
-			return;
-		}
-		it++;
-	}
-	(void)nick;
-}
-
-void Server::broadcastMode(Channel *channel, const std::string message)
-{
-
-	std::set<int> clients = channel->getClients();
-	std::set<int>::iterator itc = clients.begin();
-	while (itc != clients.end())
-	{
-		int fd = *itc;
-		sendResponse(fd, message);
-		itc++;
-	}
-	return;
-}
-
-//I have to handle properly this. I think I should used differents setter for each status??
-//When the handShake is finish, I should recieve the RLP_WELCOME!!
-void Server::handShake(Client *cli, const std::string &command){
-	std::vector<std::string> tokens = Utils::split(command, ' ');
-	if (tokens.empty())
-		return;
-	std::string cmd = tokens[0];
-	for(size_t i = 0; i < cmd.size(); ++i)
-		cmd[i] = std::toupper(cmd[i]);
-	if (cmd == "PASS")
-		passAuth(cli, tokens);
-	else if(cmd == "NICK")
-		nickAuth(cli, tokens);
-	else if (cmd == "USER")
-		userAuth(cli, tokens);
-	else if (cmd == "JOIN")
-		handleJoin(cli, tokens);
-	else if (cmd == "KICK")
-		handleKick(cli, tokens);
-	else if (cmd == "MODE")
-		handleMode(cli, tokens);
-	//add rest of existing commands
-	else
-		std::cout << ORANGE << "WORK IN PROGRESS..." << std::endl;
-	if (cli->getStatus() == USER_OK){
-		cli->setStatus(AUTHENTICATED);
-		std::cout << TURQUOISE << "WELCOME TO IRC SERVER!!!" << NC << std::endl;
-		//RPL_WELCOME(cli->getNickname(), _serverName, cli->getClientIP);
-	}
-}
-
-
-
-
-
-
-
-
-
-
-//JUST FOR DEBUG
-
-//Muestra los canales que hay y que clientes hay en cada uno
-void Server::printChannels(const std::vector<Channel>& _channels)
-{
-    std::cout << "---- Lista de canales ----" << std::endl;
-    for (size_t i = 0; i < _channels.size(); ++i)
-    {
-        const Channel &ch =_channels[i];
-        std::cout << "[" << i << "] Nombre: " << ch.getName();
-
-        if (ch.hasTopic())
-            std::cout << " | Topic: " << ch.getTopic();
-
-        std::cout << "\n    Clientes (" << ch.getClients().size() << "): ";
-
-        const std::set<int> &clients = ch.getClients();
-        std::set<int>::const_iterator it = clients.begin();
-        for (; it != clients.end(); ++it)
-        {
-            std::cout << *it;
-            std::set<int>::const_iterator next = it;
-            ++next;
-            if (next != clients.end())
-                std::cout << ", ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "--------------------------" << std::endl;
-}
-
-// Muestra los clientes+fd autenticados y los conectados sin autenticar 
-void Server::printClients(const std::vector<Client>& _clients) {
-    std::cout << "---- Lista de clientes ----" << std::endl;
-    for (size_t i = 0; i < _clients.size(); ++i) {
-		if (_clients[i].getStatus() == AUTHENTICATED) {
-        	std::cout << "Cliente " << i << " FD=" << _clients[i].getClientFd() 
-			<< " " << _clients[i].getNickname() << std::endl;
-    	} else {
-			std::cout << "Cliente " << i << " FD=" << _clients[i].getClientFd() 
-			<< " " << _clients[i].getNickname() << " NOT_AUTHENTICATED" << std::endl;
+	Client *cli = getClient(fd);
+	if (!cli)
+		return ;
+	cli->addBuffer(std::string(buffer, bytes));
+	std::string &buff = cli->getBuff();
+	size_t pos;
+	
+	//vvvvv we will process only a complete line
+	//while((pos = buff.find("\r\n")) != std::string::npos){ //the real loop should be like this. But netcat can work different in other OS
+	while((pos = buff.find("\n")) != std::string::npos){
+		std::cout << BLUE << "CheckNewData loop\n" << NC;
+		
+		std::string cmd = buff.substr(0, pos);
+		buff.erase(0, pos + 2);
+		if (!cmd.empty()){
+			std::cout << YELLOW << "<" << fd << "> << " << cmd << NC << std::endl;
+			parseCommand(cli, cmd);
 		}
 	}
 }

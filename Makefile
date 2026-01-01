@@ -6,7 +6,7 @@
 #    By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 16:35:30 by yanaranj          #+#    #+#              #
-#    Updated: 2025/12/26 17:14:21 by yaja             ###   ########.fr        #
+#    Updated: 2026/01/01 20:16:45 by yaja             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ BLUE = \e[1;94m
 NAME = ircserv
 
 CC = c++
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -I ./inc/
+CFLAGS = -Wall -Wextra -Werror -std=c++98 -I ./inc/ -fsanitize=address
 RM = rm -f
 
 #directories
@@ -28,14 +28,16 @@ SRCSDIR = ./srcs/
 OBJDIR = ./objs/
 
 #files
-SRCS_FILES = Server.cpp Client.cpp Channel.cpp \
+
+SRCS_FILES = Server.cpp Client.cpp ServerAux.cpp Utils.cpp ../main.cpp \
+#Channel.cpp \
 	ServerAux.cpp ServerCommands.cpp Utils.cpp ../main.cpp \
 	ServerAuth.cpp 
 #sources & objects files
 SRCS = $(addprefix $(SRCSDIR), $(SRCS_FILES))
 OBJS = $(SRCS:$(SRCSDIR)%.cpp=$(OBJDIR)%.o)
 
-HEADER = ./inc/Server.hpp ./inc/Utils.hpp .inc/Client.hpp
+HEADER = ./inc/Server.hpp ./inc/Utils.hpp .inc/Client.hpp #.inc/Client.hpp
 
 #compile .cpp to .o
 $(OBJDIR)%.o: $(SRCSDIR)%.cpp | $(OBJSDIR) #$(HEADER) Makefile

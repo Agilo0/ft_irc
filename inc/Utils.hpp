@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 16:24:32 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/20 17:54:22 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/01 17:33:27 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,12 @@
 //no utils class needed
 class Utils{
 	public:
-		static std::vector<std::string>	split(const std::string &str, char delimiter);//is not defined yet 
+		static std::vector<std::string>	split(const std::string &str, char delimiter);
+        static int check_port(char *port);
+		static bool check_password(const std::string &password);
+         
 };
 
 //static std::vector<std::string>	split(const std::string &str, char delimiter);//is not defined yet 
-std::string convertResponse(const std::string &response);
+//std::string convertResponse(const std::string &response);
 #endif
