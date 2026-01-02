@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:48:05 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/30 20:11:18 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/02 18:49:21 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,102 +40,6 @@ Client *Server::getClientByNick(const std::string &dest){
 	return NULL;
 }
 
-//Notification
-
-void Server::broadcastNewNick(Client *cli)
-{
-	int i = 0;
-	std::vector<int> clientFdsOk;
-	std::vector<int> res;
-	Channel *chan;
-
-	while ((chan = cli->getChannel(i)) != NULL)
-	{
-		clientFdsOk = notifChannel(chan, cli->getOldnick(), cli->getNickname(), clientFdsOk);
-		i++;
-	}
-}
-
-std::vector<int> Server::notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok)
-{
-	std::set<int> clients = chan->getClients();
-	std::set<int>::iterator it = clients.begin();
-	
-	while (it != clients.end())
-	{
-		int fd = *it;
-		if (std::find(ok.begin(), ok.end(), fd) == ok.end())
-		{
-			sendResponse(fd, NICK_UPDATE(old, nick));
-			ok.push_back(fd);
-		}
-		it++;
-
-	}
-	return (ok);
-}
-
-void Server::broadcastPart(std::string chann, std::string message, std::string reason)
-{
-
-	std::vector<Channel>::iterator it = _channels.begin();
-
-	while (it != _channels.end())
-	{
-		if (chann == (*it).getName())
-		{
-			std::set<int> clients = (*it).getClients();
-			std::set<int>::iterator itc = clients.begin();
-			while (itc != clients.end())
-			{
-				int fd = *itc;
-				sendResponse(fd, RPL_PART(message, (*it).getName(), reason));
-				itc++;
-			}
-			return;
-		}
-		it++;
-	}
-}
-
-void Server::broadcastKick(std::string chann, std::string message, std::string nick, std::string reason)
-{
-
-	std::vector<Channel>::iterator it = _channels.begin();
-
-	while (it != _channels.end())
-	{
-		if (chann == (*it).getName())
-		{
-			std::set<int> clients = (*it).getClients();
-			std::set<int>::iterator itc = clients.begin();
-			while (itc != clients.end())
-			{
-				int fd = *itc;
-				sendResponse(fd, RPL_KICK(message, chann, nick, reason));
-				itc++;
-			}
-			return;
-		}
-		it++;
-	}
-	(void)nick;
-}
-
-void Server::broadcastMode(Channel *channel, const std::string message)
-{
-
-	std::set<int> clients = channel->getClients();
-	std::set<int>::iterator itc = clients.begin();
-	while (itc != clients.end())
-	{
-		int fd = *itc;
-		sendResponse(fd, message);
-		itc++;
-	}
-	return;
-}
-
 //I have to handle properly this. I think I should used differents setter for each status??
 //When the handShake is finish, I should recieve the RLP_WELCOME!!
 void Server::handShake(Client *cli, const std::string &command){
@@ -157,6 +61,8 @@ void Server::handShake(Client *cli, const std::string &command){
 		handleKick(cli, tokens);
 	else if (cmd == "MODE")
 		handleMode(cli, tokens);
+	else if (cmd == "QUIT")
+		handleQuit(cli, tokens);
 	//add rest of existing commands
 	else
 		std::cout << ORANGE << "WORK IN PROGRESS..." << std::endl;

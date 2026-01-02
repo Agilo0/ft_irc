@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 16:18:48 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/02 18:43:21 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,6 +221,7 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case KICK: handleKick(cli, tokens); break;
 		case MODE: handleMode(cli, tokens); break;
 		case INVITE: handleInvite(cli, tokens); break;
+		case QUIT: handleQuit(cli, tokens); break;
 		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
 	default:
 		break;
@@ -241,6 +242,7 @@ CommandType Server::isCommand(const std::string &cmd){
 	else if (cmd == "NICK") return (NICK);
 	else if (cmd == "USER") return (USER);
 	else if (cmd == "PART") return (PART);
+	else if (cmd == "QUIT") return (QUIT);
 	else
 		return UKNW;
 }

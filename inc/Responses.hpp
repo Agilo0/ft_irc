@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 16:48:47 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/02 17:52:43 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,3 +81,6 @@
 #define ERR_USERONCHANNEL(servername, nick, target, channel) (":" + servername + " 443 " + nick + " " + target + " " + channel + " :Is already on channel")
 #define RPL_INVITING(servername, nick, target, channel) (":" + servername + " 341 " + nick + " " + target + " " + channel)
 #define INVITE(message, nick, channel) (message + " INVITE " + nick + " " + channel)
+
+//QUIT
+#define QUIT(message, reason) (message + " QUIT :" + reason)

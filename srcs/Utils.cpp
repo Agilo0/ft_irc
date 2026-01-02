@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 16:25:03 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/02 18:40:19 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,4 +284,30 @@ int Server::findTarget(std::string nick)
 		it++;
 	}
 	return (-1);
+}
+
+void Server::deleteClient(Client* cli)
+{
+    int fd = cli->getClientFd();
+	std::vector<Channel>::iterator it = _channels.begin();
+
+    while (it != _channels.end())
+    {
+        it->removeClient(fd);
+        if (it->isEmpty())
+            it = _channels.erase(it);
+        else
+            ++it;
+    }
+	std::vector<Client>::iterator itc = _clients.begin();
+	while (itc != _clients.end())
+	{
+		if (itc->getClientFd() == fd)
+		{
+			_clients.erase(itc);
+			break;
+		}
+		itc++;
+	}	
+    close(fd);
 }

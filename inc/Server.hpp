@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 16:18:17 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/02 18:30:50 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,9 +54,11 @@ class Server
 		void handlePrivmsg(Client *cli, const std::vector<std::string> &tokens);
 		//void handleWho(Client *cli, const std::vector<std::string> &tokens);
 		void handShake(Client *cli, const std::string &command);
+		void handlePart(Client *cli, const std::vector<std::string> &tokens);
 		void handleKick(Client *cli, std::vector<std::string> &tokens);
 		void handleMode(Client *cli, std::vector<std::string> &tokens);
 		void handleInvite(Client *cli, std::vector<std::string> &tokens);
+		void handleQuit(Client *cli, std::vector<std::string> &tokens);
 
 
     public:
@@ -87,7 +89,6 @@ class Server
 		
 		
 		//part
-		void handlePart(Client *cli, const std::vector<std::string> &tokens);
 		void broadcastPart(std::string chann, std::string message, std::string reason);
 
 		//kick
@@ -95,6 +96,8 @@ class Server
 		void removeTarget(std::string channel, int targetFd);
 		void broadcastKick(std::string chann, std::string message, std::string nick, std::string reason);
 
+		//quit
+		void broadcastQuit(Client *cli, std::string message, std::string reason);
 
 		//utils
 		std::string appendToks( const std::vector<std::string> &tokens, int index);
@@ -114,9 +117,10 @@ class Server
 		bool validMode(std::string mode);
 		int findTarget(std::string nick);
 		void broadcastMode(Channel *chann, std::string message);
+		void deleteClient(Client* cli);
 
 
-
+		std::vector<int> notifChannelQuit(Channel *chan, std::string message, std::string reason, std::vector<int> ok);
 
 
 

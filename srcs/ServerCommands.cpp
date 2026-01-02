@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 17:08:46 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/02 18:47:16 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -349,4 +349,17 @@ void Server::handleInvite(Client *cli, std::vector<std::string> &tokens)
 	sendResponse(cli->getClientFd(), RPL_INVITING(_serverName, cli->getNickname(), tokens[1], channel->getName()));
 	std::string message = cli->createMessage();
 	sendResponse(targetFd, INVITE(message, tokens[1], channel->getName()));
+}
+
+void Server::handleQuit(Client *cli, std::vector<std::string> &tokens)
+{
+	std::string message = cli->createMessage();
+	std::string reason;
+
+	if (tokens.size() > 1)
+		reason = appendToks(tokens, 1);
+	else
+		reason = "";
+	broadcastQuit(cli, "this is a message", "this is a reason");
+	deleteClient(cli);
 }
