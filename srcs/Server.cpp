@@ -3,44 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 20:12:40 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/02 12:51:09 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
-//NEXT STEP:
-/*
-	I need to redo again the client part. So let´s build it´s informatiobn again!!!
-	So lets start with getClient() and the we go to commands!!!
-*/
+
+/*CRASH WHEN WE CLOSE HEXCHAT. STILL WAITING FOR JOIN AND MORE COMMANDS*/
 
 Server::Server() : _port(0), _servFd(-1) , _serverName("ircserv"){}
-
-void Server::close_fds(std::vector<pollfd> &pollFds)
-{
-	int i = pollFds.size() - 1;
-	
-	while (i >= 0)
-	{
-		close(pollFds[i].fd);
-		i--;
-	}
-	close(_servFd);
-}
-
-void Server::clearClient(int fd){
-	Client *cli = getClient(fd);
-	if (!cli)
-		return ;
-	cli->markForRevome();
-	shutdown(fd, SHUT_RDWR);
-	close(fd);
-	
-	std::cout << PURPLE << "<" << fd << "> Disconnected!" << NC << std::endl;
-}
 
 void Server::createSocket()
 {
@@ -137,4 +111,57 @@ void Server::initServer(int port, std::string pwd){
 	close_fds(_pollFds);
 }
 
-//parsing commands
+void Server::parseCommand(Client *cli, const std::string &command){
+	if (command.empty())
+		return ;
+	//if it´s the 1st time, we need to verify his identity
+	if (cli->getStatus() != AUTHENTICATED){
+		std::cout << "AUTHENTICATED client\n" << NC;
+		handShake(cli, command);
+		return ;
+	}
+	//handle other commands
+	std::vector <std::string> tokens = Utils::split(command, ' ');
+	if (tokens.empty())
+		return ;
+	std::string cmd = tokens[0];
+	for(size_t i = 0; i < cmd.size(); i++){
+		cmd[i] = std::toupper(cmd[i]);
+	}
+	/* switch (isCommand(cmd))
+	{
+		std::cout << ORANGE << "switch statement commands" << std::endl;
+		case JOIN: handleJoin(cli, tokens); break;//do we need a code for error handle???
+		case PRIVMSG: handlePrivmsg(cli, tokens); break;
+		//case WHO: handleWho(cli, tokens); break;	//what exactly who do?
+		case PASS: passAuth(cli, tokens); break;
+		case NICK: nickAuth(cli, tokens); break;
+		case USER: userAuth(cli, tokens); break;
+		case PART: handlePart(cli, tokens); break;
+		case KICK: handleKick(cli, tokens); break;
+		case MODE: handleMode(cli, tokens); break;
+		case INVITE: handleInvite(cli, tokens); break;
+		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
+	default:
+		break;
+	} */
+}
+
+
+CommandType Server::isCommand(const std::string &cmd){
+	
+	std::cout << ORANGE << cmd << std::endl;
+	if (cmd == "JOIN") return (JOIN);
+	else if (cmd == "WHO") return (WHO);
+	else if (cmd == "PRIVMSG") return (PRIVMSG);
+	else if (cmd == "KICK") return (KICK);
+	else if (cmd == "INVITE") return (INVITE);
+	else if (cmd == "TOPIC") return (TOPIC);
+	else if (cmd == "MODE") return (MODE);
+	else if (cmd == "PASS") return (PASS);
+	else if (cmd == "NICK") return (NICK);
+	else if (cmd == "USER") return (USER);
+	else if (cmd == "PART") return (PART);
+	else
+		return UKNW;
+}

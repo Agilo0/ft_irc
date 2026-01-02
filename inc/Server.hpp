@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 20:12:18 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/02 12:46:05 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 
 #include "Utils.hpp"
 #include "Client.hpp"
-//#include "Channel.hpp"
-//#include "Responses.hpp"
+#include "Channel.hpp"
+#include "Responses.hpp"
 
 class Server{
     private:
@@ -27,25 +27,40 @@ class Server{
 		std::string _serverName;
 		std::vector<struct pollfd> _pollFds;
 		std::vector<Client> _clients;
-		//std::vector<Channel> _channels;
+		//std::vector<Channel> _channels:
 
+	//utils.cpp
+		bool checkNick(std::string nick);
+		bool checkUser(std::string user) const;
+		bool nickTaken(std::string nick) const;
+		//void broadcastNewNick(Client *cli);//works with channels
+		std::string appendToks( const std::vector<std::string> &tokens, int start);
+
+	//Authentication
+		void handShake(Client *cli, const std::string &command);
+		void passAuth(Client *cli, const std::vector<std::string> &tokens);
+		void nickAuth(Client *cli, const std::vector<std::string> &tokens);
+		void userAuth(Client *cli, const std::vector<std::string> &tokens);
+	
+	//commands
+		Client *getClient(int fd);
+		void parseCommand(Client *cli, const std::string &command);
+		CommandType isCommand(const std::string &cmd);
+		void sendResponse(int clientFd, const std::string &response);
+		
     public:
-	//serverAux.cpp
-		static void sigHandler(int signum);
-		void checkNewClient();
-		void checkNewData(int fd);
-		//void close_fds();//para el final!!
+		Server();
 	//server.cpp
 		void initServer(int port, std::string pwd);
 		void createSocket();
-	
-	//server close
+		
+		static void sigHandler(int signum);
+		void checkNewClient();
+		void checkNewData(int fd);
 		void clearClient(int fd);
 		void close_fds(std::vector<pollfd> &pollFds);
+;
 
-	//NEXT TO DOO!!!
-		void parseCommand(Client *cli, const std::string &command);
-		Client *getClient(int fd);
 	
 };
 

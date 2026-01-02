@@ -3,17 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAux.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 20:14:22 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/02 12:36:53 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/Server.hpp"
 #include "Utils.hpp"
-
-Server::Server() : _port(0), _servFd(-1) , _serverName("ircserv"){}
 
 bool Server::_sigFlag = false;//no signal received yet
 
@@ -24,7 +22,8 @@ void Server::sigHandler(int signum)
 	_sigFlag = true;
 }
 
-void Server::checkNewClient(){//we have to add this client to the list
+//we have to add this client to the list
+void Server::checkNewClient(){
 	sockaddr_in clientAddr;
 	socklen_t	clientLen = sizeof(clientAddr);
 	int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
@@ -57,7 +56,7 @@ void Server::checkNewData(int fd){
 	memset(buffer, 0, sizeof(buffer));//clears the buffer
 	
 	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
-	if (bytes == 0) //is the client disconnected?
+	if (bytes == 0)
 	{
 		std::cout << "flag_3\n";
 		clearClient(fd);
@@ -74,9 +73,8 @@ void Server::checkNewData(int fd){
 	std::string &buff = cli->getBuff();
 	size_t pos;
 	
-	//vvvvv we will process only a complete line
-	//while((pos = buff.find("\r\n")) != std::string::npos){ //the real loop should be like this. But netcat can work different in other OS
-	while((pos = buff.find("\n")) != std::string::npos){
+	//while((pos = buff.find("\n")) != std::string::npos){//just for MacOS test (yaja)
+	while((pos = buff.find("\r\n")) != std::string::npos){
 		std::cout << BLUE << "CheckNewData loop\n" << NC;
 		
 		std::string cmd = buff.substr(0, pos);
@@ -86,4 +84,50 @@ void Server::checkNewData(int fd){
 			parseCommand(cli, cmd);
 		}
 	}
+}
+
+//We want the access just to that client
+Client *Server::getClient(int fd){
+	for (size_t i = 0; i < _clients.size(); ++i){
+		if (_clients[i].getClientFd() == fd)
+			return &_clients[i];
+	}
+	return NULL;
+}
+
+//Notification
+/* void Server::broadcastNewNick(Client *cli)
+{
+	int i = 0;
+	std::vector<int> clientFdsOk;
+	std::vector<int> res;
+	Channel *chan;
+
+	while ((chan = cli->getChannel(i)) != NULL)
+	{
+		clientFdsOk = notifChannel(chan, cli->getOldnick(), cli->getNickname(), clientFdsOk);
+		i++;
+	}
+} */
+
+void Server::close_fds(std::vector<pollfd> &pollFds)
+{
+	int i = pollFds.size() - 1;
+	
+	while (i >= 0)
+	{
+		close(pollFds[i].fd);
+		i--;
+	}
+	close(_servFd);
+}
+
+void Server::clearClient(int fd){
+	Client *cli = getClient(fd);
+	if (!cli)
+		return ;
+	cli->markForRevome();
+	shutdown(fd, SHUT_RDWR);
+	close(fd);
+	std::cout << PURPLE << "<" << fd << "> Disconnected!" << NC << std::endl;
 }

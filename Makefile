@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+         #
+#    By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 16:35:30 by yanaranj          #+#    #+#              #
-#    Updated: 2026/01/01 20:16:45 by yaja             ###   ########.fr        #
+#    Updated: 2026/01/02 12:34:25 by yanaranj         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,16 +28,15 @@ SRCSDIR = ./srcs/
 OBJDIR = ./objs/
 
 #files
+SRCS_FILES = Client.cpp Server.cpp ServerAuth.cpp ServerAux.cpp \
+	ServerCommands.cpp Utils.cpp ../main.cpp \
 
-SRCS_FILES = Server.cpp Client.cpp ServerAux.cpp Utils.cpp ../main.cpp \
-#Channel.cpp \
-	ServerAux.cpp ServerCommands.cpp Utils.cpp ../main.cpp \
-	ServerAuth.cpp 
+
 #sources & objects files
 SRCS = $(addprefix $(SRCSDIR), $(SRCS_FILES))
 OBJS = $(SRCS:$(SRCSDIR)%.cpp=$(OBJDIR)%.o)
 
-HEADER = ./inc/Server.hpp ./inc/Utils.hpp .inc/Client.hpp #.inc/Client.hpp
+HEADER = ./inc/Channel.hpp ./inc/Client.hpp .inc/Responses.hpp .inc/Server.hpp ./inc/Utils.hpp
 
 #compile .cpp to .o
 $(OBJDIR)%.o: $(SRCSDIR)%.cpp | $(OBJSDIR) #$(HEADER) Makefile
