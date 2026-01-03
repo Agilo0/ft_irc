@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 20:12:54 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/03 12:41:57 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void Client::setUser(std::string name){
 	hasUser = true;
 }
 void Client::setRealName(std::string name) { _realname = name; }
-//void Client::setChannel(Channel *channel) { _channels.push_back(channel); }
+void Client::setChannel(Channel *channel) { _channels.push_back(channel); }
 
 
 

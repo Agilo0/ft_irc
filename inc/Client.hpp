@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 19:20:21 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/03 12:41:41 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define CLIENT_HPP
 
 #include <string>
-//#include "Channel.hpp"
+#include "Server.hpp"
 
 enum Status {
     NOT_AUTHENTICATED,
@@ -37,6 +37,7 @@ class Client{
         Status _status;
 		bool hasNick, hasUser, hasPass, logged;
         bool _toRemove;
+        std::vector<Channel*> _channels;
 
     public:
         Client();
@@ -63,7 +64,7 @@ class Client{
 		void setNewNick(std::string nick);
 		void setRealName(std::string name);
 		void setUser(std::string name);
-		//void setChannel(Channel *channel);
+		void setChannel(Channel *channel);
 
         //bools
 		bool isLogged() const;

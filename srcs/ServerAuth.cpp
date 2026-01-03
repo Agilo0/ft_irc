@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAuth.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:07:28 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/02 12:48:29 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/03 12:20:11 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,8 +124,8 @@ void Server::handShake(Client *cli, const std::string &command){
 		nickAuth(cli, tokens);
 	else if (cmd == "USER")
 		userAuth(cli, tokens);
+	else if (cmd == "JOIN")
+		handleJoin(cli, tokens);
 	else
 		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
-//	else if (cmd == "JOIN")
-//		handleJoin(cli, tokens);
 }

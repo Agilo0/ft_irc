@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAux.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/02 12:36:53 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/03 12:37:51 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/Server.hpp"
-#include "Utils.hpp"
+#include "Server.hpp"
 
 bool Server::_sigFlag = false;//no signal received yet
 
@@ -84,6 +83,17 @@ void Server::checkNewData(int fd){
 			parseCommand(cli, cmd);
 		}
 	}
+}
+
+Channel *Server::moveCreateChannel(const std::string &channelName){
+	//if we have the name on the list, we send the channel
+	for(size_t i = 0; i < _channels.size(); i++){
+		if (_channels[i].getName() == channelName)
+			return &_channels[i];
+	}
+	//if not, we add this new name on the vector
+	_channels.push_back(Channel(channelName));
+	return &_channels.back();
 }
 
 //We want the access just to that client

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/02 12:46:05 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/03 12:37:40 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,33 +27,41 @@ class Server{
 		std::string _serverName;
 		std::vector<struct pollfd> _pollFds;
 		std::vector<Client> _clients;
-		//std::vector<Channel> _channels:
+		std::vector<Channel> _channels;
 
 	//utils.cpp
 		bool checkNick(std::string nick);
 		bool checkUser(std::string user) const;
 		bool nickTaken(std::string nick) const;
-		//void broadcastNewNick(Client *cli);//works with channels
 		std::string appendToks( const std::vector<std::string> &tokens, int start);
 
-	//Authentication
-		void handShake(Client *cli, const std::string &command);
+	//ServerAuth.cpp
 		void passAuth(Client *cli, const std::vector<std::string> &tokens);
 		void nickAuth(Client *cli, const std::vector<std::string> &tokens);
 		void userAuth(Client *cli, const std::vector<std::string> &tokens);
+		void handShake(Client *cli, const std::string &command);
 	
-	//commands
-		Client *getClient(int fd);
+	//Server.cpp
 		void parseCommand(Client *cli, const std::string &command);
+	
+	//Client.cpp
 		CommandType isCommand(const std::string &cmd);
 		void sendResponse(int clientFd, const std::string &response);
+	
+	//ServerAux.cpp
+		Channel* moveCreateChannel(const std::string &channelName);
+		Client *getClient(int fd);
+		//void broadcastNewNick(Client *cli);//works with channels
+	
+	//ServerCommands.cpp
+		void handleJoin(Client *cli, const std::vector<std::string> &tokens);
 		
     public:
 		Server();
 	//server.cpp
-		void initServer(int port, std::string pwd);
 		void createSocket();
-		
+		void initServer(int port, std::string pwd);
+	//ServerAux.cpp
 		static void sigHandler(int signum);
 		void checkNewClient();
 		void checkNewData(int fd);
