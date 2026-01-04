@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+         #
+#    By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 16:35:30 by yanaranj          #+#    #+#              #
-#    Updated: 2026/01/02 12:34:25 by yanaranj         ###   ########.fr        #
+#    Updated: 2026/01/04 15:11:04 by yaja             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,7 +28,7 @@ SRCSDIR = ./srcs/
 OBJDIR = ./objs/
 
 #files
-SRCS_FILES = Client.cpp Server.cpp ServerAuth.cpp ServerAux.cpp \
+SRCS_FILES = Channel.cpp Client.cpp Server.cpp ServerAuth.cpp ServerAux.cpp \
 	ServerCommands.cpp Utils.cpp ../main.cpp \
 
 

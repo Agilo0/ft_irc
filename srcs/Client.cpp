@@ -6,17 +6,17 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/03 12:41:57 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/04 18:52:26 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Client.hpp"
+#include "Server.hpp"
+//#include "Channel.hpp"
 
 Client::Client(){
     hasNick = false;
 	hasUser = false;
 	hasPass = false;
-	logged = false;
 	_status = NOT_AUTHENTICATED;
     _toRemove = false;
 }
@@ -36,7 +36,6 @@ void Client::setNewNick(std::string nick){
 	_oldnick = _nickname;
 	_nickname = nick;
 }
-void Client::setLog(){ logged = true; }
 void Client::setUser(std::string name){
 	_username = name;
 	hasUser = true;
@@ -55,19 +54,14 @@ std::string Client::getNickname() const { return _nickname;}
 std::string &Client::getBuff() { return _buffer; }
 std::string Client::getNick() const { return (_nickname); }
 std::string Client::getOldnick() const{ return (_oldnick); }
-/* Channel *Client::getChannel(unsigned int index){
+Channel *Client::getChannel(unsigned int index){
 	if (_channels.size() > index)
 		return (_channels[index]);
 	return (NULL);
-} */
+}
 
 
 //bools
-bool Client::isLogged() const{
-	if (logged == true)
-		return (true);
-	return (false);
-}
 bool Client::hasAll() const{
 	if (hasPass == true && hasNick == true && hasUser == true)
 		return (true);
@@ -77,6 +71,7 @@ bool Client::hasNickname() const { return (hasNick);}
 bool Client::hasUsername() const { return (hasUser); }
 bool Client::hasPassw() const { return (hasPass); }
 bool Client::isToRemove() const { return (_toRemove); }
+bool Client::isRegistered() const { return _status == AUTHENTICATED; }
 
 
 

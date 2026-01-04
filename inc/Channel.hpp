@@ -3,18 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/30 20:00:06 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/04 15:33:36 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-#include "Server.hpp"
-#include "Utils.hpp"
+//#include "Server.hpp"
+//#include "Utils.hpp"
 
 enum CommandType{
 	PASS,
@@ -76,7 +76,7 @@ class Channel{
 		bool isModeK() const;
 		bool isModeO() const;
 		bool isModeL() const;
-		bool hasKey() const;
+		//bool hasKey() const;
 
 		bool isEmpty() const;
 
@@ -93,11 +93,11 @@ class Channel{
 		void removeInvite(int fd);
 
 		//modes
-		int manageModeChange(std::string mode, std::string arg, int targetFd);
+		/* int manageModeChange(std::string mode, std::string arg, int targetFd);
 		void manageK(bool sign, std::string arg);
 		int manageO(bool sign, int targetFd);
 		int manageL(bool sign, std::string arg);
-		bool isStrictNumber(const std::string &s);
+		bool isStrictNumber(const std::string &s); */
 		// void broadcastMode();
 
 };

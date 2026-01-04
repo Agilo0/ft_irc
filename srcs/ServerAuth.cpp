@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:07:28 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/03 12:20:11 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/04 18:57:51 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,8 +22,8 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick, tokens[0]));
 		return;
 	}
-
-	if (cli->isLogged()){//este nos salta constantemente
+//ANTES ERA ISLOGGED
+	if (cli->isRegistered()){//este nos salta constantemente
 		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
 		return;
 	}
@@ -34,22 +34,25 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 	}
 	else
 		cli->setPass();
-	if (cli->hasAll()){
+	/* if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
+		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated"
+			<< cli->getNickname() << NC << std::endl;
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
-	}
-	//cli->setStatus(PASS_OK);
+	} */
 }
 
 void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens)
 {
     std::cout << YELLOW << "1st status: " << NC << cli->getStatus();
 	if (tokens.size() < 2){
+		//we can improve this response:
 		sendResponse(cli->getClientFd(), ERR_NONICKNAMEGIVEN());
 		return;
 	}
 	std::string nick = tokens[1];
 	if (!checkNick(nick)){
+		//we can improve this response:
 		sendResponse(cli->getClientFd(), ERR_ERRONEUSNICKNAME(nick));
 		return;
 	}
@@ -57,21 +60,19 @@ void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens)
 		sendResponse(cli->getClientFd(), ERR_NICKNAMEINUSE(nick));
 		return;
 	}
-
 	//nick checked, we update client info and check log info
 	if (!cli->hasNickname())
 		cli->setFirstNick(nick);
-	//else{
-	//	cli->setNewNick(nick);
-	//	broadcastNewNick(cli);//sends a notification to channels
-	//}
-	if (cli->getStatus() == NOT_AUTHENTICATED && cli->hasAll()){
-		cli->setStatus(AUTHENTICATED);
-		std::cout << "logged" << std::endl;
-		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
+	else{
+		cli->setNewNick(nick);
+		broadcastNewNick(cli);//sends a notification to channels
 	}
-	//else//Maybe is not necessary.
-	//	cli->setStatus(NICK_OK);
+	/* if (cli->hasAll()){
+		cli->setStatus(AUTHENTICATED);
+		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated"
+			<< cli->getNickname() << NC << std::endl;
+		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
+	} */
 }
 void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
 {
@@ -92,22 +93,23 @@ void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
 		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(cli->getUsername()));
 		return;
 	}
-	if (!cli->hasPassw())
+	/* if (!cli->hasPassw())
 	{
+		EL ORDEN NO IMPORTA Y ESTO LIMITA
 		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
 		return;
-	}
+	} */
 	if (checkUser(user))
 	{
 		cli->setUser(user);
 		cli->setRealName(real);
 	}
-	if (cli->hasAll())
-	{
+	/* if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
+		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated: "
+			<< cli->getNickname() << NC << std::endl;
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
-	}
-	cli->setStatus(USER_OK);
+	} */
 }
 
 
@@ -124,8 +126,18 @@ void Server::handShake(Client *cli, const std::string &command){
 		nickAuth(cli, tokens);
 	else if (cmd == "USER")
 		userAuth(cli, tokens);
-	else if (cmd == "JOIN")
+	else if (cmd == "JOIN" && cli->getStatus() == AUTHENTICATED){
+		std::cout << "handshake join\n";
 		handleJoin(cli, tokens);
+	}
+	else if (cli->hasAll()){
+		cli->setStatus(AUTHENTICATED);
+		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated: "
+			<< cli->getNickname() << NC << std::endl;
+		sendResponse(cli->getClientFd(), RPL_WELCOME(cli->getNickname(), _serverName, cli->getClientIP()));
+		//only 001 is mandatory!!! But hexchat may require!!!
+	}
 	else
+		//missing target?? Mirar el protocolo de este!!!
 		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
 }

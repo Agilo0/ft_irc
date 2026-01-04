@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/03 12:41:41 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/04 18:52:14 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,11 @@
 # define CLIENT_HPP
 
 #include <string>
-#include "Server.hpp"
+//#include "Server.hpp"
+#include "Channel.hpp"
 
 enum Status {
     NOT_AUTHENTICATED,
-    PASS_OK,
-    NICK_OK,
-	NICK_AGAIN,
-    USER_OK,
     AUTHENTICATED
 };
 
@@ -35,7 +32,7 @@ class Client{
 		std::string _ip;//or host
 		std::string _buffer;
         Status _status;
-		bool hasNick, hasUser, hasPass, logged;
+		bool hasNick, hasUser, hasPass;
         bool _toRemove;
         std::vector<Channel*> _channels;
 
@@ -52,14 +49,13 @@ class Client{
 		std::string &getBuff();
         std::string getNick() const;
 		std::string getOldnick() const;
-		//Channel *getChannel(unsigned int index);
+		Channel *getChannel(unsigned int index);
                 
         //setters
         void setStatus(Status status);
         void setClientFd(int fd);
 		void setClientIP(const std::string &newIP);
         void setPass();
-		void setLog();
 		void setFirstNick(std::string nick);
 		void setNewNick(std::string nick);
 		void setRealName(std::string name);
@@ -67,12 +63,12 @@ class Client{
 		void setChannel(Channel *channel);
 
         //bools
-		bool isLogged() const;
 		bool hasAll() const;
 		bool hasPassw() const;
 		bool hasNickname() const;
 		bool hasUsername() const;
         bool isToRemove() const;
+        bool isRegistered() const;
 
         //others
         void markForRevome();

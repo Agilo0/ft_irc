@@ -3,18 +3,44 @@
 /*                                                        :::      ::::::::   */
 /*   Responses.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2025/12/30 19:21:00 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/04 19:23:18 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef RESPONSE_HPP
-# define RESPONSE_HPP
+#ifndef RESPONSES_HPP
+#define RESPONSES_HPP
+
+#define ERR_UNKNOWNERROR(msg)(std::string (" (400) :") + msg)
+
+// NICKNAME
+#define ERR_ERRONEUSNICKNAME(nickname) (std::string("432 ") + nickname + " :Erroneous nickname")
+#define ERR_NICKNAMEINUSE(nickname) (std::string("433 ") + nickname + " :Nickname is already in use")
+#define ERR_NONICKNAMEGIVEN() (std::string("431 :No nickname given"))
+#define ERR_NICKCOLLISION(nickname) (std::string("436 ") + nickname + " :Nickname collision KILL")
+#define RPL_NICKCHANGE(oldnick, user, host, nick)(std::string(":") + oldnick + "!" + user + "@" + host + " NICK :" + nick)
+#define RPL_NICK_UPDATE(oldnick, newnick) (std::string (":" + oldnick + " NICK " + newnick))
+
+// USER
+#define ERR_NEEDMOREPARAMS(client, command) (std::string("461 ") + (client) + " " +(command) + " :Not enough parameters")
+#define ERR_ALREADYREGISTRED() (std::string("462 :You may not reregister"))
+
+// WELCOME
+#define RPL_WELCOME(nickname, servername, hostname) \
+    (std::string(":" + servername + " 001 " + nickname + \
+    " :Welcome to the " + servername + " Network, " + nickname + "!" + hostname))
+#define RPL_YOURHOST(servername, nickname) \
+    (std::string(":" + servername + " 002 " + nickname + " Your host is " + servername + ", running version 1.0"))
+#define RPL_CREATED(servername, time) \
+    (std::string(":" + servername + " 003 This server was created " + time))
+#define RPL_MYINFO(servername, nickname) \
+    (std::string(":" + servername + " 004 " + nickname + " " + servername))
+
 
 // JOIN
-//#define ERR_NOSUCHCHANNEL(channel) (std::string("403 ") + channel + " :No such channel")
+#define ERR_NOSUCHCHANNEL(channel) (std::string("403 ") + channel + " :No such channel")
 #define ERR_CHANNELISFULL(nickname, channel) (std::string(":server_name 471 " + nickname + " " + channel + " :Cannot join channel (+l)"))
 #define ERR_INVITEONLYCHAN(channel) (std::string("473 " + channel + " :Cannot join channel (+i)"))
 #define ERR_BADCHANNELKEY(nickname, channel) (std::string("475 " + nickname + " " + channel + " :Cannot join channel (+k)"))
@@ -22,57 +48,68 @@
     (std::string(":" + nickname + "!" + username + "@" + hostname + " JOIN :" + channel))
 #define RPL_NAMREPLY(servername, nickname, channel, clientlist) \
     (std::string(":" + servername + " 353 " + nickname + " = " + channel + " :" + clientlist))
-#define RPL_ENDOFNAMES(nickname, channel) (std::string(":" + server.getServerName() + " 366 " + nickname + " " + channel + " :End of /NAMES list"))
+#define RPL_ENDOFNAMES(servername, nickname, channel) (std::string(":" + servername + " 366 " + nickname + " " + channel + " :End of /NAMES list"))
 
-
-//user
-#define ERR_NEEDMOREPARAMS(client, command) (std::string("461 ") + (client) + " " +(command) + " :Not enough parameters")
-//PRIVMSG
+// PRIVMSG
 #define ERR_NORECIPIENT(servername) (std::string(":" + servername + " 411 :No recipient given (PRIVMSG)"))
 #define ERR_NOTEXTTOSEND(servername) (std::string(":" + servername + " 412 :No text to send"))
 #define ERR_CANNOTSENDTOCHAN(servername, channel) (std::string(":" + servername + " 404 " + channel + " :Cannot send to channel"))
 #define ERR_NOSUCHNICK(servername, nickname) (std::string(":" + servername + " 401 " + nickname + " :No such nick/channel"))
 #define RPL_PRIVMSG(sender, receiver, message) (std::string(":" + sender + " PRIVMSG " + receiver + " " + message))
 
-
-
-// WELCOME
-#define RPL_WELCOME(nickname, servername, hostname) \
-   (std::string(":" + servername + " 001 " + nickname + \
-   " :Welcome to the " + servername + " Network, " + nickname + "! " + hostname))
-#define RPL_YOURHOST(servername, nickname) \
-    (std::string(":" + servername + " 002 " + nickname + " Your host is " + servername + ", running version 1.0"))
-#define RPL_CREATED(servername, time) \
-    (std::string(":" + servername + " 003 This server was created " + time))
-#define RPL_MYINFO(servername, nickname) \
-    (std::string(":" + servername + " 004 " + nickname + " " + servername))
-#endif
-
-
 //PASS
 #define ERR_ALREADYREGISTERED(nick) ("462 :You may not reregister" )
 #define ERR_PASSWDMISMATCH(nick) ("464 :Password incorrect" )
 
 
-//NICK
-#define ERR_NONICKNAMEGIVEN() (std::string("431 ") + " :No nickname given" )
-#define ERR_ERRONEUSNICKNAME(nick) (std::string("432 ") + nick + " :Erroneous nickname" )
-#define ERR_NICKNAMEINUSE(nick) (std::string("433 ") + nick + " :Nickname is already in use" )
-#define NICK_UPDATE(oldnick, nick) (":" + oldnick + " NICK " + nick)
+// PART
+#define ERR_USERNOTINCHANNEL(servername, nickname, channel) (std::string(":" + servername + " 441 " + nickname + " " + channel + " :They aren't on that channel"))
+#define ERR_NOTONCHANNEL(servername, channel) (std::string(":" + servername + " 442 " + channel + " :You're not on that channel"))
 
-//USER
-#define ERR_NOTREGISTERED() ("451 :You have not registered")
+// MODE
+#define RPL_CHANNELMODEIS(servername, nickname, channel, flag) \
+    (std::string(":" + servername + " 324 " + nickname + " " + channel + " " + flag))
+#define ERR_KEYSET(servername, channel) (std::string(":" + servername + " 467 " + channel + " :Channel key already set"))
+#define ERR_UNKNOWNMODE(servername, user, flag) (std::string(":" + servername + " " + user + " 472 " + flag + " :is unknown mode char to me for "))
+#define RPL_OPERATOR(client, username, hostname, channel, active, nick) (std::string (":" + client + "!" + username + "@" + hostname + " MODE " + active + "o " + channel + " " + nick))
+// #define ERR_UMODEUNKNOWNFLAG(client)(std::string ("501: ") + client + " :Unknown MODE flag")
 
-//PART
-#define ERR_NOSUCHCHANNEL(nick, channel) ("403 " + nick + channel + " :No such channel")
-#define ERR_NOTONCHANNEL(nick, channel) ("442 " + nick + channel + " :You're not on that channel")
-#define RPL_PART(message, channel, reason) (message + " PART " + channel + " " + reason)
+// :quien_invita!usuario@host INVITE tu_nick :#canal
+// INVITE
+#define ERR_USERONCHANNEL(servername, nickname, channel) \
+    (std::string(":" + servername + " 443 " + nickname + " " + channel + " :is already on channel"))
+#define ERR_CHANOPRIVSNEEDED(servername, channel) \
+    (std::string(":" + servername + " 482 " + channel + " :You're not channel operator"))
+#define RPL_INVITING(servername, nickname, channel, nicknameinvited) \
+    (std::string(":" + servername + " 341 " + nickname + " " + channel + " " + nicknameinvited))
+#define RPL_YOUVEBEENINVITED(client, username, hostname, invited, channel) \
+    (std::string (":" + client + "!" + username + "@" + hostname + " INVITE " + invited + " " + channel))
 
-//KICK
-#define ERR_CHANOPRIVSNEEDED(nick, channel) ("482 " + nick + channel + " :You're not channel operator")
-#define ERR_USERNOTINCHANNEL(nick, targetnick, channel) ("441 " + nick + targetnick + channel + " :They aren't on that channel")
-#define RPL_KICK(message, channel, tagetNick, reason) (message + " KICK " + channel + " " + reason)
+// PING
+#define RPL_PONG(servername, text) (std::string(":" + servername + " PONG " + text))
 
-//MODE
-#define ERR_UNKNOWNCOMMAND(servername, nick, command) (servername + " 421 " + nick + command + " :Unknown command")
-#define ERR_INVALIDMODEPARAM(servername, nick, channel, mode, argument) (servername + " 696 " + nick + channel + mode + argument + " :Invalid mode parameter")
+// QUIT
+#define ERR_NORECIPIENTQUIT(servername) (std::string(":" + servername + " 431 :No recipient given (QUIT)"))
+#define RPL_QUIT(nick, user, hostname, message)(std::string(":" + nick+ "!" + user + "@" + hostname + " QUIT :" + message))
+
+// KICK
+#define ERR_USERNOTINCHANNELKICK(servername, nickname, channel) (std::string(":" + servername + " 441 " + nickname + " " + channel + " :They aren't on that channel"))
+#define RPL_KICKPART(client, username, hostname, channel, kickpart, nick, reason)(std::string (":" + client + "!" + username + "@" + hostname + kickpart + channel + " " + nick + reason))
+
+// GENERAL
+#define ERR_UNKNOWNCOMMAND(command) (std::string("421 " + command + " :Unknown command"))
+#define ERR_NOTREGISTERED() (std::string("451 :You have not registered"))  // Error si mandamos algo sin estar registrados
+
+// WHO
+#define RPL_WHOREPLY(server, client, channel, username, hostname, nick, op, realname) \
+    (std::string (":" + server + " 352 " + client + " " + channel + " " + username + " " + hostname + " " + server + " " + nick + " H" + op + " :0" + realname))
+#define RPL_ENDOFWHO(server, client, channel) \
+    (std::string (":" + server + " 315 " + client + " " + channel + " :End of /WHO list."))
+
+// TOPIC
+#define RPL_NOTOPIC(servername, channel) (std::string(":" + servername + " 331 " + channel + " :No topic is set"))
+#define RPL_TOPIC(servername, client, channel, topic) (std::string(":" + servername + " 332 " + client + " " + channel + " " + topic))
+#define RPL_CHANGETOPIC(client, user, host, channel, topic) (std::string (":" + client + "!" + user + "@" + host + " TOPIC " + channel + " " + topic))
+
+
+#endif

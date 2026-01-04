@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/03 12:37:40 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/04 18:53:53 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,8 @@ class Server{
 	//ServerAux.cpp
 		Channel* moveCreateChannel(const std::string &channelName);
 		Client *getClient(int fd);
-		//void broadcastNewNick(Client *cli);//works with channels
+		void broadcastNewNick(Client *cli);//works with channels
+		std::vector<int> notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok);
 	
 	//ServerCommands.cpp
 		void handleJoin(Client *cli, const std::vector<std::string> &tokens);
@@ -67,7 +68,6 @@ class Server{
 		void checkNewData(int fd);
 		void clearClient(int fd);
 		void close_fds(std::vector<pollfd> &pollFds);
-;
 
 	
 };

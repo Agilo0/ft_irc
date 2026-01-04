@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/03 12:37:51 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/04 18:56:17 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,8 @@ void Server::checkNewData(int fd){
 	std::string &buff = cli->getBuff();
 	size_t pos;
 	
-	//while((pos = buff.find("\n")) != std::string::npos){//just for MacOS test (yaja)
-	while((pos = buff.find("\r\n")) != std::string::npos){
+	//while((pos = buff.find("\r\n")) != std::string::npos){
+	while((pos = buff.find("\n")) != std::string::npos){//just for MacOS test (yaja)
 		std::cout << BLUE << "CheckNewData loop\n" << NC;
 		
 		std::string cmd = buff.substr(0, pos);
@@ -106,7 +106,7 @@ Client *Server::getClient(int fd){
 }
 
 //Notification
-/* void Server::broadcastNewNick(Client *cli)
+void Server::broadcastNewNick(Client *cli)
 {
 	int i = 0;
 	std::vector<int> clientFdsOk;
@@ -118,8 +118,24 @@ Client *Server::getClient(int fd){
 		clientFdsOk = notifChannel(chan, cli->getOldnick(), cli->getNickname(), clientFdsOk);
 		i++;
 	}
-} */
+}
+std::vector<int> Server::notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok){
+	std::set<int> clients = chan->getClients();
+	std::set<int>::iterator it = clients.begin();
+	
+	while (it != clients.end())
+	{
+		int fd = *it;
+		if (std::find(ok.begin(), ok.end(), fd) == ok.end())
+		{
+			sendResponse(fd, RPL_NICK_UPDATE(old, nick));
+			ok.push_back(fd);
+		}
+		it++;
 
+	}
+	return (ok);
+}
 void Server::close_fds(std::vector<pollfd> &pollFds)
 {
 	int i = pollFds.size() - 1;
