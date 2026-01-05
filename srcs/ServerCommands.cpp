@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/02 18:47:16 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/05 21:00:54 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -360,6 +360,45 @@ void Server::handleQuit(Client *cli, std::vector<std::string> &tokens)
 		reason = appendToks(tokens, 1);
 	else
 		reason = "";
-	broadcastQuit(cli, "this is a message", "this is a reason");
+	broadcastQuit(cli, message, reason);
 	deleteClient(cli);
+}
+void Server::handleTopic(Client *cli, std::vector<std::string> &tokens)
+{
+	std::cout << "modifying" << std::endl;
+	if (tokens.size() < 2)
+	{
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return;
+	}
+	if (!channelExist(tokens[1]))
+	{
+		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(cli->getNickname(), tokens[1]));
+		return;
+	}
+	Channel *channel = findChannel(tokens[1]);
+	if (!emitorInChannel(cli->getClientFd(), tokens[1]))
+	{
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		return;
+	}
+	if (tokens.size() > 2)
+	{
+		if (channel->isModeT() && !channel->isOperator(cli->getClientFd()))
+		{
+			sendResponse(cli->getClientFd(), ERR_CHANOPRIVSNEEDED(cli->getNickname(), tokens[1]));
+			return;
+		}
+		std::string topic = appendToks(tokens, 2);
+		channel->setTopic(topic);
+		std::string message = cli->createMessage();
+		broadcastTopic(message, channel, topic);
+	}
+	else
+	{
+		if (channel->hasTopic())
+			sendResponse(cli->getClientFd(), RPL_TOPIC(cli->getNickname(), channel->getName(), channel->getTopic()));
+		else
+			sendResponse(cli->getClientFd(), RPL_NOTOPIC(cli->getNickname(), channel->getName()));
+	}
 }

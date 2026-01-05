@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:48:05 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/02 18:49:21 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/05 21:06:40 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,8 @@ void Server::handShake(Client *cli, const std::string &command){
 		handleMode(cli, tokens);
 	else if (cmd == "QUIT")
 		handleQuit(cli, tokens);
+	else if (cmd == "TOPIC")
+		handleTopic(cli, tokens);
 	//add rest of existing commands
 	else
 		std::cout << ORANGE << "WORK IN PROGRESS..." << std::endl;

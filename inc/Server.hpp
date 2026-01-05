@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/02 18:30:50 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/03 15:28:44 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ class Server
 		void handleMode(Client *cli, std::vector<std::string> &tokens);
 		void handleInvite(Client *cli, std::vector<std::string> &tokens);
 		void handleQuit(Client *cli, std::vector<std::string> &tokens);
+		void handleTopic(Client *cli, std::vector<std::string> &tokens);
 
 
     public:
@@ -73,9 +74,6 @@ class Server
 		void checkNewClient();
 		void checkNewData(int fd);
         
-        //agi
-        //void clientQueue();
-        unsigned long client_event(std::vector<pollfd> &pollfds, unsigned long i);
 		void close_fds(std::vector<pollfd> &pollFds);
 
 
@@ -84,44 +82,40 @@ class Server
 		void passAuth(Client *cli, const std::vector<std::string> &tokens);
 		void nickAuth(Client *cli, const std::vector<std::string> &tokens);
 		void userAuth(Client *cli, const std::vector<std::string> &tokens);
-		void broadcastNewNick(Client *cli);
-		std::vector<int> notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok);
 		
-		
-		//part
-		void broadcastPart(std::string chann, std::string message, std::string reason);
-
-		//kick
-		bool checkKick(std::vector<std::string> &tokens);
-		void removeTarget(std::string channel, int targetFd);
-		void broadcastKick(std::string chann, std::string message, std::string nick, std::string reason);
-
-		//quit
-		void broadcastQuit(Client *cli, std::string message, std::string reason);
 
 		//utils
-		std::string appendToks( const std::vector<std::string> &tokens, int index);
+		bool checkKick(std::vector<std::string> &tokens);
 		bool checkSyn(std::string channel);
-		std::string getServerName();
 		bool checkNick(std::string nick);
 		bool checkUser(std::string user) const;
+		void removeTarget(std::string channel, int targetFd);
 		bool nickTaken(std::string nick) const;
 		bool channelExist(std::string channel);
-		void removeChannel(std::string chan);
 		bool emitorInChannel(int emitFd, std::string channel);
 		bool emitorOperator(int fd, std::string channel);
-		int targetExist(std::string nick);
-		bool targetInChannel(std::string channel, int targetFd);
-		Channel *findChannel(std::string channel);
 		bool isChangeMode(std::string mode);
 		bool validMode(std::string mode);
+		bool targetInChannel(std::string channel, int targetFd);
+		int targetExist(std::string nick);
+		void removeChannel(std::string chan);
+		Channel *findChannel(std::string channel);
 		int findTarget(std::string nick);
-		void broadcastMode(Channel *chann, std::string message);
+		std::string appendToks( const std::vector<std::string> &tokens, int index);
+		std::string getServerName();
 		void deleteClient(Client* cli);
 
 
-		std::vector<int> notifChannelQuit(Channel *chan, std::string message, std::string reason, std::vector<int> ok);
 
+		//notifications
+		std::vector<int> notifChannelQuit(Channel *chan, std::string message, std::string reason, std::vector<int> ok);
+		std::vector<int> notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok);
+		void broadcastTopic(std::string message, Channel *channel, std::string topic);
+		void broadcastMode(Channel *chann, std::string message);
+		void broadcastQuit(Client *cli, std::string message, std::string reason);
+		void broadcastKick(std::string chann, std::string message, std::string nick, std::string reason);
+		void broadcastPart(std::string chann, std::string message, std::string reason);
+		void broadcastNewNick(Client *cli);
 
 
 };

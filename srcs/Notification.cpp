@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 17:55:13 by alounici          #+#    #+#             */
-/*   Updated: 2026/01/02 18:43:39 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/05 20:43:33 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,4 +138,18 @@ void Server::broadcastQuit(Client *cli, std::string message, std::string reason)
             clientFdsOk = notifChannelQuit(&(*it), message, reason, clientFdsOk);
 		it++;
 	}
+}
+
+void Server::broadcastTopic(std::string message, Channel *channel, std::string topic)
+{
+
+	std::set<int> clients = channel->getClients();
+	std::set<int>::iterator itc = clients.begin();
+	while (itc != clients.end())
+	{
+		int fd = *itc;
+		sendResponse(fd, RPL_SETTOPIC(message, channel->getName(), topic));
+		itc++;
+	}
+	return;
 }

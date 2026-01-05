@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/02 17:52:43 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/05 20:44:06 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,3 +84,8 @@
 
 //QUIT
 #define QUIT(message, reason) (message + " QUIT :" + reason)
+
+//TOPIC
+#define RPL_TOPIC(nick, channel, topic) ("332 " + nick + " " + channel + " " + topic)
+#define RPL_NOTOPIC(nick, channel) ("331 " + nick + " " + channel + " :No topic is set")
+#define RPL_SETTOPIC(message, channel, topic) (message + " TOPIC " + channel + " :" + topic)
