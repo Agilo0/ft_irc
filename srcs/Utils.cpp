@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/02 18:40:19 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/07 21:23:38 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,19 +65,6 @@ bool Server::checkNick(std::string nick)
 	while (nick[i])
 	{
 		if (!isalnum(nick[i]) && nick[i] != '_')
-			return (false);
-		i++;
-	}
-	return (true);
-}
-bool Server::checkUser(std::string user) const
-{
-	if (user.empty())
-		return (false);
-	int i = 0;
-	while (user[i])
-	{
-		if (!isalnum(user[i]) && user[i] != '_'  && user[i] != '-' && user[i]!= '.')
 			return (false);
 		i++;
 	}
@@ -310,4 +297,41 @@ void Server::deleteClient(Client* cli)
 		itc++;
 	}	
     close(fd);
+}
+
+int Server::whoType(std::string cmd)
+{
+	if (cmd[0] == '#')
+		return(1);
+	return(2);
+}
+
+std::string Server::buildWhoMessage(int fd, bool op)
+{
+	std::vector<Client>::iterator it = _clients.begin();
+	std::string message;
+
+	while (it != _clients.end())
+	{
+		if ((*it).getClientFd() == fd)
+		{
+			message.append(" ");
+			message.append((*it).getUsername());
+			message.append(" ");
+			message.append((*it).getClientIP());
+			message.append(" ");
+			message.append(_serverName);
+			message.append(" ");
+			message.append((*it).getNick());
+			if (op)
+				message.append(" @H");
+			else
+				message.append(" H");
+			message.append(" 0 :");
+			message.append((*it).getRealname());
+			return (message);
+		}
+		it++;
+	}
+	return ("");
 }

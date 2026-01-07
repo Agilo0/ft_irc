@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/01 16:02:51 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/07 19:26:47 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,36 +89,27 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
 {
 	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
-	std::string user = tokens[1];
 	std::string real;
 	if (tokens.size() < 5)
 	{
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick, tokens[0]));
 		return;
 	}
+	std::string user = tokens[1];
 	if (tokens.size() > 5)
 		real = appendToks(tokens, 4);
 	else
 		real = tokens[4];
 	if (cli->hasUsername())
 	{
-		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(cli->getUsername()));
+		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
 		return;
 	}
-	if (!cli->hasPassw())
-	{
-		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
-		return;
-	}
-	if (checkUser(user))
-	{
-		cli->setUser(user);
-		cli->setRealName(real);
-	}
+	cli->setUser(user);
+	cli->setRealName(real);
 	if (cli->hasAll())
 	{
 		cli->setStatus(AUTHENTICATED);
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
 	}
-	cli->setStatus(USER_OK);
 }

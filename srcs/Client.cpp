@@ -53,6 +53,10 @@ std::string Client::getNickname() const
 {
 	return _nickname;
 }
+std::string Client::getRealname() const
+{
+	return _realname;
+}
 std::string Client::getClientIP() const
 {
 	return _ip;
@@ -145,6 +149,10 @@ Channel *Client::getChannel(unsigned int index)
 	if (_channels.size() > index)
 		return (_channels[index]);
 	return (NULL);
+}
+std::vector<Channel *> Client::getChannelVect()
+{
+	return (_channels);
 }
 
 void Client::addBuffer(const std::string &data)

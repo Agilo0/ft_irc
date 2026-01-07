@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/05 21:00:54 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/07 21:23:27 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -400,5 +400,61 @@ void Server::handleTopic(Client *cli, std::vector<std::string> &tokens)
 			sendResponse(cli->getClientFd(), RPL_TOPIC(cli->getNickname(), channel->getName(), channel->getTopic()));
 		else
 			sendResponse(cli->getClientFd(), RPL_NOTOPIC(cli->getNickname(), channel->getName()));
+	}
+}
+
+void Server::handleWho(Client *cli, std::vector<std::string> &tokens)
+{
+	if (tokens.size() < 2)
+	{
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return;
+	}
+	int type = whoType(tokens[1]);
+	if (type == 1)
+	{
+		if (!channelExist(tokens[1]))
+		{
+			sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(cli->getNickname(), tokens[1]));
+			return;
+		}
+		Channel *channel = findChannel(tokens[1]);
+		if (!channel->isMember(cli->getClientFd()))
+		{
+			sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(cli->getNickname(), tokens[1]));
+			return;
+		}
+		std::set<int> clients = channel->getClients();
+		std::set<int>::iterator it = clients.begin();
+		while (it != clients.end())
+		{
+			std::string message = buildWhoMessage((*it), channel->isOperator(*it));
+			if (!message.empty())
+			{
+				sendResponse(cli->getClientFd(), RPL_WHOREPLY(cli->getNickname(), channel->getName(), message));
+			}
+			it++;
+		}
+		sendResponse(cli->getClientFd(), RPL_ENDOFWHO(cli->getNickname(), tokens[1]));
+	}
+	else if (type == 2)
+	{
+		int target = findTarget(tokens[1]);
+		if (target > 0)
+		{
+			Client *targ = getClient(target);
+			std::vector<Channel *> channs = targ->getChannelVect();
+			std::vector<Channel *>::iterator it = channs.begin();
+			while (it != channs.end())
+			{
+				if ((*it)->isMember(cli->getClientFd()))
+				{
+					std::string message = buildWhoMessage(target, (*it)->isOperator(target));
+					sendResponse(cli->getClientFd(), RPL_WHOREPLY(cli->getNickname(), (*it)->getName(), message));
+				}
+				it++;
+			}
+		}
+		sendResponse(cli->getClientFd(), RPL_ENDOFWHO(cli->getNickname(), tokens[1]));
 	}
 }

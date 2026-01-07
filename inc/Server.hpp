@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/03 15:28:44 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/07 21:08:57 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ class Server
 		void handleInvite(Client *cli, std::vector<std::string> &tokens);
 		void handleQuit(Client *cli, std::vector<std::string> &tokens);
 		void handleTopic(Client *cli, std::vector<std::string> &tokens);
+		void handleWho(Client *cli, std::vector<std::string> &tokens);
 
 
     public:
@@ -88,8 +89,6 @@ class Server
 		bool checkKick(std::vector<std::string> &tokens);
 		bool checkSyn(std::string channel);
 		bool checkNick(std::string nick);
-		bool checkUser(std::string user) const;
-		void removeTarget(std::string channel, int targetFd);
 		bool nickTaken(std::string nick) const;
 		bool channelExist(std::string channel);
 		bool emitorInChannel(int emitFd, std::string channel);
@@ -99,11 +98,15 @@ class Server
 		bool targetInChannel(std::string channel, int targetFd);
 		int targetExist(std::string nick);
 		void removeChannel(std::string chan);
+		void removeTarget(std::string channel, int targetFd);
 		Channel *findChannel(std::string channel);
 		int findTarget(std::string nick);
+		// Client *getClient(int fd);
 		std::string appendToks( const std::vector<std::string> &tokens, int index);
 		std::string getServerName();
 		void deleteClient(Client* cli);
+		int whoType(std::string cmd);
+		std::string buildWhoMessage(int fd, bool op);
 
 
 

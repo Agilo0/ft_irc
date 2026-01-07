@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/03 15:01:50 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/07 19:34:18 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,8 +126,8 @@ void Server::checkNewData(int fd){//this will give us the commands that are send
 	size_t pos;
 	
 	//vvvvv we will process only a complete line
-	//while((pos = buff.find("\r\n")) != std::string::npos){ //the real loop should be like this. But netcat can work different in other OS
-	while((pos = buff.find("\n")) != std::string::npos){
+	while((pos = buff.find("\r\n")) != std::string::npos){ //the real loop should be like this. But netcat can work different in other OS
+	// while((pos = buff.find("\n")) != std::string::npos){
 		std::cout << BLUE << "while loop checkNewData\n" << NC;
 		std::string cmd = buff.substr(0, pos);
 		buff.erase(0, pos + 2);
@@ -223,6 +223,7 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case INVITE: handleInvite(cli, tokens); break;
 		case QUIT: handleQuit(cli, tokens); break;
 		case TOPIC: handleTopic(cli, tokens); break;
+		case WHO: handleWho(cli, tokens); break;
 		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
 	default:
 		break;
@@ -245,6 +246,7 @@ CommandType Server::isCommand(const std::string &cmd){
 	else if (cmd == "PART") return (PART);
 	else if (cmd == "QUIT") return (QUIT);
 	else if (cmd == "TOPIC") return (TOPIC);
+	else if (cmd == "WHO") return (WHO);
 	else
 		return UKNW;
 }

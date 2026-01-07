@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/05 20:44:06 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/07 20:15:02 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,8 @@
 #define NICK_UPDATE(oldnick, nick) (":" + oldnick + " NICK " + nick)
 
 //USER
-#define ERR_NOTREGISTERED() ("451 :You have not registered")
+#define ERR_NOTREGISTERED(nick) ("451 " + nick + " :You have not registered")
+#define ERR_INVALIDUSERNAME(nick) ("451 " + nick + " :You have not registered")
 
 //PART
 #define ERR_NOSUCHCHANNEL(nick, channel) ("403 " + nick + channel + " :No such channel")
@@ -89,3 +90,7 @@
 #define RPL_TOPIC(nick, channel, topic) ("332 " + nick + " " + channel + " " + topic)
 #define RPL_NOTOPIC(nick, channel) ("331 " + nick + " " + channel + " :No topic is set")
 #define RPL_SETTOPIC(message, channel, topic) (message + " TOPIC " + channel + " :" + topic)
+
+//WHO
+#define RPL_WHOREPLY(nick, channel, message) ("352 " + nick + " " + channel + message)
+#define RPL_ENDOFWHO(nick, mask) ("315 " + nick + " " + mask + " :End of WHO list")

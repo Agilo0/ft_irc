@@ -45,6 +45,7 @@ class Client
 		int getClientFd() const;//<--socket FD of the client
 
 		std::string getUsername() const;
+		std::string getRealname() const;
 		std::string getNickname() const;
 		std::string getClientIP() const;
 		std::string &getBuff();//
@@ -69,6 +70,7 @@ class Client
 		std::string getNick() const;
 		std::string getOldnick() const;
 		Channel *getChannel(unsigned int index);
+		std::vector<Channel *> getChannelVect();
 
 
 		void addBuffer(const std::string &data);
