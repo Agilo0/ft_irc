@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/04 18:52:26 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/07 19:30:59 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,7 +71,7 @@ bool Client::hasNickname() const { return (hasNick);}
 bool Client::hasUsername() const { return (hasUser); }
 bool Client::hasPassw() const { return (hasPass); }
 bool Client::isToRemove() const { return (_toRemove); }
-bool Client::isRegistered() const { return _status == AUTHENTICATED; }
+bool Client::isRegistered() const { return _status /* == AUTHENTICATED */; }
 
 
 

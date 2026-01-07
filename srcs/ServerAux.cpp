@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAux.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/04 18:56:17 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/07 19:32:27 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,14 +72,12 @@ void Server::checkNewData(int fd){
 	std::string &buff = cli->getBuff();
 	size_t pos;
 	
-	//while((pos = buff.find("\r\n")) != std::string::npos){
-	while((pos = buff.find("\n")) != std::string::npos){//just for MacOS test (yaja)
-		std::cout << BLUE << "CheckNewData loop\n" << NC;
-		
+	//while((pos = buff.find("\n")) != std::string::npos){//just for MacOS test (yaja)
+	while((pos = buff.find("\r\n")) != std::string::npos){
 		std::string cmd = buff.substr(0, pos);
 		buff.erase(0, pos + 2);
 		if (!cmd.empty()){
-			std::cout << YELLOW << "<" << fd << "> << " << cmd << NC << std::endl;
+			std::cout << YELLOW << "<" << fd << "> << " << NC << cmd << std::endl;
 			parseCommand(cli, cmd);
 		}
 	}
@@ -156,4 +154,48 @@ void Server::clearClient(int fd){
 	shutdown(fd, SHUT_RDWR);
 	close(fd);
 	std::cout << PURPLE << "<" << fd << "> Disconnected!" << NC << std::endl;
+}
+
+
+
+
+//DELETE LATEEER!!!!!!!!!!!
+void Server::printChannels(const std::vector<Channel>& _channels){
+    std::cout << "---- Lista de canales ----" << std::endl;
+    for (size_t i = 0; i < _channels.size(); ++i){
+        const Channel &ch =_channels[i];
+        std::cout << "[" << i << "] Nombre: " << ch.getName();
+
+        if (ch.hasTopic())
+            std::cout << " | Topic: " << ch.getTopic();
+
+        std::cout << "\n    Clientes (" << ch.getClients().size() << "): ";
+
+        const std::set<int> &clients = ch.getClients();
+        std::set<int>::const_iterator it = clients.begin();
+        for (; it != clients.end(); ++it)
+        {
+            std::cout << *it;
+            std::set<int>::const_iterator next = it;
+            ++next;
+            if (next != clients.end())
+                std::cout << ", ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "--------------------------" << std::endl;
+}
+
+// Muestra los clientes+fd autenticados y los conectados sin autenticar 
+void Server::printClients(std::vector<Client>& _clients) {
+    std::cout << "---- Lista de clientes ----" << std::endl;
+    for (size_t i = 0; i < _clients.size(); ++i) {
+		if (_clients[i].getStatus() == AUTHENTICATED){
+        	std::cout << "Cliente " << i << " FD=" << _clients[i].getClientFd() 
+			<< " " << _clients[i].getNickname() << std::endl;
+    	} else {
+			std::cout << "Cliente " << i << " FD=" << _clients[i].getClientFd() 
+			<< " " << _clients[i].getNickname() << " NOT_AUTHENTICATED" << std::endl;
+		}
+	}
 }

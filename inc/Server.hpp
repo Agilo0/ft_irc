@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/04 18:53:53 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/07 19:31:40 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,13 @@ class Server{
 		std::vector<struct pollfd> _pollFds;
 		std::vector<Client> _clients;
 		std::vector<Channel> _channels;
+
+
+	//DETELE THEM
+	void printChannels(const std::vector<Channel>& _channels);
+	void printClients(std::vector<Client>& _clients);
+
+
 
 	//utils.cpp
 		bool checkNick(std::string nick);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAuth.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:07:28 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/04 18:57:51 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/07 19:35:19 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 		return;
 	}
 //ANTES ERA ISLOGGED
-	if (cli->isRegistered()){//este nos salta constantemente
+	/* if (cli->isRegistered()){//este nos salta constantemente
 		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
 		return;
-	}
+	} */
 	std::string pass = tokens[1];
 	if (tokens[1] != _pwd){
 		sendResponse(cli->getClientFd(), ERR_PASSWDMISMATCH(nick));
@@ -93,12 +93,6 @@ void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
 		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(cli->getUsername()));
 		return;
 	}
-	/* if (!cli->hasPassw())
-	{
-		EL ORDEN NO IMPORTA Y ESTO LIMITA
-		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
-		return;
-	} */
 	if (checkUser(user))
 	{
 		cli->setUser(user);
@@ -120,24 +114,24 @@ void Server::handShake(Client *cli, const std::string &command){
 	std::string cmd = tokens[0];
 	for(size_t i = 0; i < cmd.size(); ++i)
 		cmd[i] = std::toupper(cmd[i]);
-	if (cmd == "PASS")
+	if (cmd == "CAP")
+		std::cout << "IS LS\n";
+	else if (cmd == "PASS")
 		passAuth(cli, tokens);
 	else if(cmd == "NICK")
 		nickAuth(cli, tokens);
 	else if (cmd == "USER")
 		userAuth(cli, tokens);
-	else if (cmd == "JOIN" && cli->getStatus() == AUTHENTICATED){
+/* 	else if (cmd == "JOIN"){
 		std::cout << "handshake join\n";
 		handleJoin(cli, tokens);
-	}
-	else if (cli->hasAll()){
+	} */
+	else
+		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
+	if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
 		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated: "
 			<< cli->getNickname() << NC << std::endl;
 		sendResponse(cli->getClientFd(), RPL_WELCOME(cli->getNickname(), _serverName, cli->getClientIP()));
-		//only 001 is mandatory!!! But hexchat may require!!!
 	}
-	else
-		//missing target?? Mirar el protocolo de este!!!
-		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/04 18:21:52 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/07 19:30:14 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,14 +105,14 @@ void Server::initServer(int port, std::string pwd)
 					}
 				}
 				// now let´s delete from channels
-				/* for (size_t j = 0; j < _channels.size(); ){
+				for (size_t j = 0; j < _channels.size(); ){
 					_channels[j].removeClient(fd);
 					if (_channels[j].getClients().empty()){ //if is the only member, delete channel too
 						_channels.erase(_channels.begin() + j);
 						continue; //nothing to increment cause vector has delete a space
 					}
 					++j;
-				} */
+				}
 				_clients.erase(_clients.begin() + i);
 			}
 		}
@@ -128,12 +128,10 @@ void Server::parseCommand(Client *cli, const std::string &command)
 	// if it´s the 1st time, we need to verify his identity
 	if (cli->getStatus() != AUTHENTICATED)
 	{
-		std::cout << "AUTHENTICATING client\n" << NC;
 		handShake(cli, command);
 		return;
 	}
 	// handle other commands
-	std::cout << ORANGE << "Handshake ok!!\n" << NC;
 	std::vector<std::string> tokens = Utils::split(command, ' ');
 	if (tokens.empty())
 		return;
