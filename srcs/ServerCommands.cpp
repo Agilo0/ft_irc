@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/08 15:59:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/07 21:23:27 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/08 19:41:11 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -457,4 +457,10 @@ void Server::handleWho(Client *cli, std::vector<std::string> &tokens)
 		}
 		sendResponse(cli->getClientFd(), RPL_ENDOFWHO(cli->getNickname(), tokens[1]));
 	}
+}
+void Server::handlePing(Client *cli, std::vector<std::string> &tokens)
+{
+	if (tokens.size() < 2)
+		return;
+	sendResponse(cli->getClientFd(), "PONG " + tokens[1]);
 }

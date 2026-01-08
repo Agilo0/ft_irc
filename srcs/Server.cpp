@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/07 19:34:18 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/08 20:38:54 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,51 +23,55 @@ void Server::sigHandler(int signum)
 	std::cout << PURPLE << "Flag is true! " << signum << NC << std::endl;
 	_sigFlag = true;
 }
-
 void Server::createSocket()
 {
 	int opt = 1;
-	struct sockaddr_in add;//used to store socket addresses for the Internet domain
+	struct sockaddr_in add; // used to store socket addresses for the Internet domain
 	struct pollfd serverPollFd;
-	
-	//socket struct
-	add.sin_family = AF_INET; //specify the IPv4 address protocol
-	add.sin_addr.s_addr = INADDR_ANY; //accept connections from any IP address
-	add.sin_port = htons(this->_port); //convert port number to network byte order
-	
-	//create socket
+
+	// socket struct
+	add.sin_family = AF_INET;		   // specify the IPv4 address protocol
+	add.sin_addr.s_addr = INADDR_ANY;  // accept connections from any IP address
+	add.sin_port = htons(this->_port); // convert port number to network byte order
+
+	// create socket
 	this->_servFd = socket(AF_INET, SOCK_STREAM, 0);
-	if (this->_servFd < 0){
+	if (this->_servFd < 0)
+	{
 		throw(std::runtime_error("Error creating socket"));
 		close(_servFd);
 	}
-	//addresses reuse (to restart the server quickly)
-	if (setsockopt(_servFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1){
+	// addresses reuse (to restart the server quickly)
+	if (setsockopt(_servFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+	{
 		throw(std::runtime_error("Error setting reuse to socket"));
 		close(_servFd);
 	}
-	//prevent to block incoming connections, to avoid to freeze the program with one client
-	if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1){
+	// prevent to block incoming connections, to avoid to freeze the program with one client
+	if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1)
+	{
 		throw(std::runtime_error("Error setting non-block to socket"));
-		close(_servFd);	
+		close(_servFd);
 	}
-	//bind socket to an IP + port
-	if (bind(_servFd, (struct sockaddr*)&add, sizeof(add)) < 0){
-		throw (std::runtime_error("Error binding socket"));
-		close(_servFd);	
+	// bind socket to an IP + port
+	if (bind(_servFd, (struct sockaddr *)&add, sizeof(add)) < 0)
+	{
+		close(_servFd);
+		throw(std::runtime_error("Error binding socket"));
 	}
-	if (listen(_servFd, 10) == -1){
+	if (listen(_servFd, 10) == -1)
+	{
 		throw(std::runtime_error("listen() crashed! :("));
-		close(_servFd);	
+		close(_servFd);
 	}
-	
-	//poll is the one who monitors the socket
+
+	// poll is the one who monitors the socket
 	serverPollFd.fd = _servFd;
-	serverPollFd.events = POLLIN;//requested events
-	serverPollFd.revents = 0;//returned events
+	serverPollFd.events = POLLIN; // requested events
+	serverPollFd.revents = 0;	  // returned events
 	_pollFds.push_back(serverPollFd);
-	
 }
+
 void Server::checkNewClient(){//we have to add this client to the list
 	sockaddr_in clientAddr;
 	socklen_t	clientLen = sizeof(clientAddr);
@@ -106,6 +110,14 @@ void Server::checkNewData(int fd){//this will give us the commands that are send
 	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
 	if (bytes == 0) //is the client disconnected?
 	{
+		//we need to delete client from _clients list and broadcast the quit
+		// Client *cli = getClient(fd);
+		// if (cli)
+		// {
+		// 	// std::string msg = cli->createMessage();
+		// 	// broadcastQuit(cli, msg, "Connection closed");
+		// 	// deleteClient(cli);
+		// }
 		std::cout << "flag_3\n";
 		close(fd);//should be marked TO REMOVE LATER
 		//pollFds.erase(pollFds.begin());
@@ -144,8 +156,16 @@ void Server::initServer(int port, std::string pwd){
 	this->_pwd = pwd;
 	//std::vector<pollfd> pollFds;
 
-	createSocket();
-	
+	try
+	{
+		createSocket();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+		return;
+	}
+		
 	std::cout << GREEN << "IRC Server Created!!" << std::endl;
 	std::cout << "Listening on port: " << this->_port << NC << std::endl;
 	
@@ -224,6 +244,7 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case QUIT: handleQuit(cli, tokens); break;
 		case TOPIC: handleTopic(cli, tokens); break;
 		case WHO: handleWho(cli, tokens); break;
+		case PING: handlePing(cli, tokens); break;
 		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
 	default:
 		break;
@@ -247,6 +268,7 @@ CommandType Server::isCommand(const std::string &cmd){
 	else if (cmd == "QUIT") return (QUIT);
 	else if (cmd == "TOPIC") return (TOPIC);
 	else if (cmd == "WHO") return (WHO);
+	else if (cmd == "PING") return (PING);
 	else
 		return UKNW;
 }

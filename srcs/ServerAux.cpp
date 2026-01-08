@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:48:05 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/05 21:06:40 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/08 20:04:51 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,40 @@ Client *Server::getClientByNick(const std::string &dest){
 
 //I have to handle properly this. I think I should used differents setter for each status??
 //When the handShake is finish, I should recieve the RLP_WELCOME!!
+// void Server::handShake(Client *cli, const std::string &command){
+// 	std::vector<std::string> tokens = Utils::split(command, ' ');
+// 	if (tokens.empty())
+// 		return;
+// 	std::string cmd = tokens[0];
+// 	for(size_t i = 0; i < cmd.size(); ++i)
+// 		cmd[i] = std::toupper(cmd[i]);
+// 	if (cmd == "PASS")
+// 		passAuth(cli, tokens);
+// 	else if(cmd == "NICK")
+// 		nickAuth(cli, tokens);
+// 	else if (cmd == "USER")
+// 		userAuth(cli, tokens);
+// 	else if (cmd == "JOIN")
+// 		handleJoin(cli, tokens);
+// 	else if (cmd == "KICK")
+// 		handleKick(cli, tokens);
+// 	else if (cmd == "MODE")
+// 		handleMode(cli, tokens);
+// 	else if (cmd == "QUIT")
+// 		handleQuit(cli, tokens);
+// 	else if (cmd == "TOPIC")
+// 		handleTopic(cli, tokens);
+// 	//add rest of existing commands
+// 	else
+// 		std::cout << ORANGE << "WORK IN PROGRESS..." << std::endl;
+// 	if (cli->getStatus() == USER_OK){
+// 		cli->setStatus(AUTHENTICATED);
+// 		std::cout << TURQUOISE << "WELCOME TO IRC SERVER!!!" << NC << std::endl;
+// 		//RPL_WELCOME(cli->getNickname(), _serverName, cli->getClientIP);
+// 	}
+// }
+
+
 void Server::handShake(Client *cli, const std::string &command){
 	std::vector<std::string> tokens = Utils::split(command, ' ');
 	if (tokens.empty())
@@ -49,34 +83,28 @@ void Server::handShake(Client *cli, const std::string &command){
 	std::string cmd = tokens[0];
 	for(size_t i = 0; i < cmd.size(); ++i)
 		cmd[i] = std::toupper(cmd[i]);
-	if (cmd == "PASS")
+	if (cmd == "CAP")
+		std::cout << "IS LS\n";
+	else if (cmd == "PASS")
 		passAuth(cli, tokens);
 	else if(cmd == "NICK")
 		nickAuth(cli, tokens);
 	else if (cmd == "USER")
 		userAuth(cli, tokens);
-	else if (cmd == "JOIN")
+/* 	else if (cmd == "JOIN"){
+		std::cout << "handshake join\n";
 		handleJoin(cli, tokens);
-	else if (cmd == "KICK")
-		handleKick(cli, tokens);
-	else if (cmd == "MODE")
-		handleMode(cli, tokens);
-	else if (cmd == "QUIT")
-		handleQuit(cli, tokens);
-	else if (cmd == "TOPIC")
-		handleTopic(cli, tokens);
-	//add rest of existing commands
+	} */
 	else
-		std::cout << ORANGE << "WORK IN PROGRESS..." << std::endl;
-	if (cli->getStatus() == USER_OK){
+	//check this error, because protocol has no params!!!!!
+		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED((cli->getNickname())));
+	if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
-		std::cout << TURQUOISE << "WELCOME TO IRC SERVER!!!" << NC << std::endl;
-		//RPL_WELCOME(cli->getNickname(), _serverName, cli->getClientIP);
+		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated: "
+			<< cli->getNickname() << NC << std::endl;
+		sendResponse(cli->getClientFd(), RPL_WELCOME(cli->getNickname(), _serverName, cli->getClientIP()));
 	}
 }
-
-
-
 
 
 
