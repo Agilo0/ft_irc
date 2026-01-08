@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/02 12:46:10 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/08 12:52:12 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -130,7 +130,6 @@ bool Server::nickTaken(std::string nick) const
 	return(false);
 }
 
-
 std::string Server::appendToks( const std::vector<std::string> &tokens, int start)
 {
 	std::string res;
@@ -143,4 +142,41 @@ std::string Server::appendToks( const std::vector<std::string> &tokens, int star
 		i++;
 	}
 	return (res);
+}
+
+bool Server::checkSyn(std::string channel)
+{
+	if (channel.empty())
+		return (false);
+	if (channel[0] != '#')
+		return (false);
+	return(true); 
+}
+
+bool Server::channelExist(std::string channel)
+{
+	//int i = 0;
+	std::vector<Channel>::iterator it = _channels.begin();
+	while (it != _channels.end())
+	{
+		if ((*it).getName() == channel)
+			return (true);
+		it++;
+	}
+	return (false);
+}
+
+void Server::removeChannel(std::string chan)
+{
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end())
+	{
+		if (chan == it->getName())
+		{
+			_channels.erase(it);
+			return;
+		}
+		it++;
+	}
 }

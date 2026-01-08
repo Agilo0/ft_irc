@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/07 19:30:59 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/08 12:55:30 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,3 +78,33 @@ bool Client::isRegistered() const { return _status /* == AUTHENTICATED */; }
 //others
 void Client::markForRevome() { _toRemove = true; }
 void Client::addBuffer(const std::string &data){ _buffer += data; }
+int Client::quitChannel(std::string channel){
+	std::vector<Channel *>::iterator it = _channels.begin();
+	while (it != _channels.end())
+	{
+		std::string chan = (*it)->getName();
+		if (chan == channel)
+		{
+			(*it)->removeClient(getClientFd());
+			if ((*it)->isEmpty())
+			{
+				_channels.erase(it);
+				return (2);
+			}
+			return (0);
+		}
+		it++;
+	}
+	return (1);
+}
+std::string Client::createMessage(){
+	std::string res;
+
+	res.append(":");
+	res.append(_nickname);
+	res.append("!");
+	res.append(_username);
+	res.append("@");
+	res.append(_ip);
+	return (res);
+}

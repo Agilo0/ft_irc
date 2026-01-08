@@ -6,12 +6,13 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:18:22 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/04 19:38:50 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/08 13:07:39 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
+//JOIN #channel_name ?mode (still have to check this part)
 void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 	std::cout << ORANGE << "Handel JOIN\n" << NC;
     //seguridad de registro?
@@ -81,4 +82,108 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
         nickList.erase(nickList.size() - 1);
     sendResponse(cli->getClientFd(), RPL_NAMREPLY(_serverName, cli->getNickname(), channelName, nickList));
     sendResponse(cli->getClientFd(), RPL_ENDOFNAMES(_serverName, cli->getNickname(), channelName));
+}
+
+//<PRIVMSG dest :message to send>
+//<PRIVMSG {, dest} :message to send> (check if this is correct)
+void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
+	if (!cli)
+		return ;
+	std::string origin;
+
+	if (cli->getNickname().empty())
+		origin = "*";
+	else
+		cli->getNickname();
+	//send a msg if we don't have all the params for this command
+	if (tokens.size() < 3){
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return ;
+	}
+	std::string msg = tokens[2];
+	if (tokens[2][0] == ':'){
+		msg= tokens[2].substr(1);
+	}
+	//loop for join again the tokens, but only since the msg begins
+	for (size_t i = 3; i < tokens.size(); ++i)
+		msg += " " + tokens[i];
+
+	//split the targets of the msg (by commas)
+	std::vector<std::string>targets = Utils::split(tokens[1], ',');
+	for(size_t t = 0; t < targets.size(); ++t){
+		std::string dest = targets[t];
+		if (dest.empty())
+			continue;
+		//multiple dests
+		if (dest[0] == '#'){
+			Channel *chan = NULL;
+			for (size_t i = 0; i < _channels.size(); ++i){
+				if (_channels[i].getName() == dest){
+					chan = &_channels[i];
+					break ;
+				}
+			}
+			//is chan does not exist:
+			if (!chan){
+				sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(cli->getNickname()));
+				continue;
+			}
+			//if the client is not part of the channel:
+			if (!chan->isMember(cli->getClientFd())){
+				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), dest));
+				continue;
+			}
+			const std::set<int>& users = chan->getClients();
+			for(std::set<int>::const_iterator it = users.begin(); it != users.end(); ++it){
+				if (*it != cli->getClientFd()){
+					Client *other = getClient(*it);
+					if (other)
+						sendResponse(cli->getClientFd(), RPL_PRIVMSG(cli->getNickname(), dest, msg));
+				}
+			}			
+		}
+		//single dest
+		else{
+			Client *targetCli = getClientByNick(dest);
+			if (!targetCli){
+				sendResponse(cli->getClientFd(), ERR_NOSUCHNICK(cli->getNickname(), dest));
+				continue;
+			}
+			else
+				sendResponse(targetCli->getClientFd(), RPL_PRIVMSG(cli->getNickname(), dest, msg));
+		}
+	}
+}
+
+void Server::handlePart(Client *cli, const std::vector<std::string> &tokens)
+{
+	if (tokens.size() < 2 || !checkSyn(tokens[1]))
+	{
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[1]));
+		return;
+	}
+	std::vector<std::string> channels = Utils::split(tokens[1], ',');
+	std::string reason;
+	if (tokens.size() > 2)
+		reason = appendToks(tokens, 2);
+	else
+		reason = "";
+	std::vector<std::string>::iterator it = channels.begin();
+	int chanstat = 0;
+	while (it != channels.end()){
+		if (channelExist((*it)) == true){
+			chanstat = cli->quitChannel((*it));
+			if (chanstat == 1)
+				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), (*it)));
+			std::string message = cli->createMessage();
+			sendResponse(cli->getClientFd(), RPL_PART(message, (*it), reason));
+			broadcastPart((*it), message, reason);
+			if (chanstat == 2)
+				removeChannel((*it));
+		}
+		else
+			sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(*it));
+		it++;
+	}
+
 }

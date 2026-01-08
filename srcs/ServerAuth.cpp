@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAuth.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:07:28 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/07 19:35:19 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/08 13:16:13 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,27 +77,24 @@ void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens)
 void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
 {
 	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
-	std::string user = tokens[1];
 	std::string real;
 	if (tokens.size() < 5)
 	{
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick, tokens[0]));
 		return;
 	}
+	std::string user = tokens[1];
 	if (tokens.size() > 5)
 		real = appendToks(tokens, 4);
 	else
 		real = tokens[4];
 	if (cli->hasUsername())
 	{
-		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(cli->getUsername()));
+		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
 		return;
 	}
-	if (checkUser(user))
-	{
-		cli->setUser(user);
-		cli->setRealName(real);
-	}
+	cli->setUser(user);
+	cli->setRealName(real);
 	/* if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
 		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated: "
@@ -127,7 +124,8 @@ void Server::handShake(Client *cli, const std::string &command){
 		handleJoin(cli, tokens);
 	} */
 	else
-		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
+	//check this error, because protocol has no params!!!!!
+		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED((cli->getNickname())));
 	if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
 		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated: "

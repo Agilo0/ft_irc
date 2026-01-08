@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/07 19:30:14 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/08 13:12:19 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,75 @@
 /*CRASH WHEN WE CLOSE HEXCHAT. STILL WAITING FOR JOIN AND MORE COMMANDS*/
 
 Server::Server() : _port(0), _servFd(-1), _serverName("ircserv") {}
+bool Server::_sigFlag = false;//no signal received yet
+
+void Server::sigHandler(int signum)
+{
+	(void)signum;
+	std::cout << PURPLE << "Flag is true! " << signum << NC << std::endl;
+	_sigFlag = true;
+}
+//we have to add this client to the list
+void Server::checkNewClient(){
+	sockaddr_in clientAddr;
+	socklen_t	clientLen = sizeof(clientAddr);
+	int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
+	if (clientFd == -1){
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return  ;
+		std::cout << RED;
+		std::perror("!Error: accept()");
+		std::cout << NC;
+		return ;
+	}
+	if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1){
+		::close(_servFd);
+		throw std::runtime_error("!Error: fcntl(O_NONBLOCK)");
+	}
+	pollfd clientPollfd = {clientFd, POLLIN, 0};//new poll and its struct	
+	Client newclient;
+	newclient.setClientFd(clientFd);
+	newclient.setClientIP(inet_ntoa(clientAddr.sin_addr));//this how we set the IP
+	
+	_pollFds.push_back(clientPollfd);
+	_clients.push_back(newclient);
+	
+	std::cout << TURQUOISE << "<" << clientFd << "> Connected!" << NC << std::endl;
+}
+
+//this will give us the commands that are sending the clients
+void Server::checkNewData(int fd){
+	char buffer[1024];
+	memset(buffer, 0, sizeof(buffer));//clears the buffer
+	
+	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
+	if (bytes == 0)
+	{
+		std::cout << "flag_3\n";
+		clearClient(fd);
+		return ;
+	}
+	else if (bytes < 0) {
+    	if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return;
+	}
+	Client *cli = getClient(fd);
+	if (!cli)
+		return ;
+	cli->addBuffer(std::string(buffer, bytes));
+	std::string &buff = cli->getBuff();
+	size_t pos;
+	
+	//while((pos = buff.find("\n")) != std::string::npos){//just for MacOS test (yaja)
+	while((pos = buff.find("\r\n")) != std::string::npos){
+		std::string cmd = buff.substr(0, pos);
+		buff.erase(0, pos + 2);
+		if (!cmd.empty()){
+			std::cout << YELLOW << "<" << fd << "> << " << NC << cmd << std::endl;
+			parseCommand(cli, cmd);
+		}
+	}
+}
 
 void Server::createSocket()
 {
@@ -140,20 +209,24 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		cmd[i] = std::toupper(cmd[i]);
 
 	switch (isCommand(cmd)){
-		std::cout << ORANGE << "switch commands" << std::endl;
-		case JOIN: handleJoin(cli, tokens); break;//do we need a code for error handle???
-		case UKNW: sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(cmd)); break;
+		std::cout << ORANGE << "switch state commands" << std::endl;
+		
+		case PASS: passAuth(cli, tokens); break;
+		case NICK: nickAuth(cli, tokens); break;
+		case USER: break;//the user is only a register thing
+		case JOIN: handleJoin(cli, tokens); break;
+		//WHO
+		case PRIVMSG: handlePrivmsg(cli, tokens); break;
+		case PART: handlePart(cli, tokens); break;
+		
+		case UKNW: sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), cmd)); break;
 		default:
 			break;
 	}
 	/* switch (isCommand(cmd))
 	{
-		case PRIVMSG: handlePrivmsg(cli, tokens); break;
 		//case WHO: handleWho(cli, tokens); break;	//what exactly who do?
-		case PASS: passAuth(cli, tokens); break;
-		case NICK: nickAuth(cli, tokens); break;
-		case USER: userAuth(cli, tokens); break;
-		case PART: handlePart(cli, tokens); break;
+
 		case KICK: handleKick(cli, tokens); break;
 		case MODE: handleMode(cli, tokens); break;
 		case INVITE: handleInvite(cli, tokens); break;

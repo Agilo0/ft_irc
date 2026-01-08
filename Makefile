@@ -6,7 +6,7 @@
 #    By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 16:35:30 by yanaranj          #+#    #+#              #
-#    Updated: 2026/01/04 15:11:04 by yaja             ###   ########.fr        #
+#    Updated: 2026/01/08 13:07:58 by yaja             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,7 +29,7 @@ OBJDIR = ./objs/
 
 #files
 SRCS_FILES = Channel.cpp Client.cpp Server.cpp ServerAuth.cpp ServerAux.cpp \
-	ServerCommands.cpp Utils.cpp ../main.cpp \
+	ServerCommands.cpp Utils.cpp Notification.cpp ../main.cpp \
 
 
 #sources & objects files
