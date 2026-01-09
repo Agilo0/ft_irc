@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:18:22 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/08 13:07:39 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/09 12:18:40 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,8 +155,7 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 	}
 }
 
-void Server::handlePart(Client *cli, const std::vector<std::string> &tokens)
-{
+void Server::handlePart(Client *cli, const std::vector<std::string> &tokens){
 	if (tokens.size() < 2 || !checkSyn(tokens[1]))
 	{
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[1]));
@@ -186,4 +185,133 @@ void Server::handlePart(Client *cli, const std::vector<std::string> &tokens)
 		it++;
 	}
 
+}
+
+void Server::handleKick(Client *cli, std::vector<std::string> &tokens){
+	int targetFd = 0;
+	std::string reason;
+	if (tokens.size() > 2)
+		reason = appendToks(tokens, 3);
+	else
+		reason = "";
+	if (!checkKick(tokens)){
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return;
+	}
+	if (!channelExist(tokens[1])){
+		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
+		return;
+	}
+	if (!emitorInChannel(cli->getClientFd(), tokens[1])){
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		return;
+	}
+	if (!emitorOperator(cli->getClientFd(), tokens[1])){
+		sendResponse(cli->getClientFd(), ERR_CHANOPRIVSNEEDED(cli->getNickname(), tokens[1]));
+		return;
+	}
+	if (!(targetFd = targetExist(tokens[2]))){
+		sendResponse(cli->getClientFd(), ERR_NOSUCHNICK(cli->getNickname(), tokens[1]));
+		return;
+	}
+	if (!targetInChannel(tokens[1], targetFd)){
+		sendResponse(cli->getClientFd(), ERR_USERNOTINCHANNEL(cli->getNickname(), tokens[2], tokens[1]));
+		return;
+	}
+	removeTarget(tokens[1], targetFd);
+	cli->quitChannel(tokens[1]);
+	std::string message = cli->createMessage();
+	sendResponse(targetFd, RPL_KICK(message, tokens[1], tokens[2], reason));
+	broadcastKick(tokens[1], message, tokens[2], reason);
+}
+
+void Server::handleMode(Client *cli, std::vector<std::string> &tokens){
+	if (tokens.size() < 3){
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return;
+	}
+	if (tokens[1][0] != '#'){
+		sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), tokens[0]));
+		return;
+	}
+	if (!channelExist(tokens[1])){
+		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
+		return;
+	}
+	Channel *channel = findChannel(tokens[1]);
+	if (!emitorInChannel(cli->getClientFd(), tokens[1])){
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		return;
+	}
+	if (isChangeMode(tokens[2]) && validMode(tokens[2])){
+		if (channel->isOperator(cli->getClientFd())){
+				int success = 0;
+			int targetFd = -1;
+			std::string arg = "";
+
+			if (tokens.size() > 3){
+				arg = tokens[3];
+				targetFd = findTarget(arg);
+				if (targetFd == -1)
+				{
+					sendResponse(cli->getClientFd(), ERR_NOSUCHNICK(_serverName, tokens[3]));
+					return;
+				}
+			}
+			success = channel->manageModeChange(tokens[2], arg, targetFd);
+			if (success == 1){
+				sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+				return;
+			}
+			else if (success == 2){
+				sendResponse(cli->getClientFd(), ERR_USERNOTINCHANNEL(cli->getNickname(), tokens[3], channel->getName()));
+				return;
+			}
+			else if (success == 3){
+				sendResponse(cli->getClientFd(), ERR_INVALIDMODEPARAM(_serverName, cli->getNickname(), channel->getName(), "l", tokens[3]));
+				return;
+			}
+			std::string message = cli->createMessage();
+			message.append(appendToks(tokens, 0));
+			broadcastMode(channel, message);
+		}
+		else{
+			sendResponse(cli->getClientFd(), ERR_CHANOPRIVSNEEDED(cli->getNickname(), channel->getName()));
+			return;
+		}
+	}
+}
+
+void Server::handleInvite(Client *cli, std::vector<std::string> &tokens){
+	if (tokens.size() < 3){
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return;
+	}
+	if (!channelExist(tokens[2])){
+		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
+		return;
+	}
+	
+	if (!emitorInChannel(cli->getClientFd(), tokens[2])){
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		return;
+	}
+	Channel *channel = findChannel(tokens[2]);
+	if (!channel->isOperator(cli->getClientFd())){
+		sendResponse(cli->getClientFd(), ERR_CHANOPRIVSNEEDED(cli->getNickname(), channel->getName()));
+		return;
+	}
+	int targetFd = findTarget(tokens[1]);
+	if (targetFd == -1){
+		sendResponse(cli->getClientFd(), ERR_NOSUCHNICK(_serverName, tokens[2]));
+		return;
+	}
+	if (channel->isMember(targetFd)){
+		sendResponse(cli->getClientFd(), ERR_USERONCHANNEL(_serverName, cli->getNickname(), tokens[1], channel->getName()));
+		return;
+	}
+	channel->inviteClient(targetFd);
+	sendResponse(cli->getClientFd(), RPL_INVITING(_serverName, cli->getNickname(), tokens[1], channel->getName()));
+	std::string message = cli->createMessage();
+	sendResponse(targetFd, INVITE(message, tokens[1], channel->getName()));
 }

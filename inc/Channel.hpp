@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/04 15:33:36 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/09 12:17:32 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,13 +93,11 @@ class Channel{
 		void removeInvite(int fd);
 
 		//modes
-		/* int manageModeChange(std::string mode, std::string arg, int targetFd);
+		int manageModeChange(std::string mode, std::string arg, int targetFd);
 		void manageK(bool sign, std::string arg);
 		int manageO(bool sign, int targetFd);
 		int manageL(bool sign, std::string arg);
-		bool isStrictNumber(const std::string &s); */
-		// void broadcastMode();
-
+		bool isStrictNumber(const std::string &s);
 };
 
 

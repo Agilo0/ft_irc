@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/08 13:12:19 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/09 12:28:24 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -220,6 +220,9 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case PART: handlePart(cli, tokens); break;
 		
 		case UKNW: sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), cmd)); break;
+		case KICK: handleKick(cli, tokens); break;
+		case MODE: handleMode(cli, tokens); break;
+		case INVITE: handleInvite(cli, tokens); break;
 		default:
 			break;
 	}
@@ -227,9 +230,6 @@ void Server::parseCommand(Client *cli, const std::string &command)
 	{
 		//case WHO: handleWho(cli, tokens); break;	//what exactly who do?
 
-		case KICK: handleKick(cli, tokens); break;
-		case MODE: handleMode(cli, tokens); break;
-		case INVITE: handleInvite(cli, tokens); break;
 	default:
 		break;
 	} */
