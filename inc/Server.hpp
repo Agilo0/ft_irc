@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 12:16:32 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/09 23:13:54 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,8 +52,11 @@ class Server{
 		void removeTarget(std::string channel, int targetFd);
 		bool isChangeMode(std::string mode);
 		bool validMode(std::string mode);
-		Channel *findChannel(std::string channel);
 		int findTarget(std::string nick);
+		void deleteClient(Client* cli);
+		int whoType(std::string cmd);
+		std::string buildWhoMessage(int fd, bool op);
+		Channel* findChannel(std::string name);
 
 
 	//ServerAuth.cpp
@@ -74,6 +77,7 @@ class Server{
 		void handleQuit(Client *cli, std::vector<std::string> &tokens);
 		void handleTopic(Client *cli, std::vector<std::string> &tokens);
 		void handleWho(Client *cli, std::vector<std::string> &tokens);
+		void handlePing(Client *cli, std::vector<std::string> &tokens);
 	
 	//Client.cpp
 		CommandType isCommand(const std::string &cmd);
@@ -91,6 +95,8 @@ class Server{
 		void broadcastKick(std::string chann, std::string message, std::string nick, std::string reason);
 		void broadcastMode(Channel *chann, std::string message);
 		void broadcastQuit(Client *cli, std::string message, std::string reason);
+		std::vector<int> notifChannelQuit(Channel *chan, std::string message, std::string reason, std::vector<int> ok);
+		void broadcastTopic(std::string message, Channel *channel, std::string topic);
 		
 	
 	//ServerCommands.cpp

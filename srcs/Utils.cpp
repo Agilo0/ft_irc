@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 11:37:08 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/09 22:06:20 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,15 +116,29 @@ bool Server::nickTaken(std::string nick) const{
 }
 
 std::string Server::appendToks( const std::vector<std::string> &tokens, int start){
-	std::string res;
 
-	unsigned int i = start;
-	while (i < tokens.size()){
-		res +=  tokens[i];
-		res += ' ';
-		i++;
-	}
-	return (res);
+ 	std::string res;
+    unsigned int i = start;
+
+    if (i >= tokens.size())
+        return "";
+
+    if (!tokens[i].empty() && tokens[i][0] == ':')
+    {
+        if (tokens[i].size() > 1)
+            res = tokens[i].substr(1);
+        i++;
+    }
+
+    while (i < tokens.size())
+    {
+        if (!res.empty())
+            res += " ";
+        res += tokens[i];
+        i++;
+    }
+
+    return res;
 }
 
 bool Server::checkSyn(std::string channel){
@@ -259,4 +273,67 @@ int Server::findTarget(std::string nick){
 		it++;
 	}
 	return (-1);
+}
+
+void Server::deleteClient(Client* cli)
+{
+    int fd = cli->getClientFd();
+	std::vector<Channel>::iterator it = _channels.begin();
+
+    while (it != _channels.end())
+    {
+        it->removeClient(fd);
+        if (it->isEmpty())
+            it = _channels.erase(it);
+        else
+            ++it;
+    }
+	std::vector<Client>::iterator itc = _clients.begin();
+	while (itc != _clients.end())
+	{
+		if (itc->getClientFd() == fd)
+		{
+			_clients.erase(itc);
+			break;
+		}
+		itc++;
+	}	
+    close(fd);
+}
+
+int Server::whoType(std::string cmd)
+{
+	if (cmd[0] == '#')
+		return(1);
+	return(2);
+}
+
+std::string Server::buildWhoMessage(int fd, bool op)
+{
+	std::vector<Client>::iterator it = _clients.begin();
+	std::string message;
+
+	while (it != _clients.end())
+	{
+		if ((*it).getClientFd() == fd)
+		{
+			message.append(" ");
+			message.append((*it).getUsername());
+			message.append(" ");
+			message.append((*it).getClientIP());
+			message.append(" ");
+			message.append(_serverName);
+			message.append(" ");
+			message.append((*it).getNick());
+			if (op)
+				message.append(" @H");
+			else
+				message.append(" H");
+			message.append(" 0 :");
+			message.append((*it).getRealname());
+			return (message);
+		}
+		it++;
+	}
+	return ("");
 }

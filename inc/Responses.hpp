@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Responses.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/08 13:19:32 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/09 21:18:45 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,14 +64,14 @@
 #define ERR_NOTREGISTERED(nick) ("451 " + nick + " :You have not registered")
 
 //PART
-//#define ERR_NOSUCHCHANNEL(nick, channel) ("403 " + nick + channel + " :No such channel")
+// #define ERR_NOSUCHCHANNEL(nick, channel) ("403 " + nick + channel + " :No such channel")
 #define ERR_NOTONCHANNEL(nick, channel) ("442 " + nick + channel + " :You're not on that channel")
 #define RPL_PART(message, channel, reason) (message + " PART " + channel + " " + reason)
 
 //KICK
 #define ERR_CHANOPRIVSNEEDED(nick, channel) ("482 " + nick + " " + channel + " :You're not channel operator")
 #define ERR_USERNOTINCHANNEL(nick, targetnick, channel) ("441 " + nick + " " + targetnick + " "  + channel + " :They aren't on that channel")
-#define RPL_KICK(message, channel, targetNick, reason) (message + " KICK " + channel + targetNick + reason)
+#define KICK(message, channel, targetNick, reason) (message + " KICK " + channel + targetNick + reason)
 
 //MODE
 #define ERR_UNKNOWNCOMMAND(servername, nick, command) (":" + servername + " 421 " + nick + command + " :Unknown command")
@@ -88,7 +88,7 @@
 //TOPIC
 #define RPL_TOPIC(nick, channel, topic) ("332 " + nick + " " + channel + " " + topic)
 #define RPL_NOTOPIC(nick, channel) ("331 " + nick + " " + channel + " :No topic is set")
-#define RPL_SETTOPIC(message, channel, topic) (message + " TOPIC " + channel + " :" + topic)
+#define TOPIC(message, channel, topic) (message + " TOPIC " + channel + " :" + topic)
 
 //WHO
 #define RPL_WHOREPLY(nick, channel, message) ("352 " + nick + " " + channel + message)

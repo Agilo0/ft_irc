@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/08 12:55:33 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/09 22:44:53 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ private:
     Status _status;
     bool hasNick, hasUser, hasPass;
     bool _toRemove;
-    std::vector<Channel *> _channels;
+    std::vector<std::string> _channels;
 
 public:
     Client();
@@ -51,7 +51,8 @@ public:
     std::string &getBuff();
     std::string getNick() const;
     std::string getOldnick() const;
-    Channel *getChannel(unsigned int index);
+    //Channel *getChannel(unsigned int index);
+    std::string getRealname() const;
 
     // setters
     void setStatus(Status status);
@@ -75,8 +76,9 @@ public:
     // others
     void markForRevome();
     void addBuffer(const std::string &data);
-    int quitChannel(std::string channel);
+    //int quitChannel(std::string channel);
     std::string createMessage();
+    std::vector<std::string> getChannelVect();
 };
 
 #endif

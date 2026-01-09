@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 12:28:24 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/09 23:14:34 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,6 +223,10 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case KICK: handleKick(cli, tokens); break;
 		case MODE: handleMode(cli, tokens); break;
 		case INVITE: handleInvite(cli, tokens); break;
+		case QUIT: handleQuit(cli, tokens); break;
+		case TOPIC: handleTopic(cli, tokens); break;
+		case WHO: handleWho(cli, tokens); break;
+		case PING: handlePing(cli, tokens); break;
 		default:
 			break;
 	}
@@ -261,6 +265,10 @@ CommandType Server::isCommand(const std::string &cmd)
 		return (USER);
 	else if (cmd == "PART")
 		return (PART);
+	else if (cmd == "QUIT")
+		return (QUIT);
+	else if (cmd == "PING")
+		return (PING);
 	else
 		return UKNW;
 }

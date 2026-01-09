@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/08 12:55:30 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/09 22:46:42 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ void Client::setUser(std::string name){
 	hasUser = true;
 }
 void Client::setRealName(std::string name) { _realname = name; }
-void Client::setChannel(Channel *channel) { _channels.push_back(channel); }
+void Client::setChannel(Channel *channel) { _channels.push_back(channel->getName()); }
 
 
 
@@ -54,10 +54,13 @@ std::string Client::getNickname() const { return _nickname;}
 std::string &Client::getBuff() { return _buffer; }
 std::string Client::getNick() const { return (_nickname); }
 std::string Client::getOldnick() const{ return (_oldnick); }
-Channel *Client::getChannel(unsigned int index){
-	if (_channels.size() > index)
-		return (_channels[index]);
-	return (NULL);
+// Channel *Client::getChannel(unsigned int index){
+// 	if (_channels.size() > index)
+// 		return (_channels[index]);
+// 	return (NULL);
+// }
+std::string Client::getRealname() const{
+	return (_realname);
 }
 
 
@@ -78,25 +81,6 @@ bool Client::isRegistered() const { return _status /* == AUTHENTICATED */; }
 //others
 void Client::markForRevome() { _toRemove = true; }
 void Client::addBuffer(const std::string &data){ _buffer += data; }
-int Client::quitChannel(std::string channel){
-	std::vector<Channel *>::iterator it = _channels.begin();
-	while (it != _channels.end())
-	{
-		std::string chan = (*it)->getName();
-		if (chan == channel)
-		{
-			(*it)->removeClient(getClientFd());
-			if ((*it)->isEmpty())
-			{
-				_channels.erase(it);
-				return (2);
-			}
-			return (0);
-		}
-		it++;
-	}
-	return (1);
-}
 std::string Client::createMessage(){
 	std::string res;
 
@@ -108,3 +92,7 @@ std::string Client::createMessage(){
 	res.append(_ip);
 	return (res);
 }
+std::vector<std::string> Client::getChannelVect(){
+	return (_channels);
+}
+
