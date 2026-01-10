@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 23:46:44 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 00:09:24 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -219,6 +219,7 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case TOPIC: handleTopic(cli, tokens); break;
 		case WHO: handleWho(cli, tokens); break;
 		case PING: handlePing(cli, tokens); break;
+		case NOTICE: handleNotice(cli, tokens); break;
 		default:
 			break;
 	}
@@ -256,6 +257,8 @@ CommandType Server::isCommand(const std::string &cmd)
 		return (PING);
 	else if (cmd == "CAP")
 		return (CAP);
+	else if (cmd == "NOTICE")
+		return (NOTICE);
 	else
 		return UKNW;
 }

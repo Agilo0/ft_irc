@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 21:18:45 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 00:41:14 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,7 +64,6 @@
 #define ERR_NOTREGISTERED(nick) ("451 " + nick + " :You have not registered")
 
 //PART
-// #define ERR_NOSUCHCHANNEL(nick, channel) ("403 " + nick + channel + " :No such channel")
 #define ERR_NOTONCHANNEL(nick, channel) ("442 " + nick + channel + " :You're not on that channel")
 #define RPL_PART(message, channel, reason) (message + " PART " + channel + " " + reason)
 
@@ -93,3 +92,6 @@
 //WHO
 #define RPL_WHOREPLY(nick, channel, message) ("352 " + nick + " " + channel + message)
 #define RPL_ENDOFWHO(nick, mask) ("315 " + nick + " " + mask + " :End of WHO list")
+
+//NOTICE
+#define RPL_NOTICE(origin, target, msg) (":" + origin + " NOTICE " + target + " :" + msg)

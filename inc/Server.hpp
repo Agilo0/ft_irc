@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 23:33:13 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 00:08:51 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,7 @@ class Server{
 		void handleTopic(Client *cli, std::vector<std::string> &tokens);
 		void handleWho(Client *cli, std::vector<std::string> &tokens);
 		void handlePing(Client *cli, std::vector<std::string> &tokens);
+		void handleNotice(Client *cli, const std::vector<std::string> &tokens);
 	
 	//Client.cpp
 		CommandType isCommand(const std::string &cmd);

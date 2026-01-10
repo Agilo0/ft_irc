@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:30:04 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 22:19:43 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 00:23:00 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,8 +54,7 @@ bool Channel::isModeL() const {return _lMode; }
 // 	_operators.clear();
 // }
 void Channel::removeInvite(int fd){
-	(void)fd;
-	//remove the invitation
+	_invited.erase(fd);
 }
 void Channel::removeOperator(int fd){
 	(void)fd;

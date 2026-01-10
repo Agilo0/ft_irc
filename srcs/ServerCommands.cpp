@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:18:22 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 22:41:43 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 00:16:15 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -421,4 +421,60 @@ void Server::handlePing(Client *cli, std::vector<std::string> &tokens){
 	if (tokens.size() < 2)
 		return;
 	sendResponse(cli->getClientFd(), "PONG " + tokens[1]);
+}
+
+void Server::handleNotice(Client *cli, const std::vector<std::string> &tokens)
+{
+    if (!cli)
+        return;
+
+    std::string origin = cli->getNickname().empty() ? "*" : cli->getNickname();
+
+     if (tokens.size() < 3)
+        return;
+
+    std::string msg = tokens[2];
+    if (!msg.empty() && msg[0] == ':')
+        msg = msg.substr(1);
+    size_t i = 3;
+    while (i < tokens.size())
+    {
+        msg += " " + tokens[i];
+        ++i;
+    }
+    std::vector<std::string> targets = Utils::split(tokens[1], ',');
+    size_t t = 0;
+    while (t < targets.size())
+    {
+        std::string dest = targets[t];
+        if (!dest.empty())
+        {
+            if (dest[0] == '#')
+            {
+                Channel *chan = findChannel(dest);
+                if (chan && chan->isMember(cli->getClientFd()))
+                {
+                    const std::set<int> &users = chan->getClients();
+                    std::set<int>::const_iterator it = users.begin();
+                    while (it != users.end())
+                    {
+                        if (*it != cli->getClientFd())
+                        {
+                            Client *other = getClient(*it);
+                            if (other)
+                                sendResponse(other->getClientFd(), RPL_NOTICE(origin, dest, msg));
+                        }
+                        ++it;
+                    }
+                }
+            }
+            else
+            {
+                Client *targetCli = getClientByNick(dest);
+                if (targetCli)
+                    sendResponse(targetCli->getClientFd(), RPL_NOTICE(origin, dest, msg));
+            }
+        }
+        ++t;
+    }
 }
