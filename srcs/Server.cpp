@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 22:24:16 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/10 23:46:44 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,8 +29,6 @@ void Server::checkNewClient(){
 	socklen_t	clientLen = sizeof(clientAddr);
 	int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
 	if (clientFd == -1){
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return  ;
 		std::cout << RED;
 		std::perror("!Error: accept()");
 		std::cout << NC;
@@ -141,7 +139,7 @@ void Server::initServer(int port, std::string pwd)
 
 	while (Server::_sigFlag == false){
 		int activity = poll(_pollFds.data(), _pollFds.size(), -1);
-		if (activity == -1)
+		if (activity == -1 && Server::_sigFlag == false)
 			throw std::runtime_error("poll() crashed! :(");
 		for (int i = _pollFds.size() - 1; i >= 0; --i)
 		{
@@ -188,6 +186,7 @@ void Server::parseCommand(Client *cli, const std::string &command)
 {
 	if (command.empty())
 		return;
+
 	// if it´s the 1st time, we need to verify his identity
 	if (cli->getStatus() != AUTHENTICATED)
 	{
@@ -255,6 +254,8 @@ CommandType Server::isCommand(const std::string &cmd)
 		return (QUIT);
 	else if (cmd == "PING")
 		return (PING);
+	else if (cmd == "CAP")
+		return (CAP);
 	else
 		return UKNW;
 }

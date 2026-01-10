@@ -83,7 +83,11 @@ void Server::broadcastQuit(Client *cli, std::string message, std::string reason)
 
 	while (it != _channels.end()){
         if ((*it).isMember(cli->getClientFd()))
+		{
             clientFdsOk = notifChannelQuit(&(*it), message, reason, clientFdsOk);
+			if ((*it).isEmpty())
+				removeChannel((*it).getName());
+		}
 		it++;
 	}
 }

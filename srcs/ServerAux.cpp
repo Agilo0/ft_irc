@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 22:11:08 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/10 23:04:57 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@ void Server::clearClient(int fd){
 	if (!cli)
 		return ;
 	cli->markForRevome();
+	std::string message = cli->createMessage();
+	broadcastQuit(cli, message, "Leaving");
 	shutdown(fd, SHUT_RDWR);
 	close(fd);
 	std::cout << PURPLE << "<" << fd << "> Disconnected!" << NC << std::endl;

@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 21:09:06 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/10 23:31:50 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,16 +95,18 @@ bool Server::checkNick(std::string nick){
 	}
 	return (true);
 }
-bool Server::checkUser(std::string user) const{
-	if (user.empty())
-		return (false);
-	int i = 0;
-	while (user[i]){
-		if (!isalnum(user[i]) && user[i] != '_'  && user[i] != '-' && user[i]!= '.')
-			return (false);
-		i++;
-	}
-	return (true);
+bool Server::checkUser(const std::string &user) const
+{
+    if (user.empty())
+        return false;
+
+    for (size_t i = 0; i < user.size(); ++i)
+    {
+        unsigned char c = static_cast<unsigned char>(user[i]);
+        if (!std::isalnum(c) && c != '_' && c != '-' && c != '.')
+            return false;
+    }
+    return true;
 }
 
 bool Server::nickTaken(std::string nick) const{

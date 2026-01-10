@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 23:14:46 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/10 22:34:05 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ enum CommandType{
 	MODE,
 	QUIT,
 	PING,
+	CAP,
 	UKNW
 };
 

@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 23:13:54 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/10 23:33:13 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ class Server{
 
 	//utils.cpp
 		bool checkNick(std::string nick);
-		bool checkUser(std::string user) const;
+		bool checkUser(const std::string &user) const;
 		bool nickTaken(std::string nick) const;
 		std::string appendToks( const std::vector<std::string> &tokens, int start);
 		bool checkSyn(std::string channel);

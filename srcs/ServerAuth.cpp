@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAuth.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:07:28 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/08 13:16:13 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/10 23:34:55 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,11 @@ void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
 		return;
 	}
 	std::string user = tokens[1];
+	if (!checkUser(user))
+	{
+		sendResponse(cli->getClientFd(), ERR_ERRONEUSNICKNAME(nick));
+		return;
+	}
 	if (tokens.size() > 5)
 		real = appendToks(tokens, 4);
 	else
