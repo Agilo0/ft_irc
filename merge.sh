@@ -19,6 +19,7 @@ FILES=(
     inc/Utils.hpp
     srcs/Channel.cpp
     srcs/Client.cpp
+    srcs/Notification.cpp
     srcs/Server.cpp
     srcs/ServerAuth.cpp
     srcs/ServerAux.cpp

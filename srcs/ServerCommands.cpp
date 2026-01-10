@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerCommands.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:18:22 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 23:13:34 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/10 11:28:28 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,6 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 	chan->addClient(cli->getClientFd(), isFirst);
 	chan->removeInvite(cli->getClientFd());
 	cli->setChannel(chan);
-    
-
 	/*we need to announce of the JOIN to everyone*/
 	//(:!@127.0.0.1 JOIN :#new) <--- this is how we can see the announce
 	sendResponse(cli->getClientFd(), RPL_JOIN(cli->getNickname(), cli->getUsername(), cli->getClientIP(), channelName));
@@ -130,6 +128,7 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 			}
 			//if the client is not part of the channel:
 			if (!chan->isMember(cli->getClientFd())){
+                //This error is from part?? Check the macro
 				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), dest));
 				continue;
 			}
@@ -138,7 +137,7 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 				if (*it != cli->getClientFd()){
 					Client *other = getClient(*it);
 					if (other)
-						sendResponse(cli->getClientFd(), RPL_PRIVMSG(cli->getNickname(), dest, msg));
+						sendResponse(other->getClientFd(), RPL_PRIVMSG(cli->getNickname(), dest, msg));
 				}
 			}			
 		}
@@ -372,52 +371,41 @@ void Server::handleTopic(Client *cli, std::vector<std::string> &tokens)
 
 void Server::handleWho(Client *cli, std::vector<std::string> &tokens)
 {
-	if (tokens.size() < 2)
-	{
+	if (tokens.size() < 2){
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
 		return;
 	}
 	int type = whoType(tokens[1]);
-	if (type == 1)
-	{
-		if (!channelExist(tokens[1]))
-		{
+	if (type == 1){
+		if (!channelExist(tokens[1])){
 			sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
 			return;
 		}
 		Channel *channel = findChannel(tokens[1]);
-		if (!channel->isMember(cli->getClientFd()))
-		{
-			sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
+		if (!channel->isMember(cli->getClientFd())){
+			sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
 			return;
 		}
 		std::set<int> clients = channel->getClients();
 		std::set<int>::iterator it = clients.begin();
-		while (it != clients.end())
-		{
+		while (it != clients.end()){
 			std::string message = buildWhoMessage((*it), channel->isOperator(*it));
 			if (!message.empty())
-			{
 				sendResponse(cli->getClientFd(), RPL_WHOREPLY(cli->getNickname(), channel->getName(), message));
-			}
 			it++;
 		}
 		sendResponse(cli->getClientFd(), RPL_ENDOFWHO(cli->getNickname(), tokens[1]));
 	}
-	else if (type == 2)
-	{
+	else if (type == 2){
 		int targetFd = findTarget(tokens[1]);
-		if (targetFd < 0)
-		{
+		if (targetFd < 0){
 			sendResponse(cli->getClientFd(),
 				ERR_NOSUCHNICK(cli->getNickname(), tokens[1]));
 			return;
 		}
 		std::vector<Channel>::iterator it = _channels.begin();
-		while (it != _channels.end())
-		{
-			if (it->isMember(targetFd) && it->isMember(cli->getClientFd()))
-			{
+		while (it != _channels.end()){
+			if (it->isMember(targetFd) && it->isMember(cli->getClientFd())){
 				std::string message = buildWhoMessage(targetFd, it->isOperator(targetFd));
 				sendResponse(cli->getClientFd(), RPL_WHOREPLY(cli->getNickname(), it->getName(), message));
 			}
@@ -427,8 +415,7 @@ void Server::handleWho(Client *cli, std::vector<std::string> &tokens)
 	}
 }
 
-void Server::handlePing(Client *cli, std::vector<std::string> &tokens)
-{
+void Server::handlePing(Client *cli, std::vector<std::string> &tokens){
 	if (tokens.size() < 2)
 		return;
 	sendResponse(cli->getClientFd(), "PONG " + tokens[1]);

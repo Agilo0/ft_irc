@@ -6,7 +6,7 @@
 #    By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/13 16:35:30 by yanaranj          #+#    #+#              #
-#    Updated: 2026/01/08 13:07:58 by yaja             ###   ########.fr        #
+#    Updated: 2026/01/10 10:57:22 by yaja             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ NAME = ircserv
 
 CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -I ./inc/ -fsanitize=address
-RM = rm -f
+RM = rm -rf
 
 #directories
 SRCSDIR = ./srcs/
@@ -57,6 +57,7 @@ clean:
 
 fclean: clean
 	@$(RM) $(NAME)
+	@$(RM) $(OBJDIR)
 	@echo "$(RED)Bye!🫰 $(NC)"
 
 re: fclean all

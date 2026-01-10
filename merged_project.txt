@@ -24,6 +24,8 @@ enum CommandType{
 	INVITE,
 	TOPIC,
 	MODE,
+	QUIT,
+	PING,
 	UKNW
 };
 
@@ -88,13 +90,11 @@ class Channel{
 		void removeInvite(int fd);
 
 		//modes
-		/* int manageModeChange(std::string mode, std::string arg, int targetFd);
+		int manageModeChange(std::string mode, std::string arg, int targetFd);
 		void manageK(bool sign, std::string arg);
 		int manageO(bool sign, int targetFd);
 		int manageL(bool sign, std::string arg);
-		bool isStrictNumber(const std::string &s); */
-		// void broadcastMode();
-
+		bool isStrictNumber(const std::string &s);
 };
 
 
@@ -102,110 +102,82 @@ class Channel{
 /* ===== FILE: inc/Client.hpp ===== */
 
 #ifndef CLIENT_HPP
-# define CLIENT_HPP
+#define CLIENT_HPP
 
 #include <string>
-//#include "Server.hpp"
+// #include "Server.hpp"
 #include "Channel.hpp"
 
-enum Status {
+enum Status
+{
     NOT_AUTHENTICATED,
-    PASS_OK,
-    NICK_OK,
-	NICK_AGAIN,
-    USER_OK,
     AUTHENTICATED
 };
 
-class Client{
-    private:
-        int _clientFd;
-        std::string _nickname;
-		std::string _oldnick;
-        std::string _username;
-        std::string _realname;
-		std::string _ip;//or host
-		std::string _buffer;
-        Status _status;
-		bool hasNick, hasUser, hasPass, logged;
-        bool _toRemove;
-        std::vector<Channel*> _channels;
+class Client
+{
+private:
+    int _clientFd;
+    std::string _nickname;
+    std::string _oldnick;
+    std::string _username;
+    std::string _realname;
+    std::string _ip; // or host
+    std::string _buffer;
+    Status _status;
+    bool hasNick, hasUser, hasPass;
+    bool _toRemove;
+    std::vector<std::string> _channels;
 
-    public:
-        Client();
-        ~Client();
-        
-        //getters
-        Status getStatus();
-		int getClientFd() const;//<--socket FD of the client
-        std::string getUsername() const;
-		std::string getNickname() const;
-		std::string getClientIP() const;
-		std::string &getBuff();
-        std::string getNick() const;
-		std::string getOldnick() const;
-		//Channel *getChannel(unsigned int index);
-                
-        //setters
-        void setStatus(Status status);
-        void setClientFd(int fd);
-		void setClientIP(const std::string &newIP);
-        void setPass();
-		void setLog();
-		void setFirstNick(std::string nick);
-		void setNewNick(std::string nick);
-		void setRealName(std::string name);
-		void setUser(std::string name);
-		void setChannel(Channel *channel);
+public:
+    Client();
+    ~Client();
 
-        //bools
-		bool isLogged() const;
-		bool hasAll() const;
-		bool hasPassw() const;
-		bool hasNickname() const;
-		bool hasUsername() const;
-        bool isToRemove() const;
+    // getters
+    Status getStatus();
+    int getClientFd() const; //<--socket FD of the client
+    std::string getUsername() const;
+    std::string getNickname() const;
+    std::string getClientIP() const;
+    std::string &getBuff();
+    std::string getNick() const;
+    std::string getOldnick() const;
+    //Channel *getChannel(unsigned int index);
+    std::string getRealname() const;
 
-        //others
-        void markForRevome();
-        void addBuffer(const std::string &data);
-		//int quitChannel(std::string channel);
-		//std::string createMessage();
+    // setters
+    void setStatus(Status status);
+    void setClientFd(int fd);
+    void setClientIP(const std::string &newIP);
+    void setPass();
+    void setFirstNick(std::string nick);
+    void setNewNick(std::string nick);
+    void setRealName(std::string name);
+    void setUser(std::string name);
+    void setChannel(Channel *channel);
 
+    // bools
+    bool hasAll() const;
+    bool hasPassw() const;
+    bool hasNickname() const;
+    bool hasUsername() const;
+    bool isToRemove() const;
+    bool isRegistered() const;
+
+    // others
+    void markForRevome();
+    void addBuffer(const std::string &data);
+    //int quitChannel(std::string channel);
+    std::string createMessage();
+    std::vector<std::string> getChannelVect();
 };
 
 #endif
 
 /* ===== FILE: inc/Responses.hpp ===== */
 
-#ifndef RESPONSES_HPP
-#define RESPONSES_HPP
-
-#define ERR_UNKNOWNERROR(msg)(std::string (" (400) :") + msg)
-
-// NICKNAME
-#define ERR_ERRONEUSNICKNAME(nickname) (std::string("432 ") + nickname + " :Erroneous nickname")
-#define ERR_NICKNAMEINUSE(nickname) (std::string("433 ") + nickname + " :Nickname is already in use")
-#define ERR_NONICKNAMEGIVEN() (std::string("431 :No nickname given"))
-#define ERR_NICKCOLLISION(nickname) (std::string("436 ") + nickname + " :Nickname collision KILL")
-#define RPL_NICKCHANGE(oldnick, user, host, nick)(std::string(":") + oldnick + "!" + user + "@" + host + " NICK :" + nick)
-#define RPL_NICKUSER(oldnick, newnick) (std::string (":" + oldnick + " NICK " + newnick))
-
-// USER
-#define ERR_NEEDMOREPARAMS(client, command) (std::string("461 ") + (client) + " " +(command) + " :Not enough parameters")
-#define ERR_ALREADYREGISTRED() (std::string("462 :You may not reregister"))
-
-// WELCOME
-#define RPL_WELCOME(nickname, servername, hostname) \
-    (std::string(":" + servername + " 001 " + nickname + \
-    " :Welcome to the " + servername + " Network, " + nickname + "!" + hostname))
-#define RPL_YOURHOST(servername, nickname) \
-    (std::string(":" + servername + " 002 " + nickname + " Your host is " + servername + ", running version 1.0"))
-#define RPL_CREATED(servername, time) \
-    (std::string(":" + servername + " 003 This server was created " + time))
-#define RPL_MYINFO(servername, nickname) \
-    (std::string(":" + servername + " 004 " + nickname + " " + servername))
-
+#ifndef RESPONSE_HPP
+# define RESPONSE_HPP
 
 // JOIN
 #define ERR_NOSUCHCHANNEL(channel) (std::string("403 ") + channel + " :No such channel")
@@ -216,70 +188,78 @@ class Client{
     (std::string(":" + nickname + "!" + username + "@" + hostname + " JOIN :" + channel))
 #define RPL_NAMREPLY(servername, nickname, channel, clientlist) \
     (std::string(":" + servername + " 353 " + nickname + " = " + channel + " :" + clientlist))
-#define RPL_ENDOFNAMES(nickname, channel) (std::string(":" + server.getServerName() + " 366 " + nickname + " " + channel + " :End of /NAMES list"))
+#define RPL_ENDOFNAMES(serverName, nickname, channel) (std::string(":" + serverName + " 366 " + nickname + " " + channel + " :End of /NAMES list"))
 
-// PRIVMSG
+
+//user
+#define ERR_NEEDMOREPARAMS(client, command) (std::string("461 ") + (client) + " " +(command) + " :Not enough parameters")
+//PRIVMSG
 #define ERR_NORECIPIENT(servername) (std::string(":" + servername + " 411 :No recipient given (PRIVMSG)"))
 #define ERR_NOTEXTTOSEND(servername) (std::string(":" + servername + " 412 :No text to send"))
 #define ERR_CANNOTSENDTOCHAN(servername, channel) (std::string(":" + servername + " 404 " + channel + " :Cannot send to channel"))
 #define ERR_NOSUCHNICK(servername, nickname) (std::string(":" + servername + " 401 " + nickname + " :No such nick/channel"))
 #define RPL_PRIVMSG(sender, receiver, message) (std::string(":" + sender + " PRIVMSG " + receiver + " " + message))
 
-// PASSWORD
-#define ERR_PASSWDMISMATCH() (std::string("464 :Password incorrect"))
 
 
-// PART
-#define ERR_USERNOTINCHANNEL(servername, nickname, channel) (std::string(":" + servername + " 441 " + nickname + " " + channel + " :They aren't on that channel"))
-#define ERR_NOTONCHANNEL(servername, channel) (std::string(":" + servername + " 442 " + channel + " :You're not on that channel"))
-
-// MODE
-#define RPL_CHANNELMODEIS(servername, nickname, channel, flag) \
-    (std::string(":" + servername + " 324 " + nickname + " " + channel + " " + flag))
-#define ERR_KEYSET(servername, channel) (std::string(":" + servername + " 467 " + channel + " :Channel key already set"))
-#define ERR_UNKNOWNMODE(servername, user, flag) (std::string(":" + servername + " " + user + " 472 " + flag + " :is unknown mode char to me for "))
-#define RPL_OPERATOR(client, username, hostname, channel, active, nick) (std::string (":" + client + "!" + username + "@" + hostname + " MODE " + active + "o " + channel + " " + nick))
-// #define ERR_UMODEUNKNOWNFLAG(client)(std::string ("501: ") + client + " :Unknown MODE flag")
-
-// :quien_invita!usuario@host INVITE tu_nick :#canal
-// INVITE
-#define ERR_USERONCHANNEL(servername, nickname, channel) \
-    (std::string(":" + servername + " 443 " + nickname + " " + channel + " :is already on channel"))
-#define ERR_CHANOPRIVSNEEDED(servername, channel) \
-    (std::string(":" + servername + " 482 " + channel + " :You're not channel operator"))
-#define RPL_INVITING(servername, nickname, channel, nicknameinvited) \
-    (std::string(":" + servername + " 341 " + nickname + " " + channel + " " + nicknameinvited))
-#define RPL_YOUVEBEENINVITED(client, username, hostname, invited, channel) \
-    (std::string (":" + client + "!" + username + "@" + hostname + " INVITE " + invited + " " + channel))
-
-// PING
-#define RPL_PONG(servername, text) (std::string(":" + servername + " PONG " + text))
-
-// QUIT
-#define ERR_NORECIPIENTQUIT(servername) (std::string(":" + servername + " 431 :No recipient given (QUIT)"))
-#define RPL_QUIT(nick, user, hostname, message)(std::string(":" + nick+ "!" + user + "@" + hostname + " QUIT :" + message))
-
-// KICK
-#define ERR_USERNOTINCHANNELKICK(servername, nickname, channel) (std::string(":" + servername + " 441 " + nickname + " " + channel + " :They aren't on that channel"))
-#define RPL_KICKPART(client, username, hostname, channel, kickpart, nick, reason)(std::string (":" + client + "!" + username + "@" + hostname + kickpart + channel + " " + nick + reason))
-
-// GENERAL
-#define ERR_UNKNOWNCOMMAND(command) (std::string("421 " + command + " :Unknown command"))
-#define ERR_NOTREGISTERED() (std::string("451 :You have not registered"))  // Error si mandamos algo sin estar registrados
-
-// WHO
-#define RPL_WHOREPLY(server, client, channel, username, hostname, nick, op, realname) \
-    (std::string (":" + server + " 352 " + client + " " + channel + " " + username + " " + hostname + " " + server + " " + nick + " H" + op + " :0" + realname))
-#define RPL_ENDOFWHO(server, client, channel) \
-    (std::string (":" + server + " 315 " + client + " " + channel + " :End of /WHO list."))
-
-// TOPIC
-#define RPL_NOTOPIC(servername, channel) (std::string(":" + servername + " 331 " + channel + " :No topic is set"))
-#define RPL_TOPIC(servername, client, channel, topic) (std::string(":" + servername + " 332 " + client + " " + channel + " " + topic))
-#define RPL_CHANGETOPIC(client, user, host, channel, topic) (std::string (":" + client + "!" + user + "@" + host + " TOPIC " + channel + " " + topic))
-
-
+// WELCOME
+#define RPL_WELCOME(nickname, servername, hostname) \
+   (std::string(":" + servername + " 001 " + nickname + \
+   " :Welcome to the " + servername + " Network, " + nickname + "! " + hostname))
+#define RPL_YOURHOST(servername, nickname) \
+    (std::string(":" + servername + " 002 " + nickname + " Your host is " + servername + ", running version 1.0"))
+#define RPL_CREATED(servername, time) \
+    (std::string(":" + servername + " 003 This server was created " + time))
+#define RPL_MYINFO(servername, nickname) \
+    (std::string(":" + servername + " 004 " + nickname + " " + servername))
 #endif
+
+
+//PASS
+#define ERR_ALREADYREGISTERED(nick) ("462 :You may not reregister" )
+#define ERR_PASSWDMISMATCH(nick) ("464 :Password incorrect" )
+
+
+//NICK
+#define ERR_NONICKNAMEGIVEN() (std::string("431 ") + " :No nickname given" )
+#define ERR_ERRONEUSNICKNAME(nick) (std::string("432 ") + nick + " :Erroneous nickname" )
+#define ERR_NICKNAMEINUSE(nick) (std::string("433 ") + nick + " :Nickname is already in use" )
+#define NICK_UPDATE(oldnick, nick) (":" + oldnick + " NICK " + nick)
+
+//USER
+#define ERR_NOTREGISTERED(nick) ("451 " + nick + " :You have not registered")
+
+//PART
+// #define ERR_NOSUCHCHANNEL(nick, channel) ("403 " + nick + channel + " :No such channel")
+#define ERR_NOTONCHANNEL(nick, channel) ("442 " + nick + channel + " :You're not on that channel")
+#define RPL_PART(message, channel, reason) (message + " PART " + channel + " " + reason)
+
+//KICK
+#define ERR_CHANOPRIVSNEEDED(nick, channel) ("482 " + nick + " " + channel + " :You're not channel operator")
+#define ERR_USERNOTINCHANNEL(nick, targetnick, channel) ("441 " + nick + " " + targetnick + " "  + channel + " :They aren't on that channel")
+#define KICK(message, channel, targetNick, reason) (message + " KICK " + channel + targetNick + reason)
+
+//MODE
+#define ERR_UNKNOWNCOMMAND(servername, nick, command) (":" + servername + " 421 " + nick + command + " :Unknown command")
+#define ERR_INVALIDMODEPARAM(servername, nick, channel, mode, argument) (":" + servername + " 696 " + nick + channel + mode + argument + " :Invalid mode parameter")
+
+//INVITE
+#define ERR_USERONCHANNEL(servername, nick, target, channel) (":" + servername + " 443 " + nick + " " + target + " " + channel + " :Is already on channel")
+#define RPL_INVITING(servername, nick, target, channel) (":" + servername + " 341 " + nick + " " + target + " " + channel)
+#define INVITE(message, nick, channel) (message + " INVITE " + nick + " " + channel)
+
+//QUIT
+#define QUIT(message, reason) (message + " QUIT :" + reason)
+
+//TOPIC
+#define RPL_TOPIC(nick, channel, topic) ("332 " + nick + " " + channel + " " + topic)
+#define RPL_NOTOPIC(nick, channel) ("331 " + nick + " " + channel + " :No topic is set")
+#define TOPIC(message, channel, topic) (message + " TOPIC " + channel + " :" + topic)
+
+//WHO
+#define RPL_WHOREPLY(nick, channel, message) ("352 " + nick + " " + channel + message)
+#define RPL_ENDOFWHO(nick, mask) ("315 " + nick + " " + mask + " :End of WHO list")
+
 /* ===== FILE: inc/Server.hpp ===== */
 
 #ifndef SERVER_HPP
@@ -301,11 +281,35 @@ class Server{
 		std::vector<Client> _clients;
 		std::vector<Channel> _channels;
 
+
+	//DETELE THEM
+	void printChannels(const std::vector<Channel>& _channels);
+	void printClients(std::vector<Client>& _clients);
+
+
+
 	//utils.cpp
 		bool checkNick(std::string nick);
 		bool checkUser(std::string user) const;
 		bool nickTaken(std::string nick) const;
 		std::string appendToks( const std::vector<std::string> &tokens, int start);
+		bool checkSyn(std::string channel);
+		bool channelExist(std::string channel);
+		void removeChannel(std::string chan);
+		bool checkKick(std::vector<std::string> &tokens);
+		bool emitorInChannel(int emitFd, std::string channel);
+		bool emitorOperator(int fd, std::string channel);
+		bool targetInChannel(std::string channel, int targetFd);
+		int targetExist(std::string nick);
+		void removeTarget(std::string channel, int targetFd);
+		bool isChangeMode(std::string mode);
+		bool validMode(std::string mode);
+		int findTarget(std::string nick);
+		void deleteClient(Client* cli);
+		int whoType(std::string cmd);
+		std::string buildWhoMessage(int fd, bool op);
+		Channel* findChannel(std::string name);
+
 
 	//ServerAuth.cpp
 		void passAuth(Client *cli, const std::vector<std::string> &tokens);
@@ -313,8 +317,19 @@ class Server{
 		void userAuth(Client *cli, const std::vector<std::string> &tokens);
 		void handShake(Client *cli, const std::string &command);
 	
-	//Server.cpp
+	//Server.cpp (COMMANDS)
 		void parseCommand(Client *cli, const std::string &command);
+		void handleJoin(Client *cli, const std::vector<std::string> &tokens);
+		void handlePrivmsg(Client *cli, const std::vector<std::string> &tokens);
+		void handlePart(Client *cli, const std::vector<std::string> &tokens);
+		void handleKick(Client *cli, std::vector<std::string> &tokens);
+
+		void handleMode(Client *cli, std::vector<std::string> &tokens);
+		void handleInvite(Client *cli, std::vector<std::string> &tokens);
+		void handleQuit(Client *cli, std::vector<std::string> &tokens);
+		void handleTopic(Client *cli, std::vector<std::string> &tokens);
+		void handleWho(Client *cli, std::vector<std::string> &tokens);
+		void handlePing(Client *cli, std::vector<std::string> &tokens);
 	
 	//Client.cpp
 		CommandType isCommand(const std::string &cmd);
@@ -323,10 +338,20 @@ class Server{
 	//ServerAux.cpp
 		Channel* moveCreateChannel(const std::string &channelName);
 		Client *getClient(int fd);
-		//void broadcastNewNick(Client *cli);//works with channels
+		Client *getClientByNick(const std::string &dest);
+
+	//Notification.cpp
+		void broadcastNewNick(Client *cli);//works with channels
+		std::vector<int> notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok);
+		void broadcastPart(std::string chann, std::string message, std::string reason);
+		void broadcastKick(std::string chann, std::string message, std::string nick, std::string reason);
+		void broadcastMode(Channel *chann, std::string message);
+		void broadcastQuit(Client *cli, std::string message, std::string reason);
+		std::vector<int> notifChannelQuit(Channel *chan, std::string message, std::string reason, std::vector<int> ok);
+		void broadcastTopic(std::string message, Channel *channel, std::string topic);
+		
 	
 	//ServerCommands.cpp
-		void handleJoin(Client *cli, const std::vector<std::string> &tokens);
 		
     public:
 		Server();
@@ -349,8 +374,6 @@ class Server{
 
 #ifndef UTILS_HPP
 # define UTILS_HPP
-
-#include "Server.hpp"
 
 /*	/---------------\
    |	LIBRARIES 	 |
@@ -477,7 +500,9 @@ bool Channel::addClient(int fd, bool isOperator){
 //if we found this fd on the list, means that is a member
 bool Channel::isMember(int fd) const { return _clients.find(fd) != _clients.end(); }
 bool Channel::isOperator(int fd) const { return _operators.find(fd) != _operators.end(); }
-bool Channel::isInvited(int fd) const { return _clients.find(fd) != _clients.end(); }
+
+//bool Channel::isInvited(int fd) const { return _clients.find(fd) != _clients.end(); }
+bool Channel::isInvited(int fd) const { return _invited.find(fd) != _invited.end(); }
 
 void Channel::removeClient(int fd){
 	_clients.erase(fd);
@@ -490,7 +515,84 @@ bool Channel::isEmpty() const {
 	return (false);
 }
 
+int Channel::manageModeChange(std::string mode, std::string arg, int targetFd){
+	bool sign;
+	if (mode[0] == '+')
+		sign = true;
+	else
+		sign = false;
+	if (mode[1] == 'i'){
+		setModeI(sign);
+		return(0);
+	}
+	else if (mode[1] == 't'){
+		setModeT(sign);
+		return(0);
+	}
+	if (arg == "")
+		return(1);
+	if (mode[1] == 'k'){
+		manageK(sign, arg);
+		return (0);
+	}
+	if (mode[1] == 'o'){
+		if (manageO(sign, targetFd) == 1)
+			return (2);
+	}
+	if (mode[1] == 'l'){
+		if (manageL(sign, arg) == 1)
+			return (3);
+	}
+	return (0);
+}
 
+void Channel::manageK(bool sign, std::string arg){
+	setModeK(sign);
+	if (sign == true)
+		_key = arg;
+	else
+		_key.clear();
+}
+
+int Channel::manageO(bool sign, int targetFd){
+	if (!isMember(targetFd))
+		return (1);
+	if (sign == true)
+		addOperator(targetFd);
+	else if (sign == false)
+		removeOperator(targetFd);
+	setModeO(sign);
+	return (0);
+}
+
+int Channel::manageL(bool sign, std::string arg){
+	if (sign == true){
+		if (!isStrictNumber(arg))
+        	return (1);
+		size_t limit;
+		std::stringstream ss(arg);
+		ss >> limit;
+		if (limit == 0)
+			return (1);
+		_maxUsers = limit;
+		setModeL(true);
+	}
+	else
+		setModeL(sign);
+	return (0);
+}
+
+bool Channel::isStrictNumber(const std::string &s){
+    size_t i = 0;
+    if (s.empty())
+        return false;
+    while (i < s.size()){
+        if (!std::isdigit(s[i]))
+            return false;
+        i++;
+    }
+    return true;
+}
 
 /* ===== FILE: srcs/Client.cpp ===== */
 
@@ -501,7 +603,6 @@ Client::Client(){
     hasNick = false;
 	hasUser = false;
 	hasPass = false;
-	logged = false;
 	_status = NOT_AUTHENTICATED;
     _toRemove = false;
 }
@@ -521,13 +622,12 @@ void Client::setNewNick(std::string nick){
 	_oldnick = _nickname;
 	_nickname = nick;
 }
-void Client::setLog(){ logged = true; }
 void Client::setUser(std::string name){
 	_username = name;
 	hasUser = true;
 }
 void Client::setRealName(std::string name) { _realname = name; }
-void Client::setChannel(Channel *channel) { _channels.push_back(channel); }
+void Client::setChannel(Channel *channel) { _channels.push_back(channel->getName()); }
 
 
 
@@ -540,19 +640,17 @@ std::string Client::getNickname() const { return _nickname;}
 std::string &Client::getBuff() { return _buffer; }
 std::string Client::getNick() const { return (_nickname); }
 std::string Client::getOldnick() const{ return (_oldnick); }
-/* Channel *Client::getChannel(unsigned int index){
-	if (_channels.size() > index)
-		return (_channels[index]);
-	return (NULL);
-} */
+// Channel *Client::getChannel(unsigned int index){
+// 	if (_channels.size() > index)
+// 		return (_channels[index]);
+// 	return (NULL);
+// }
+std::string Client::getRealname() const{
+	return (_realname);
+}
 
 
 //bools
-bool Client::isLogged() const{
-	if (logged == true)
-		return (true);
-	return (false);
-}
 bool Client::hasAll() const{
 	if (hasPass == true && hasNick == true && hasUser == true)
 		return (true);
@@ -562,12 +660,153 @@ bool Client::hasNickname() const { return (hasNick);}
 bool Client::hasUsername() const { return (hasUser); }
 bool Client::hasPassw() const { return (hasPass); }
 bool Client::isToRemove() const { return (_toRemove); }
+bool Client::isRegistered() const { return _status /* == AUTHENTICATED */; }
 
 
 
 //others
 void Client::markForRevome() { _toRemove = true; }
 void Client::addBuffer(const std::string &data){ _buffer += data; }
+std::string Client::createMessage(){
+	std::string res;
+
+	res.append(":");
+	res.append(_nickname);
+	res.append("!");
+	res.append(_username);
+	res.append("@");
+	res.append(_ip);
+	return (res);
+}
+std::vector<std::string> Client::getChannelVect(){
+	return (_channels);
+}
+
+
+/* ===== FILE: srcs/Notification.cpp ===== */
+
+#include "Server.hpp"
+
+void Server::broadcastNewNick(Client *cli){
+	std::vector<int> clientFdsOk;
+	std::vector<int> res;
+	std::vector<std::string> channels = cli->getChannelVect();
+	std::vector<std::string>::iterator it = channels.begin();
+
+	while (it != channels.end()){
+		clientFdsOk = notifChannel(findChannel((*it)), cli->getOldnick(), cli->getNickname(), clientFdsOk);
+		it++;
+	}
+}
+std::vector<int> Server::notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok){
+	std::set<int> clients = chan->getClients();
+	std::set<int>::iterator it = clients.begin();
+	
+	while (it != clients.end()){
+		int fd = *it;
+		if (std::find(ok.begin(), ok.end(), fd) == ok.end()){
+			sendResponse(fd, NICK_UPDATE(old, nick));
+			ok.push_back(fd);
+		}
+		it++;
+
+	}
+	return (ok);
+}
+
+void Server::broadcastPart(std::string chann, std::string message, std::string reason){
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end()){
+		if (chann == (*it).getName()){
+			std::set<int> clients = (*it).getClients();
+			std::set<int>::iterator itc = clients.begin();
+			while (itc != clients.end()){
+				int fd = *itc;
+				sendResponse(fd, RPL_PART(message, (*it).getName(), reason));
+				itc++;
+			}
+			return;
+		}
+		it++;
+	}
+}
+
+void Server::broadcastKick(std::string chann, std::string message, std::string nick, std::string reason){
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end()){
+		if (chann == (*it).getName()){
+			std::set<int> clients = (*it).getClients();
+			std::set<int>::iterator itc = clients.begin();
+			while (itc != clients.end()){
+				int fd = *itc;
+				sendResponse(fd, KICK(message, chann, nick, reason));
+				itc++;
+			}
+			return;
+		}
+		it++;
+	}
+	(void)nick;
+}
+
+void Server::broadcastMode(Channel *channel, const std::string message){
+	std::set<int> clients = channel->getClients();
+	std::set<int>::iterator itc = clients.begin();
+	while (itc != clients.end()){
+		int fd = *itc;
+		sendResponse(fd, message);
+		itc++;
+	}
+	return;
+}
+
+void Server::broadcastQuit(Client *cli, std::string message, std::string reason)
+{
+	std::vector<int> clientFdsOk;
+    std::vector<Channel>::iterator it = _channels.begin();
+    clientFdsOk.push_back(cli->getClientFd());
+
+	while (it != _channels.end()){
+        if ((*it).isMember(cli->getClientFd()))
+            clientFdsOk = notifChannelQuit(&(*it), message, reason, clientFdsOk);
+		it++;
+	}
+}
+
+std::vector<int> Server::notifChannelQuit(Channel *chan, std::string message, std::string reason, std::vector<int> ok)
+{
+	std::set<int> clients = chan->getClients();
+	std::set<int>::iterator it = clients.begin();
+	
+	while (it != clients.end())
+	{
+		int fd = *it;
+		if (std::find(ok.begin(), ok.end(), fd) == ok.end())
+		{
+			sendResponse(fd, QUIT(message, reason));
+			ok.push_back(fd);
+		}
+		it++;
+
+	}
+	return (ok);
+}
+
+void Server::broadcastTopic(std::string message, Channel *channel, std::string topic)
+{
+
+	std::set<int> clients = channel->getClients();
+	std::set<int>::iterator itc = clients.begin();
+	while (itc != clients.end())
+	{
+		int fd = *itc;
+		sendResponse(fd, TOPIC(message, channel->getName(), topic));
+		itc++;
+	}
+	return;
+}
 /* ===== FILE: srcs/Server.cpp ===== */
 
 #include "Server.hpp"
@@ -575,6 +814,75 @@ void Client::addBuffer(const std::string &data){ _buffer += data; }
 /*CRASH WHEN WE CLOSE HEXCHAT. STILL WAITING FOR JOIN AND MORE COMMANDS*/
 
 Server::Server() : _port(0), _servFd(-1), _serverName("ircserv") {}
+bool Server::_sigFlag = false;//no signal received yet
+
+void Server::sigHandler(int signum)
+{
+	(void)signum;
+	std::cout << PURPLE << "Flag is true! " << signum << NC << std::endl;
+	_sigFlag = true;
+}
+//we have to add this client to the list
+void Server::checkNewClient(){
+	sockaddr_in clientAddr;
+	socklen_t	clientLen = sizeof(clientAddr);
+	int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
+	if (clientFd == -1){
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return  ;
+		std::cout << RED;
+		std::perror("!Error: accept()");
+		std::cout << NC;
+		return ;
+	}
+	if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1){
+		::close(_servFd);
+		throw std::runtime_error("!Error: fcntl(O_NONBLOCK)");
+	}
+	pollfd clientPollfd = {clientFd, POLLIN, 0};//new poll and its struct	
+	Client newclient;
+	newclient.setClientFd(clientFd);
+	newclient.setClientIP(inet_ntoa(clientAddr.sin_addr));//this how we set the IP
+	
+	_pollFds.push_back(clientPollfd);
+	_clients.push_back(newclient);
+	
+	std::cout << TURQUOISE << "<" << clientFd << "> Connected!" << NC << std::endl;
+}
+
+//this will give us the commands that are sending the clients
+void Server::checkNewData(int fd){
+	char buffer[1024];
+	memset(buffer, 0, sizeof(buffer));//clears the buffer
+	
+	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
+	if (bytes == 0)
+	{
+		std::cout << "flag_3\n";
+		clearClient(fd);
+		return ;
+	}
+	else if (bytes < 0) {
+    	if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return;
+	}
+	Client *cli = getClient(fd);
+	if (!cli)
+		return ;
+	cli->addBuffer(std::string(buffer, bytes));
+	std::string &buff = cli->getBuff();
+	size_t pos;
+	
+	//while((pos = buff.find("\n")) != std::string::npos){//just for MacOS test (yaja)
+	while((pos = buff.find("\r\n")) != std::string::npos){
+		std::string cmd = buff.substr(0, pos);
+		buff.erase(0, pos + 2);
+		if (!cmd.empty()){
+			std::cout << YELLOW << "<" << fd << "> << " << NC << cmd << std::endl;
+			parseCommand(cli, cmd);
+		}
+	}
+}
 
 void Server::createSocket()
 {
@@ -665,14 +973,14 @@ void Server::initServer(int port, std::string pwd)
 					}
 				}
 				// now let´s delete from channels
-				/* for (size_t j = 0; j < _channels.size(); ){
+				for (size_t j = 0; j < _channels.size(); ){
 					_channels[j].removeClient(fd);
 					if (_channels[j].getClients().empty()){ //if is the only member, delete channel too
 						_channels.erase(_channels.begin() + j);
 						continue; //nothing to increment cause vector has delete a space
 					}
 					++j;
-				} */
+				}
 				_clients.erase(_clients.begin() + i);
 			}
 		}
@@ -688,12 +996,10 @@ void Server::parseCommand(Client *cli, const std::string &command)
 	// if it´s the 1st time, we need to verify his identity
 	if (cli->getStatus() != AUTHENTICATED)
 	{
-		std::cout << "AUTHENTICATING client\n" << NC;
 		handShake(cli, command);
 		return;
 	}
 	// handle other commands
-	std::cout << ORANGE << "Handshake ok!!\n" << NC;
 	std::vector<std::string> tokens = Utils::split(command, ' ');
 	if (tokens.empty())
 		return;
@@ -702,23 +1008,31 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		cmd[i] = std::toupper(cmd[i]);
 
 	switch (isCommand(cmd)){
-		std::cout << ORANGE << "switch commands" << std::endl;
-		case JOIN: handleJoin(cli, tokens); break;//do we need a code for error handle???
-		case UKNW: std::cerr << RED << "Unknown command for IRC \r\n" << NC << std::endl;
+		std::cout << ORANGE << "switch state commands" << std::endl;
+		
+		case PASS: passAuth(cli, tokens); break;
+		case NICK: nickAuth(cli, tokens); break;
+		case USER: break;//the user is only a register thing
+		case JOIN: handleJoin(cli, tokens); break;
+		//WHO
+		case PRIVMSG: handlePrivmsg(cli, tokens); break;
+		case PART: handlePart(cli, tokens); break;
+		
+		case UKNW: sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), cmd)); break;
+		case KICK: handleKick(cli, tokens); break;
+		case MODE: handleMode(cli, tokens); break;
+		case INVITE: handleInvite(cli, tokens); break;
+		case QUIT: handleQuit(cli, tokens); break;
+		case TOPIC: handleTopic(cli, tokens); break;
+		case WHO: handleWho(cli, tokens); break;
+		case PING: handlePing(cli, tokens); break;
 		default:
 			break;
 	}
 	/* switch (isCommand(cmd))
 	{
-		case PRIVMSG: handlePrivmsg(cli, tokens); break;
 		//case WHO: handleWho(cli, tokens); break;	//what exactly who do?
-		case PASS: passAuth(cli, tokens); break;
-		case NICK: nickAuth(cli, tokens); break;
-		case USER: userAuth(cli, tokens); break;
-		case PART: handlePart(cli, tokens); break;
-		case KICK: handleKick(cli, tokens); break;
-		case MODE: handleMode(cli, tokens); break;
-		case INVITE: handleInvite(cli, tokens); break;
+
 	default:
 		break;
 	} */
@@ -750,6 +1064,10 @@ CommandType Server::isCommand(const std::string &cmd)
 		return (USER);
 	else if (cmd == "PART")
 		return (PART);
+	else if (cmd == "QUIT")
+		return (QUIT);
+	else if (cmd == "PING")
+		return (PING);
 	else
 		return UKNW;
 }
@@ -767,11 +1085,11 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick, tokens[0]));
 		return;
 	}
-
-	if (cli->isLogged()){//este nos salta constantemente
+//ANTES ERA ISLOGGED
+	/* if (cli->isRegistered()){//este nos salta constantemente
 		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
 		return;
-	}
+	} */
 	std::string pass = tokens[1];
 	if (tokens[1] != _pwd){
 		sendResponse(cli->getClientFd(), ERR_PASSWDMISMATCH(nick));
@@ -779,23 +1097,25 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens)
 	}
 	else
 		cli->setPass();
-	if (cli->hasAll()){
+	/* if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
 		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated"
 			<< cli->getNickname() << NC << std::endl;
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
-	}
+	} */
 }
 
 void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens)
 {
     std::cout << YELLOW << "1st status: " << NC << cli->getStatus();
 	if (tokens.size() < 2){
+		//we can improve this response:
 		sendResponse(cli->getClientFd(), ERR_NONICKNAMEGIVEN());
 		return;
 	}
 	std::string nick = tokens[1];
 	if (!checkNick(nick)){
+		//we can improve this response:
 		sendResponse(cli->getClientFd(), ERR_ERRONEUSNICKNAME(nick));
 		return;
 	}
@@ -803,56 +1123,47 @@ void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens)
 		sendResponse(cli->getClientFd(), ERR_NICKNAMEINUSE(nick));
 		return;
 	}
-
 	//nick checked, we update client info and check log info
 	if (!cli->hasNickname())
 		cli->setFirstNick(nick);
-	//else{
-	//	cli->setNewNick(nick);
-	//	broadcastNewNick(cli);//sends a notification to channels
-	//}
-	if (cli->hasAll()){
+	else{
+		cli->setNewNick(nick);
+		broadcastNewNick(cli);//sends a notification to channels
+	}
+	/* if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
 		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated"
 			<< cli->getNickname() << NC << std::endl;
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
-	}
+	} */
 }
 void Server::userAuth(Client *cli, const std::vector<std::string> &tokens)
 {
 	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
-	std::string user = tokens[1];
 	std::string real;
 	if (tokens.size() < 5)
 	{
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick, tokens[0]));
 		return;
 	}
+	std::string user = tokens[1];
 	if (tokens.size() > 5)
 		real = appendToks(tokens, 4);
 	else
 		real = tokens[4];
 	if (cli->hasUsername())
 	{
-		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(cli->getUsername()));
+		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(nick));
 		return;
 	}
-	if (!cli->hasPassw())
-	{
-		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
-		return;
-	}
-	if (checkUser(user))
-	{
-		cli->setUser(user);
-		cli->setRealName(real);
-	}
-	if (cli->hasAll()){
+	cli->setUser(user);
+	cli->setRealName(real);
+	/* if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
 		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated: "
 			<< cli->getNickname() << NC << std::endl;
 		sendResponse(cli->getClientFd(), RPL_WELCOME(nick, _serverName, cli->getClientIP()));
-	}
+	} */
 }
 
 
@@ -863,95 +1174,31 @@ void Server::handShake(Client *cli, const std::string &command){
 	std::string cmd = tokens[0];
 	for(size_t i = 0; i < cmd.size(); ++i)
 		cmd[i] = std::toupper(cmd[i]);
-	if (cmd == "PASS")
+	if (cmd == "CAP")
+		std::cout << "IS LS\n";
+	else if (cmd == "PASS")
 		passAuth(cli, tokens);
 	else if(cmd == "NICK")
 		nickAuth(cli, tokens);
 	else if (cmd == "USER")
 		userAuth(cli, tokens);
-	else if (cmd == "JOIN" && cli->isLogged() == true){
+/* 	else if (cmd == "JOIN"){
 		std::cout << "handshake join\n";
 		handleJoin(cli, tokens);
-	}
+	} */
 	else
-		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED());
+	//check this error, because protocol has no params!!!!!
+		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED((cli->getNickname())));
+	if (cli->hasAll()){
+		cli->setStatus(AUTHENTICATED);
+		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated: "
+			<< cli->getNickname() << NC << std::endl;
+		sendResponse(cli->getClientFd(), RPL_WELCOME(cli->getNickname(), _serverName, cli->getClientIP()));
+	}
 }
 /* ===== FILE: srcs/ServerAux.cpp ===== */
 
 #include "Server.hpp"
-
-bool Server::_sigFlag = false;//no signal received yet
-
-void Server::sigHandler(int signum)
-{
-	(void)signum;
-	std::cout << PURPLE << "Flag is true! " << signum << NC << std::endl;
-	_sigFlag = true;
-}
-
-//we have to add this client to the list
-void Server::checkNewClient(){
-	sockaddr_in clientAddr;
-	socklen_t	clientLen = sizeof(clientAddr);
-	int clientFd = accept(_servFd, (sockaddr*)&clientAddr, &clientLen);
-	if (clientFd == -1){
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return  ;
-		std::cout << RED;
-		std::perror("!Error: accept()");
-		std::cout << NC;
-		return ;
-	}
-	if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1){
-		::close(_servFd);
-		throw std::runtime_error("!Error: fcntl(O_NONBLOCK)");
-	}
-	pollfd clientPollfd = {clientFd, POLLIN, 0};//new poll and its struct	
-	Client newclient;
-	newclient.setClientFd(clientFd);
-	newclient.setClientIP(inet_ntoa(clientAddr.sin_addr));//this how we set the IP
-	
-	_pollFds.push_back(clientPollfd);
-	_clients.push_back(newclient);
-	
-	std::cout << TURQUOISE << "<" << clientFd << "> Connected!" << NC << std::endl;
-}
-
-//this will give us the commands that are sending the clients
-void Server::checkNewData(int fd){
-	char buffer[1024];
-	memset(buffer, 0, sizeof(buffer));//clears the buffer
-	
-	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
-	if (bytes == 0)
-	{
-		std::cout << "flag_3\n";
-		clearClient(fd);
-		return ;
-	}
-	else if (bytes < 0) {
-    	if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return;
-	}
-	Client *cli = getClient(fd);
-	if (!cli)
-		return ;
-	cli->addBuffer(std::string(buffer, bytes));
-	std::string &buff = cli->getBuff();
-	size_t pos;
-	
-	//while((pos = buff.find("\r\n")) != std::string::npos){
-	while((pos = buff.find("\n")) != std::string::npos){//just for MacOS test (yaja)
-		std::cout << BLUE << "CheckNewData loop\n" << NC;
-		
-		std::string cmd = buff.substr(0, pos);
-		buff.erase(0, pos + 2);
-		if (!cmd.empty()){
-			std::cout << YELLOW << "<" << fd << "> << " << cmd << NC << std::endl;
-			parseCommand(cli, cmd);
-		}
-	}
-}
 
 Channel *Server::moveCreateChannel(const std::string &channelName){
 	//if we have the name on the list, we send the channel
@@ -973,20 +1220,13 @@ Client *Server::getClient(int fd){
 	return NULL;
 }
 
-//Notification
-/* void Server::broadcastNewNick(Client *cli)
-{
-	int i = 0;
-	std::vector<int> clientFdsOk;
-	std::vector<int> res;
-	Channel *chan;
-
-	while ((chan = cli->getChannel(i)) != NULL)
-	{
-		clientFdsOk = notifChannel(chan, cli->getOldnick(), cli->getNickname(), clientFdsOk);
-		i++;
+Client *Server::getClientByNick(const std::string &dest){
+	for (size_t i = 0; i < _clients.size(); ++i){
+		if (_clients[i].getNickname() == dest)
+			return &_clients[i];
 	}
-} */
+	return NULL;
+}
 
 void Server::close_fds(std::vector<pollfd> &pollFds)
 {
@@ -1009,28 +1249,74 @@ void Server::clearClient(int fd){
 	close(fd);
 	std::cout << PURPLE << "<" << fd << "> Disconnected!" << NC << std::endl;
 }
+
+
+
+
+//DELETE LATEEER!!!!!!!!!!!
+void Server::printChannels(const std::vector<Channel>& _channels){
+    std::cout << "---- Lista de canales ----" << std::endl;
+    for (size_t i = 0; i < _channels.size(); ++i){
+        const Channel &ch =_channels[i];
+        std::cout << "[" << i << "] Nombre: " << ch.getName();
+
+        if (ch.hasTopic())
+            std::cout << " | Topic: " << ch.getTopic();
+
+        std::cout << "\n    Clientes (" << ch.getClients().size() << "): ";
+
+        const std::set<int> &clients = ch.getClients();
+        std::set<int>::const_iterator it = clients.begin();
+        for (; it != clients.end(); ++it)
+        {
+            std::cout << *it;
+            std::set<int>::const_iterator next = it;
+            ++next;
+            if (next != clients.end())
+                std::cout << ", ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "--------------------------" << std::endl;
+}
+
+// Muestra los clientes+fd autenticados y los conectados sin autenticar 
+void Server::printClients(std::vector<Client>& _clients) {
+    std::cout << "---- Lista de clientes ----" << std::endl;
+    for (size_t i = 0; i < _clients.size(); ++i) {
+		if (_clients[i].getStatus() == AUTHENTICATED){
+        	std::cout << "Cliente " << i << " FD=" << _clients[i].getClientFd() 
+			<< " " << _clients[i].getNickname() << std::endl;
+    	} else {
+			std::cout << "Cliente " << i << " FD=" << _clients[i].getClientFd() 
+			<< " " << _clients[i].getNickname() << " NOT_AUTHENTICATED" << std::endl;
+		}
+	}
+}
 /* ===== FILE: srcs/ServerCommands.cpp ===== */
 
 #include "Server.hpp"
 
+//JOIN #channel_name ?mode (still have to check this part)
 void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 	std::cout << ORANGE << "Handel JOIN\n" << NC;
+    //seguridad de registro?
 	if (tokens.size() < 2){
         sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), "JOIN"));
 		return ;
 	}
 	std::string channelName = tokens[1];
 	std::string key;
-	Channel *chan = moveCreateChannel(channelName);
 	
-	if (tokens.size() >= 3){
-			chan->setKey(tokens[2]);
-			key = tokens[2];
-	}
-	if (channelName[0] != '#'){
+	if (channelName.empty() || channelName[0] != '#'){
 		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(channelName));
 		return ;
 	}
+    if (tokens.size() >= 3){
+			//chan->setKey(tokens[2]);
+			key = tokens[2];
+	}
+	Channel *chan = moveCreateChannel(channelName);
 	if (chan->isModeI() && !chan->isOperator(cli->getClientFd()) && !chan->isInvited(cli->getClientFd())){
 		sendResponse(cli->getClientFd(), ERR_INVITEONLYCHAN(channelName));
 		return;
@@ -1042,13 +1328,15 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 		}
 	}
 	if (chan->isModeL() && chan->getClients().size() >= chan->getMaxUsers()){
-	sendResponse(cli->getClientFd(), ERR_CHANNELISFULL(/*cli->_nickname (key is tmp)*/key, channelName));
+	sendResponse(cli->getClientFd(), ERR_CHANNELISFULL(cli->getNickname(), channelName));
 		return ;
 	}
 	//first user of the channel is the operator
 	bool isFirst = chan->getClients().empty();
 	chan->addClient(cli->getClientFd(), isFirst);
-	chan->removeInvite(cli->getClientFd());//??
+	chan->removeInvite(cli->getClientFd());
+	cli->setChannel(chan);
+    
 
 	/*we need to announce of the JOIN to everyone*/
 	//(:!@127.0.0.1 JOIN :#new) <--- this is how we can see the announce
@@ -1065,18 +1353,371 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 				sendResponse(currCli->getClientFd(), RPL_JOIN(cli->getNickname(), cli->getUsername(), cli->getClientIP(), channelName));
 		}
 	}
-	cli->setChannel(chan); //???
-	std::cout << RED << "Finish sending notification to clients" << std::endl;
-	//HERE WE NEED THE 1ST NICKS LIST!! (CHECK WHY)
-	//std::ostringstream nicks;
-	/* for(std::set<int>::const_iterator it = members.begin(); it != members.end(); ++it){
+    // Keep track of channels this client belongs to (needed for PART, QUIT, NICK broadcasts)
+	std::string nickList;
+	for(std::set<int>::const_iterator it = members.begin(); it != members.end(); ++it){
 		Client *m = getClient(*it);
-		if (!m) continue;//if this client does not exist
-		if (chan->isOperator(*it))//this int is operator	
-			
-	} */
+		if (!m)
+            continue;//if this client does not exist
+		if (chan->isOperator(*it))
+            nickList += "@";
+        nickList += m->getNickname() + " ";
+	}
+    if (!nickList.empty())
+        nickList.erase(nickList.size() - 1);
+    sendResponse(cli->getClientFd(), RPL_NAMREPLY(_serverName, cli->getNickname(), channelName, nickList));
+    sendResponse(cli->getClientFd(), RPL_ENDOFNAMES(_serverName, cli->getNickname(), channelName));
 }
 
+//<PRIVMSG dest :message to send>
+//<PRIVMSG {, dest} :message to send> (check if this is correct)
+void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
+	if (!cli)
+		return ;
+	std::string origin;
+
+	if (cli->getNickname().empty())
+		origin = "*";
+	else
+		cli->getNickname();
+	//send a msg if we don't have all the params for this command
+	if (tokens.size() < 3){
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return ;
+	}
+	std::string msg = tokens[2];
+	if (tokens[2][0] == ':'){
+		msg= tokens[2].substr(1);
+	}
+	//loop for join again the tokens, but only since the msg begins
+	for (size_t i = 3; i < tokens.size(); ++i)
+		msg += " " + tokens[i];
+
+	//split the targets of the msg (by commas)
+	std::vector<std::string>targets = Utils::split(tokens[1], ',');
+	for(size_t t = 0; t < targets.size(); ++t){
+		std::string dest = targets[t];
+		if (dest.empty())
+			continue;
+		//multiple dests
+		if (dest[0] == '#'){
+			Channel *chan = NULL;
+			for (size_t i = 0; i < _channels.size(); ++i){
+				if (_channels[i].getName() == dest){
+					chan = &_channels[i];
+					break ;
+				}
+			}
+			//is chan does not exist:
+			if (!chan){
+				sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(cli->getNickname()));
+				continue;
+			}
+			//if the client is not part of the channel:
+			if (!chan->isMember(cli->getClientFd())){
+				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), dest));
+				continue;
+			}
+			const std::set<int>& users = chan->getClients();
+			for(std::set<int>::const_iterator it = users.begin(); it != users.end(); ++it){
+				if (*it != cli->getClientFd()){
+					Client *other = getClient(*it);
+					if (other)
+						sendResponse(cli->getClientFd(), RPL_PRIVMSG(cli->getNickname(), dest, msg));
+				}
+			}			
+		}
+		//single dest
+		else{
+			Client *targetCli = getClientByNick(dest);
+			if (!targetCli){
+				sendResponse(cli->getClientFd(), ERR_NOSUCHNICK(cli->getNickname(), dest));
+				continue;
+			}
+			else
+				sendResponse(targetCli->getClientFd(), RPL_PRIVMSG(cli->getNickname(), dest, msg));
+		}
+	}
+}
+
+void Server::handlePart(Client *cli, const std::vector<std::string> &tokens){
+	if (tokens.size() < 2 || !checkSyn(tokens[1]))
+	{
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[1]));
+		return;
+	}
+	std::vector<std::string> channels = Utils::split(tokens[1], ',');
+	std::string reason;
+	if (tokens.size() > 2)
+		reason = appendToks(tokens, 2);
+	else
+		reason = "";
+	std::vector<std::string>::iterator it = channels.begin();
+	while (it != channels.end()){
+		if (channelExist((*it)) == true){
+			Channel *chan = findChannel((*it));
+			if (!chan->isMember(cli->getClientFd())){
+				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), (*it)));
+				it++;
+				continue;
+			}
+			std::string message = cli->createMessage();
+			sendResponse(cli->getClientFd(), RPL_PART(message, (*it), reason));
+			broadcastPart((*it), message, reason);
+			chan->removeClient(cli->getClientFd());
+			if (chan->isEmpty())
+				removeChannel((*it));
+		}
+		else
+			sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(*it));
+		it++;
+	}
+}
+
+void Server::handleKick(Client *cli, std::vector<std::string> &tokens){
+	int targetFd = 0;
+	std::string reason;
+	if (tokens.size() > 2)
+		reason = appendToks(tokens, 3);
+	else
+		reason = "";
+	if (!checkKick(tokens)){
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return;
+	}
+	if (!channelExist(tokens[1])){
+		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
+		return;
+	}
+	if (!emitorInChannel(cli->getClientFd(), tokens[1])){
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		return;
+	}
+	if (!emitorOperator(cli->getClientFd(), tokens[1])){
+		sendResponse(cli->getClientFd(), ERR_CHANOPRIVSNEEDED(cli->getNickname(), tokens[1]));
+		return;
+	}
+	if (!(targetFd = targetExist(tokens[2]))){
+		sendResponse(cli->getClientFd(), ERR_NOSUCHNICK(cli->getNickname(), tokens[2]));
+		return;
+	}
+	if (!targetInChannel(tokens[1], targetFd)){
+		sendResponse(cli->getClientFd(), ERR_USERNOTINCHANNEL(cli->getNickname(), tokens[2], tokens[1]));
+		return;
+	}
+	removeTarget(tokens[1], targetFd);
+	std::string message = cli->createMessage();
+	sendResponse(targetFd, KICK(message, tokens[1], tokens[2], reason));
+	broadcastKick(tokens[1], message, tokens[2], reason);
+}
+
+void Server::handleMode(Client *cli, std::vector<std::string> &tokens){
+	if (tokens.size() < 3){
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return;
+	}
+	if (tokens[1][0] != '#'){
+		sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), tokens[0]));
+		return;
+	}
+	if (!channelExist(tokens[1])){
+		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
+		return;
+	}
+	Channel *channel = findChannel(tokens[1]);
+	if (!emitorInChannel(cli->getClientFd(), tokens[1])){
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		return;
+	}
+	if (isChangeMode(tokens[2]) && validMode(tokens[2])){
+		if (channel->isOperator(cli->getClientFd())){
+				int success = 0;
+			int targetFd = -1;
+			std::string arg = "";
+
+			if (tokens.size() > 3){
+				arg = tokens[3];
+				targetFd = findTarget(arg);
+				if (targetFd == -1)
+				{
+					sendResponse(cli->getClientFd(), ERR_NOSUCHNICK(_serverName, tokens[3]));
+					return;
+				}
+			}
+			success = channel->manageModeChange(tokens[2], arg, targetFd);
+			if (success == 1){
+				sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+				return;
+			}
+			else if (success == 2){
+				sendResponse(cli->getClientFd(), ERR_USERNOTINCHANNEL(cli->getNickname(), tokens[3], channel->getName()));
+				return;
+			}
+			else if (success == 3){
+				sendResponse(cli->getClientFd(), ERR_INVALIDMODEPARAM(_serverName, cli->getNickname(), channel->getName(), "l", tokens[3]));
+				return;
+			}
+			std::string message = cli->createMessage();
+			message.append(appendToks(tokens, 0));
+			broadcastMode(channel, message);
+		}
+		else{
+			sendResponse(cli->getClientFd(), ERR_CHANOPRIVSNEEDED(cli->getNickname(), channel->getName()));
+			return;
+		}
+	}
+}
+
+void Server::handleInvite(Client *cli, std::vector<std::string> &tokens){
+	if (tokens.size() < 3){
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return;
+	}
+	if (!channelExist(tokens[2])){
+		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
+		return;
+	}
+	
+	if (!emitorInChannel(cli->getClientFd(), tokens[2])){
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		return;
+	}
+	Channel *channel = findChannel(tokens[2]);
+	if (!channel->isOperator(cli->getClientFd())){
+		sendResponse(cli->getClientFd(), ERR_CHANOPRIVSNEEDED(cli->getNickname(), channel->getName()));
+		return;
+	}
+	int targetFd = findTarget(tokens[1]);
+	if (targetFd == -1){
+		sendResponse(cli->getClientFd(), ERR_NOSUCHNICK(_serverName, tokens[2]));
+		return;
+	}
+	if (channel->isMember(targetFd)){
+		sendResponse(cli->getClientFd(), ERR_USERONCHANNEL(_serverName, cli->getNickname(), tokens[1], channel->getName()));
+		return;
+	}
+	channel->inviteClient(targetFd);
+	sendResponse(cli->getClientFd(), RPL_INVITING(_serverName, cli->getNickname(), tokens[1], channel->getName()));
+	std::string message = cli->createMessage();
+	sendResponse(targetFd, INVITE(message, tokens[1], channel->getName()));
+}
+
+void Server::handleQuit(Client *cli, std::vector<std::string> &tokens)
+{
+	std::string message = cli->createMessage();
+	std::string reason;
+
+	if (tokens.size() > 1)
+		reason = appendToks(tokens, 1);
+	else
+		reason = "Client Quit";
+	broadcastQuit(cli, message, reason);
+	deleteClient(cli);
+}
+
+void Server::handleTopic(Client *cli, std::vector<std::string> &tokens)
+{
+	if (tokens.size() < 2)
+	{
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return;
+	}
+	if (!channelExist(tokens[1]))
+	{
+		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
+		return;
+	}
+	Channel *channel = findChannel(tokens[1]);
+	if (!emitorInChannel(cli->getClientFd(), tokens[1]))
+	{
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		return;
+	}
+	if (tokens.size() > 2)
+	{
+		if (channel->isModeT() && !channel->isOperator(cli->getClientFd()))
+		{
+			sendResponse(cli->getClientFd(), ERR_CHANOPRIVSNEEDED(cli->getNickname(), tokens[1]));
+			return;
+		}
+		std::string topic = appendToks(tokens, 2);
+		channel->setTopic(topic);
+		std::string message = cli->createMessage();
+		broadcastTopic(message, channel, topic);
+	}
+	else
+	{
+		if (channel->hasTopic())
+			sendResponse(cli->getClientFd(), RPL_TOPIC(cli->getNickname(), channel->getName(), channel->getTopic()));
+		else
+			sendResponse(cli->getClientFd(), RPL_NOTOPIC(cli->getNickname(), channel->getName()));
+	}
+}
+
+
+void Server::handleWho(Client *cli, std::vector<std::string> &tokens)
+{
+	if (tokens.size() < 2)
+	{
+		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
+		return;
+	}
+	int type = whoType(tokens[1]);
+	if (type == 1)
+	{
+		if (!channelExist(tokens[1]))
+		{
+			sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
+			return;
+		}
+		Channel *channel = findChannel(tokens[1]);
+		if (!channel->isMember(cli->getClientFd()))
+		{
+			sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
+			return;
+		}
+		std::set<int> clients = channel->getClients();
+		std::set<int>::iterator it = clients.begin();
+		while (it != clients.end())
+		{
+			std::string message = buildWhoMessage((*it), channel->isOperator(*it));
+			if (!message.empty())
+			{
+				sendResponse(cli->getClientFd(), RPL_WHOREPLY(cli->getNickname(), channel->getName(), message));
+			}
+			it++;
+		}
+		sendResponse(cli->getClientFd(), RPL_ENDOFWHO(cli->getNickname(), tokens[1]));
+	}
+	else if (type == 2)
+	{
+		int targetFd = findTarget(tokens[1]);
+		if (targetFd < 0)
+		{
+			sendResponse(cli->getClientFd(),
+				ERR_NOSUCHNICK(cli->getNickname(), tokens[1]));
+			return;
+		}
+		std::vector<Channel>::iterator it = _channels.begin();
+		while (it != _channels.end())
+		{
+			if (it->isMember(targetFd) && it->isMember(cli->getClientFd()))
+			{
+				std::string message = buildWhoMessage(targetFd, it->isOperator(targetFd));
+				sendResponse(cli->getClientFd(), RPL_WHOREPLY(cli->getNickname(), it->getName(), message));
+			}
+			++it;
+		}
+		sendResponse(cli->getClientFd(), RPL_ENDOFWHO(cli->getNickname(), tokens[1]));
+	}
+}
+
+void Server::handlePing(Client *cli, std::vector<std::string> &tokens)
+{
+	if (tokens.size() < 2)
+		return;
+	sendResponse(cli->getClientFd(), "PONG " + tokens[1]);
+}
 /* ===== FILE: srcs/Utils.cpp ===== */
 
 #include "Server.hpp"
@@ -1114,8 +1755,7 @@ int Utils::check_port(char *port){
     int i = 0;
     long res = 0;
 
-    while (port[i])
-    {
+    while (port[i]){
         if (!isdigit(static_cast<unsigned char>(port[i])))
             throw std::runtime_error("Error: Invalid port: needs only digits.");
         res = res * 10 + (port[i] - '0');
@@ -1137,15 +1777,12 @@ bool Utils::check_password(const std::string &password){
     return true;
 }
 
-
-//split all the tokens for proper parsing
 std::vector<std::string> Utils::split(const std::string &str, char delimiter){
 	std::vector<std::string> tokens;
 	std::stringstream ss(str);
 	std::string token;
 
-	while(std::getline(ss, token, delimiter))
-	{
+	while(std::getline(ss, token, delimiter)){
 		if (!token.empty() && token[token.size() - 1] == '\r')
     		token.erase(token.size() - 1);
 		tokens.push_back(token);
@@ -1153,29 +1790,23 @@ std::vector<std::string> Utils::split(const std::string &str, char delimiter){
 	return tokens;
 }
 
-
 /*various checks*/
-
-bool Server::checkNick(std::string nick)
-{
+bool Server::checkNick(std::string nick){
 	if (nick.empty())
 		return (false);
 	int i = 0;
-	while (nick[i])
-	{
+	while (nick[i]){
 		if (!isalnum(nick[i]) && nick[i] != '_')
 			return (false);
 		i++;
 	}
 	return (true);
 }
-bool Server::checkUser(std::string user) const
-{
+bool Server::checkUser(std::string user) const{
 	if (user.empty())
 		return (false);
 	int i = 0;
-	while (user[i])
-	{
+	while (user[i]){
 		if (!isalnum(user[i]) && user[i] != '_'  && user[i] != '-' && user[i]!= '.')
 			return (false);
 		i++;
@@ -1183,36 +1814,240 @@ bool Server::checkUser(std::string user) const
 	return (true);
 }
 
-bool Server::nickTaken(std::string nick) const
-{
+bool Server::nickTaken(std::string nick) const{
 	unsigned int i = 0;
 
-	while (i < _clients.size())
-	{
+	while (i < _clients.size()){
 		if (_clients[i].getNick() == nick)
-		{
 			return (true);
-		}
-
 		i++;
 	}
 	return(false);
 }
 
+std::string Server::appendToks( const std::vector<std::string> &tokens, int start){
 
-std::string Server::appendToks( const std::vector<std::string> &tokens, int start)
-{
-	std::string res;
+ 	std::string res;
+    unsigned int i = start;
 
-	unsigned int i = start;
-	while (i < tokens.size())
-	{
-		res +=  tokens[i];
-		res += ' ';
-		i++;
-	}
-	return (res);
+    if (i >= tokens.size())
+        return "";
+
+    if (!tokens[i].empty() && tokens[i][0] == ':')
+    {
+        if (tokens[i].size() > 1)
+            res = tokens[i].substr(1);
+        i++;
+    }
+
+    while (i < tokens.size())
+    {
+        if (!res.empty())
+            res += " ";
+        res += tokens[i];
+        i++;
+    }
+
+    return res;
 }
+
+bool Server::checkSyn(std::string channel){
+	if (channel.empty())
+		return (false);
+	if (channel[0] != '#')
+		return (false);
+	return(true); 
+}
+
+bool Server::channelExist(std::string channel){
+	std::vector<Channel>::iterator it = _channels.begin();
+	while (it != _channels.end()){
+		if ((*it).getName() == channel)
+			return (true);
+		it++;
+	}
+	return (false);
+}
+
+void Server::removeChannel(std::string chan){
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end()){
+		if (chan == it->getName()){
+			_channels.erase(it);
+			return;
+		}
+		it++;
+	}
+}
+bool Server::checkKick(std::vector<std::string> &tokens){
+	if (tokens.size() < 3)
+		return (false);
+	if (tokens[1][0] != '#')
+		return (false);
+	return (true);
+}
+
+bool Server::emitorInChannel(int emitFd, std::string channel){
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end()){
+		if ((*it).getName() == channel){
+			if ((*it).isMember(emitFd))
+				return (true);
+		}
+		it++;
+	}
+	return(false);
+}
+
+bool Server::emitorOperator(int fd, std::string channel){
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end()){
+		if ((*it).getName() == channel){
+			if ((*it).isOperator(fd))
+				return (true);
+		}
+		it++;
+	}
+	return(false);
+}
+
+int Server::targetExist(std::string nick){
+	std::vector<Client>::iterator it = _clients.begin();
+
+	while (it != _clients.end()){
+		if ((*it).getNickname() == nick)
+			return ((*it).getClientFd());
+		it++;
+	}
+	return(0);
+}
+
+bool Server::targetInChannel(std::string channel, int targetFd){
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end()){
+		if ((*it).getName() == channel){
+			if ((*it).isMember(targetFd))
+				return (true);
+		}
+		it++;
+	}
+	return(false);
+}
+
+void Server::removeTarget(std::string channel, int targetFd){
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end()){
+		if ((*it).getName() == channel)
+			(*it).removeClient(targetFd);
+		it++;
+	}
+	return;
+}
+Channel *Server::findChannel(std::string channel){
+	std::vector<Channel>::iterator it = _channels.begin();
+
+	while (it != _channels.end()){
+		if ((*it).getName() == channel)
+			return &(*it);
+		it++;
+	}
+	return (NULL);
+}
+bool Server::isChangeMode(std::string mode){
+	if (mode.size() == 2 && (mode[0] == '+' || mode[0] == '-'))
+		return (true);
+	return(false);
+}
+
+bool Server::validMode(std::string mode){
+	if (mode.size() == 2 && (mode[1] == 'i' || mode[1] == 't' || 
+		mode[1] == 'k' || mode[1] == 'o' || mode[1] == 'l'))
+		return (true);
+	if (mode.size() == 1 && (mode[0] == 'i' || mode[0] == 't' || 
+	mode[0] == 'k' || mode[0] == 'o' || mode[0] == 'l'))
+		return (true);
+	return (false);
+}
+
+int Server::findTarget(std::string nick){
+	std::vector<Client>::iterator it = _clients.begin();
+
+	while (it != _clients.end()){
+		if ((*it).getNickname() == nick)
+			return ((*it).getClientFd());
+		it++;
+	}
+	return (-1);
+}
+
+void Server::deleteClient(Client* cli)
+{
+    int fd = cli->getClientFd();
+	std::vector<Channel>::iterator it = _channels.begin();
+
+    while (it != _channels.end())
+    {
+        it->removeClient(fd);
+        if (it->isEmpty())
+            it = _channels.erase(it);
+        else
+            ++it;
+    }
+	std::vector<Client>::iterator itc = _clients.begin();
+	while (itc != _clients.end())
+	{
+		if (itc->getClientFd() == fd)
+		{
+			_clients.erase(itc);
+			break;
+		}
+		itc++;
+	}	
+    close(fd);
+}
+
+int Server::whoType(std::string cmd)
+{
+	if (cmd[0] == '#')
+		return(1);
+	return(2);
+}
+
+std::string Server::buildWhoMessage(int fd, bool op)
+{
+	std::vector<Client>::iterator it = _clients.begin();
+	std::string message;
+
+	while (it != _clients.end())
+	{
+		if ((*it).getClientFd() == fd)
+		{
+			message.append(" ");
+			message.append((*it).getUsername());
+			message.append(" ");
+			message.append((*it).getClientIP());
+			message.append(" ");
+			message.append(_serverName);
+			message.append(" ");
+			message.append((*it).getNick());
+			if (op)
+				message.append(" @H");
+			else
+				message.append(" H");
+			message.append(" 0 :");
+			message.append((*it).getRealname());
+			return (message);
+		}
+		it++;
+	}
+	return ("");
+}
+
 /* ===== FILE: main.cpp ===== */
 
 //#include "Exception.hpp"
