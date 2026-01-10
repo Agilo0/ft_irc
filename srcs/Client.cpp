@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 22:46:42 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/10 20:48:04 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,11 +54,6 @@ std::string Client::getNickname() const { return _nickname;}
 std::string &Client::getBuff() { return _buffer; }
 std::string Client::getNick() const { return (_nickname); }
 std::string Client::getOldnick() const{ return (_oldnick); }
-// Channel *Client::getChannel(unsigned int index){
-// 	if (_channels.size() > index)
-// 		return (_channels[index]);
-// 	return (NULL);
-// }
 std::string Client::getRealname() const{
 	return (_realname);
 }

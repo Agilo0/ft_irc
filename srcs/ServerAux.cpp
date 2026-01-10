@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAux.cpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/08 12:58:51 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/10 22:11:08 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,8 +44,7 @@ void Server::close_fds(std::vector<pollfd> &pollFds)
 {
 	int i = pollFds.size() - 1;
 	
-	while (i >= 0)
-	{
+	while (i >= 0){
 		close(pollFds[i].fd);
 		i--;
 	}

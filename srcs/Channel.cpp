@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:30:04 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 12:18:02 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/10 22:19:43 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void Channel::removeInvite(int fd){
 }
 void Channel::removeOperator(int fd){
 	(void)fd;
-	//remove operator privileges
+	_operators.erase(fd);
 }
 
 

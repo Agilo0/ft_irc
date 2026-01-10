@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 22:06:20 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/10 21:09:06 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,17 +67,20 @@ bool Utils::check_password(const std::string &password){
     return true;
 }
 
-std::vector<std::string> Utils::split(const std::string &str, char delimiter){
-	std::vector<std::string> tokens;
-	std::stringstream ss(str);
-	std::string token;
+std::vector<std::string> Utils::split(const std::string &str, char delimiter)
+{
+    std::vector<std::string> tokens;
+    std::stringstream ss(str);
+    std::string token;
 
-	while(std::getline(ss, token, delimiter)){
-		if (!token.empty() && token[token.size() - 1] == '\r')
-    		token.erase(token.size() - 1);
-		tokens.push_back(token);
-	}
-	return tokens;
+    while (std::getline(ss, token, delimiter))
+    {
+        if (!token.empty() && token[token.size() - 1] == '\r')
+            token.erase(token.size() - 1);
+        if (!token.empty())
+            tokens.push_back(token);
+    }
+    return tokens;
 }
 
 /*various checks*/

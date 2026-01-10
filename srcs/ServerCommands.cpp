@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerCommands.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:18:22 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 11:28:28 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/10 22:07:44 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -318,6 +318,8 @@ void Server::handleInvite(Client *cli, std::vector<std::string> &tokens){
 
 void Server::handleQuit(Client *cli, std::vector<std::string> &tokens)
 {
+	(void)cli;
+	(void)tokens;
 	std::string message = cli->createMessage();
 	std::string reason;
 
@@ -326,7 +328,7 @@ void Server::handleQuit(Client *cli, std::vector<std::string> &tokens)
 	else
 		reason = "Client Quit";
 	broadcastQuit(cli, message, reason);
-	deleteClient(cli);
+	cli->markForRevome();
 }
 
 void Server::handleTopic(Client *cli, std::vector<std::string> &tokens)

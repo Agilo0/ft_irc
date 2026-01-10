@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 23:14:34 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/10 22:24:16 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,18 +54,14 @@ void Server::checkNewClient(){
 //this will give us the commands that are sending the clients
 void Server::checkNewData(int fd){
 	char buffer[1024];
-	memset(buffer, 0, sizeof(buffer));//clears the buffer
+	std::memset(buffer, 0, sizeof(buffer));//clears the buffer
 	
 	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
-	if (bytes == 0)
+	if (bytes <= 0)
 	{
 		std::cout << "flag_3\n";
 		clearClient(fd);
 		return ;
-	}
-	else if (bytes < 0) {
-    	if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return;
 	}
 	Client *cli = getClient(fd);
 	if (!cli)
@@ -74,7 +70,6 @@ void Server::checkNewData(int fd){
 	std::string &buff = cli->getBuff();
 	size_t pos;
 	
-	//while((pos = buff.find("\n")) != std::string::npos){//just for MacOS test (yaja)
 	while((pos = buff.find("\r\n")) != std::string::npos){
 		std::string cmd = buff.substr(0, pos);
 		buff.erase(0, pos + 2);
@@ -144,8 +139,7 @@ void Server::initServer(int port, std::string pwd)
 	std::cout << GREEN << "** IRC Server Created! **\n";
 	std::cout << GREEN << "\tlistering on port: " << _port << NC << std::endl;
 
-	while (Server::_sigFlag == false)
-	{
+	while (Server::_sigFlag == false){
 		int activity = poll(_pollFds.data(), _pollFds.size(), -1);
 		if (activity == -1)
 			throw std::runtime_error("poll() crashed! :(");
@@ -215,7 +209,6 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case NICK: nickAuth(cli, tokens); break;
 		case USER: break;//the user is only a register thing
 		case JOIN: handleJoin(cli, tokens); break;
-		//WHO
 		case PRIVMSG: handlePrivmsg(cli, tokens); break;
 		case PART: handlePart(cli, tokens); break;
 		
@@ -230,13 +223,6 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		default:
 			break;
 	}
-	/* switch (isCommand(cmd))
-	{
-		//case WHO: handleWho(cli, tokens); break;	//what exactly who do?
-
-	default:
-		break;
-	} */
 }
 
 CommandType Server::isCommand(const std::string &cmd)
