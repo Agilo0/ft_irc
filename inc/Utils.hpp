@@ -6,7 +6,7 @@
 /*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 16:24:32 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/04 18:00:43 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/11 09:50:11 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@
 #include <cctype>
 #include <csignal>
 #include <sys/socket.h>
-#include <netinet/in.h> //Internet address family
+#include <netinet/in.h> 
 #include  <arpa/inet.h>
 #include <fcntl.h>
 #include <cerrno>
@@ -52,15 +52,11 @@
 #define PURPLE "\e[1;38;5;135m"
 #define ORANGE "\e[1;38;2;255;128;0m"
 
-//no utils class needed
 class Utils{
 	public:
 		static std::vector<std::string>	split(const std::string &str, char delimiter);
         static int check_port(char *port);
 		static bool check_password(const std::string &password);
-         
 };
 
-//static std::vector<std::string>	split(const std::string &str, char delimiter);//is not defined yet 
-//std::string convertResponse(const std::string &response);
 #endif

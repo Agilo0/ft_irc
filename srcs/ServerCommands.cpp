@@ -3,21 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   ServerCommands.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:18:22 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 00:16:15 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 10:23:24 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-//JOIN #channel_name ?mode (still have to check this part)
 void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 	std::cout << ORANGE << "Handel JOIN\n" << NC;
-    //seguridad de registro?
 	if (tokens.size() < 2){
-        sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), "JOIN"));
+        sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
 		return ;
 	}
 	std::string channelName = tokens[1];
@@ -27,10 +25,8 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(channelName));
 		return ;
 	}
-    if (tokens.size() >= 3){
-			//chan->setKey(tokens[2]);
+    if (tokens.size() >= 3)
 			key = tokens[2];
-	}
 	Channel *chan = moveCreateChannel(channelName);
 	if (chan->isModeI() && !chan->isOperator(cli->getClientFd()) && !chan->isInvited(cli->getClientFd())){
 		sendResponse(cli->getClientFd(), ERR_INVITEONLYCHAN(channelName));
@@ -43,35 +39,29 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 		}
 	}
 	if (chan->isModeL() && chan->getClients().size() >= chan->getMaxUsers()){
-	sendResponse(cli->getClientFd(), ERR_CHANNELISFULL(cli->getNickname(), channelName));
+		sendResponse(cli->getClientFd(), ERR_CHANNELISFULL(cli->getNickname(), channelName));
 		return ;
 	}
-	//first user of the channel is the operator
 	bool isFirst = chan->getClients().empty();
 	chan->addClient(cli->getClientFd(), isFirst);
 	chan->removeInvite(cli->getClientFd());
 	cli->setChannel(chan);
-	/*we need to announce of the JOIN to everyone*/
-	//(:!@127.0.0.1 JOIN :#new) <--- this is how we can see the announce
 	sendResponse(cli->getClientFd(), RPL_JOIN(cli->getNickname(), cli->getUsername(), cli->getClientIP(), channelName));
 
-	//for loop to send the msg to every member of the channel
 	const std::set<int> &members = chan->getClients();
 	for (std::set<int>::const_iterator it = members.begin(); it != members.end(); ++it){
 		if (*it != cli->getClientFd()){
 			Client *currCli = getClient(*it);
 			std::cout << ORANGE << "JOIN: sending msg to: " << cli->getNickname() << std::endl;
 			if (currCli)
-				//vvvvv check is we are getting the propper client FD 
 				sendResponse(currCli->getClientFd(), RPL_JOIN(cli->getNickname(), cli->getUsername(), cli->getClientIP(), channelName));
 		}
 	}
-    // Keep track of channels this client belongs to (needed for PART, QUIT, NICK broadcasts)
 	std::string nickList;
 	for(std::set<int>::const_iterator it = members.begin(); it != members.end(); ++it){
 		Client *m = getClient(*it);
 		if (!m)
-            continue;//if this client does not exist
+            continue;
 		if (chan->isOperator(*it))
             nickList += "@";
         nickList += m->getNickname() + " ";
@@ -82,8 +72,6 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
     sendResponse(cli->getClientFd(), RPL_ENDOFNAMES(_serverName, cli->getNickname(), channelName));
 }
 
-//<PRIVMSG dest :message to send>
-//<PRIVMSG {, dest} :message to send> (check if this is correct)
 void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 	if (!cli)
 		return ;
@@ -93,26 +81,21 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 		origin = "*";
 	else
 		cli->getNickname();
-	//send a msg if we don't have all the params for this command
 	if (tokens.size() < 3){
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
 		return ;
 	}
 	std::string msg = tokens[2];
-	if (tokens[2][0] == ':'){
+	if (tokens[2][0] == ':')
 		msg= tokens[2].substr(1);
-	}
-	//loop for join again the tokens, but only since the msg begins
 	for (size_t i = 3; i < tokens.size(); ++i)
 		msg += " " + tokens[i];
 
-	//split the targets of the msg (by commas)
 	std::vector<std::string>targets = Utils::split(tokens[1], ',');
 	for(size_t t = 0; t < targets.size(); ++t){
 		std::string dest = targets[t];
 		if (dest.empty())
 			continue;
-		//multiple dests
 		if (dest[0] == '#'){
 			Channel *chan = NULL;
 			for (size_t i = 0; i < _channels.size(); ++i){
@@ -121,14 +104,11 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 					break ;
 				}
 			}
-			//is chan does not exist:
 			if (!chan){
 				sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(cli->getNickname()));
 				continue;
 			}
-			//if the client is not part of the channel:
 			if (!chan->isMember(cli->getClientFd())){
-                //This error is from part?? Check the macro
 				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), dest));
 				continue;
 			}
@@ -141,7 +121,6 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 				}
 			}			
 		}
-		//single dest
 		else{
 			Client *targetCli = getClientByNick(dest);
 			if (!targetCli){
@@ -155,8 +134,7 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 }
 
 void Server::handlePart(Client *cli, const std::vector<std::string> &tokens){
-	if (tokens.size() < 2 || !checkSyn(tokens[1]))
-	{
+	if (tokens.size() < 2 || !checkSyn(tokens[1])){
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[1]));
 		return;
 	}
@@ -245,15 +223,14 @@ void Server::handleMode(Client *cli, std::vector<std::string> &tokens){
 	}
 	if (isChangeMode(tokens[2]) && validMode(tokens[2])){
 		if (channel->isOperator(cli->getClientFd())){
-				int success = 0;
+			int success = 0;
 			int targetFd = -1;
 			std::string arg = "";
 
 			if (tokens.size() > 3){
 				arg = tokens[3];
 				targetFd = findTarget(arg);
-				if (targetFd == -1)
-				{
+				if (targetFd == -1){
 					sendResponse(cli->getClientFd(), ERR_NOSUCHNICK(_serverName, tokens[3]));
 					return;
 				}
@@ -291,7 +268,6 @@ void Server::handleInvite(Client *cli, std::vector<std::string> &tokens){
 		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
 		return;
 	}
-	
 	if (!emitorInChannel(cli->getClientFd(), tokens[2])){
 		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
 		return;
@@ -318,8 +294,8 @@ void Server::handleInvite(Client *cli, std::vector<std::string> &tokens){
 
 void Server::handleQuit(Client *cli, std::vector<std::string> &tokens)
 {
-	(void)cli;
-	(void)tokens;
+	/* (void)cli;
+	(void)tokens; */
 	std::string message = cli->createMessage();
 	std::string reason;
 
@@ -333,26 +309,21 @@ void Server::handleQuit(Client *cli, std::vector<std::string> &tokens)
 
 void Server::handleTopic(Client *cli, std::vector<std::string> &tokens)
 {
-	if (tokens.size() < 2)
-	{
+	if (tokens.size() < 2){
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
 		return;
 	}
-	if (!channelExist(tokens[1]))
-	{
+	if (!channelExist(tokens[1])){
 		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
 		return;
 	}
 	Channel *channel = findChannel(tokens[1]);
-	if (!emitorInChannel(cli->getClientFd(), tokens[1]))
-	{
+	if (!emitorInChannel(cli->getClientFd(), tokens[1])){
 		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
 		return;
 	}
-	if (tokens.size() > 2)
-	{
-		if (channel->isModeT() && !channel->isOperator(cli->getClientFd()))
-		{
+	if (tokens.size() > 2){
+		if (channel->isModeT() && !channel->isOperator(cli->getClientFd())){
 			sendResponse(cli->getClientFd(), ERR_CHANOPRIVSNEEDED(cli->getNickname(), tokens[1]));
 			return;
 		}
@@ -361,8 +332,7 @@ void Server::handleTopic(Client *cli, std::vector<std::string> &tokens)
 		std::string message = cli->createMessage();
 		broadcastTopic(message, channel, topic);
 	}
-	else
-	{
+	else{
 		if (channel->hasTopic())
 			sendResponse(cli->getClientFd(), RPL_TOPIC(cli->getNickname(), channel->getName(), channel->getTopic()));
 		else
@@ -423,43 +393,32 @@ void Server::handlePing(Client *cli, std::vector<std::string> &tokens){
 	sendResponse(cli->getClientFd(), "PONG " + tokens[1]);
 }
 
-void Server::handleNotice(Client *cli, const std::vector<std::string> &tokens)
-{
+void Server::handleNotice(Client *cli, const std::vector<std::string> &tokens){
     if (!cli)
         return;
-
     std::string origin = cli->getNickname().empty() ? "*" : cli->getNickname();
-
      if (tokens.size() < 3)
         return;
-
     std::string msg = tokens[2];
     if (!msg.empty() && msg[0] == ':')
         msg = msg.substr(1);
     size_t i = 3;
-    while (i < tokens.size())
-    {
+    while (i < tokens.size()){
         msg += " " + tokens[i];
         ++i;
     }
     std::vector<std::string> targets = Utils::split(tokens[1], ',');
     size_t t = 0;
-    while (t < targets.size())
-    {
+    while (t < targets.size()){
         std::string dest = targets[t];
-        if (!dest.empty())
-        {
-            if (dest[0] == '#')
-            {
+        if (!dest.empty()){
+            if (dest[0] == '#'){
                 Channel *chan = findChannel(dest);
-                if (chan && chan->isMember(cli->getClientFd()))
-                {
+                if (chan && chan->isMember(cli->getClientFd())){
                     const std::set<int> &users = chan->getClients();
                     std::set<int>::const_iterator it = users.begin();
-                    while (it != users.end())
-                    {
-                        if (*it != cli->getClientFd())
-                        {
+                    while (it != users.end()){
+                        if (*it != cli->getClientFd()){
                             Client *other = getClient(*it);
                             if (other)
                                 sendResponse(other->getClientFd(), RPL_NOTICE(origin, dest, msg));
@@ -468,8 +427,7 @@ void Server::handleNotice(Client *cli, const std::vector<std::string> &tokens)
                     }
                 }
             }
-            else
-            {
+            else{
                 Client *targetCli = getClientByNick(dest);
                 if (targetCli)
                     sendResponse(targetCli->getClientFd(), RPL_NOTICE(origin, dest, msg));

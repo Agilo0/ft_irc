@@ -3,27 +3,23 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 01:30:15 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 10:54:55 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-/*CRASH WHEN WE CLOSE HEXCHAT. STILL WAITING FOR JOIN AND MORE COMMANDS*/
-
 Server::Server() : _port(0), _servFd(-1), _serverName("ircserv") {}
-bool Server::_sigFlag = false;//no signal received yet
+bool Server::_sigFlag = false;
 
 void Server::sigHandler(int signum)
 {
 	(void)signum;
-	std::cout << PURPLE << "Flag is true! " << signum << NC << std::endl;
 	_sigFlag = true;
 }
-//we have to add this client to the list
 void Server::checkNewClient(){
 	sockaddr_in clientAddr;
 	socklen_t	clientLen = sizeof(clientAddr);
@@ -34,36 +30,33 @@ void Server::checkNewClient(){
 		std::cout << NC;
 		return ;
 	}
-	if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1){
+	if (fcntl(clientFd, F_SETFL, O_NONBLOCK) == -1){
 		::close(_servFd);
 		throw std::runtime_error("!Error: fcntl(O_NONBLOCK)");
 	}
-	pollfd clientPollfd = {clientFd, POLLIN, 0};//new poll and its struct	
+	pollfd clientPollfd = {clientFd, POLLIN, 0};
 	Client newclient;
 	newclient.setClientFd(clientFd);
-	newclient.setClientIP(inet_ntoa(clientAddr.sin_addr));//this how we set the IP
+	newclient.setClientIP(inet_ntoa(clientAddr.sin_addr));
 	
 	_pollFds.push_back(clientPollfd);
 	_clients.push_back(newclient);
 	
-	std::cout << TURQUOISE << "<" << clientFd << "> Connected!" << NC << std::endl;
+	std::cout << TURQUOISE << "<" << clientFd << "> Connected!" << NC << std::endl;//del?
 }
 
-//this will give us the commands that are sending the clients
 void Server::checkNewData(int fd){
 	char buffer[1024];
-	std::memset(buffer, 0, sizeof(buffer));//clears the buffer
+	std::memset(buffer, 0, sizeof(buffer));
 	
 	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
 	Client *cli = getClient(fd);
 	std::vector<std::string> vec;
-	if (bytes == 0)
-	{
+	if (bytes == 0){
 		handleQuit(cli, vec);
 		return ;
 	}
-	if (bytes < 0)
-	{
+	if (bytes < 0){
 		clearClient(fd);
 		return ;
 	}
@@ -77,7 +70,7 @@ void Server::checkNewData(int fd){
 		std::string cmd = buff.substr(0, pos);
 		buff.erase(0, pos + 2);
 		if (!cmd.empty()){
-			std::cout << YELLOW << "<" << fd << "> << " << NC << cmd << std::endl;
+			std::cout << YELLOW << "<" << fd << "> << " << NC << cmd << std::endl;//del
 			parseCommand(cli, cmd);
 		}
 	}
@@ -86,59 +79,45 @@ void Server::checkNewData(int fd){
 void Server::createSocket()
 {
 	int opt = 1;
-	struct sockaddr_in add; // used to store socket addresses for the Internet domain
+	struct sockaddr_in add;
 	struct pollfd serverPollFd;
 
-	// socket struct
-	add.sin_family = AF_INET;		   // specify the IPv4 address protocol
-	add.sin_addr.s_addr = INADDR_ANY;  // accept connections from any IP address
-	add.sin_port = htons(this->_port); // convert port number to network byte order
+	add.sin_family = AF_INET;
+	add.sin_addr.s_addr = INADDR_ANY;
+	add.sin_port = htons(this->_port);
 
-	// create socket
 	this->_servFd = socket(AF_INET, SOCK_STREAM, 0);
-	if (this->_servFd < 0)
-	{
+	if (this->_servFd < 0){
 		throw(std::runtime_error("Error creating socket"));
 		close(_servFd);
 	}
-	// addresses reuse (to restart the server quickly)
-	if (setsockopt(_servFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
-	{
+	if (setsockopt(_servFd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1){
 		throw(std::runtime_error("Error setting reuse to socket"));
 		close(_servFd);
 	}
-	// prevent to block incoming connections, to avoid to freeze the program with one client
-	if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1)
-	{
+	if (fcntl(_servFd, F_SETFL, O_NONBLOCK) == -1){
 		throw(std::runtime_error("Error setting non-block to socket"));
 		close(_servFd);
 	}
-	// bind socket to an IP + port
-	if (bind(_servFd, (struct sockaddr *)&add, sizeof(add)) < 0)
-	{
+	if (bind(_servFd, (struct sockaddr *)&add, sizeof(add)) < 0){
 		throw(std::runtime_error("Error binding socket"));
 		close(_servFd);
 	}
-	if (listen(_servFd, 10) == -1)
-	{
+	if (listen(_servFd, 10) == -1){
 		throw(std::runtime_error("listen() crashed! :("));
 		close(_servFd);
 	}
-
-	// poll is the one who monitors the socket
 	serverPollFd.fd = _servFd;
-	serverPollFd.events = POLLIN; // requested events
-	serverPollFd.revents = 0;	  // returned events
+	serverPollFd.events = POLLIN;
+	serverPollFd.revents = 0;
 	_pollFds.push_back(serverPollFd);
 }
 
-void Server::initServer(int port, std::string pwd)
-{
+void Server::initServer(int port, std::string pwd){
 	this->_port = port;
 	this->_pwd = pwd;
 
 	createSocket();
-
 	std::cout << GREEN << "** IRC Server Created! **\n";
 	std::cout << GREEN << "\tlistering on port: " << _port << NC << std::endl;
 
@@ -146,8 +125,7 @@ void Server::initServer(int port, std::string pwd)
 		int activity = poll(_pollFds.data(), _pollFds.size(), -1);
 		if (activity == -1 && Server::_sigFlag == false)
 			throw std::runtime_error("poll() crashed! :(");
-		for (int i = _pollFds.size() - 1; i >= 0; --i)
-		{
+		for (int i = _pollFds.size() - 1; i >= 0; --i){
 			if (!(_pollFds[i].revents & POLLIN))
 				continue;
 			if (_pollFds[i].fd == _servFd)
@@ -155,22 +133,15 @@ void Server::initServer(int port, std::string pwd)
 			else
 				checkNewData(_pollFds[i].fd);
 		}
-		// in order to avoid any further issue, we'll mark the clients for remove later
-		for (int i = static_cast<int>(_clients.size()) - 1; i >= 0; --i)
-		{
-			if (_clients[i].isToRemove())
-			{
+		for (int i = static_cast<int>(_clients.size()) - 1; i >= 0; --i){
+			if (_clients[i].isToRemove()){
 				int fd = _clients[i].getClientFd();
-				// look and delete from _pollFds
-				for (size_t j = 0; j < _pollFds.size(); ++j)
-				{
-					if (_pollFds[j].fd == fd)
-					{
+				for (size_t j = 0; j < _pollFds.size(); ++j){
+					if (_pollFds[j].fd == fd){
 						_pollFds.erase(_pollFds.begin() + j);
 						break;
 					}
 				}
-				// now let´s delete from channels
 				for (size_t j = 0; j < _channels.size(); ){
 					_channels[j].removeClient(fd);
 					if (_channels[j].getClients().empty()){ //if is the only member, delete channel too
@@ -182,23 +153,17 @@ void Server::initServer(int port, std::string pwd)
 				_clients.erase(_clients.begin() + i);
 			}
 		}
-		// print clients and channels
 	}
 	close_fds(_pollFds);
 }
 
-void Server::parseCommand(Client *cli, const std::string &command)
-{
+void Server::parseCommand(Client *cli, const std::string &command){
 	if (command.empty())
 		return;
-
-	// if it´s the 1st time, we need to verify his identity
-	if (cli->getStatus() != AUTHENTICATED)
-	{
+	if (cli->getStatus() != AUTHENTICATED){
 		handShake(cli, command);
 		return;
 	}
-	// handle other commands
 	std::vector<std::string> tokens = Utils::split(command, ' ');
 	if (tokens.empty())
 		return;
@@ -207,16 +172,12 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		cmd[i] = std::toupper(cmd[i]);
 
 	switch (isCommand(cmd)){
-		std::cout << ORANGE << "switch state commands" << std::endl;
-		
 		case PASS: passAuth(cli, tokens); break;
 		case NICK: nickAuth(cli, tokens); break;
-		case USER: break;//the user is only a register thing
+		case USER: break;
 		case JOIN: handleJoin(cli, tokens); break;
 		case PRIVMSG: handlePrivmsg(cli, tokens); break;
 		case PART: handlePart(cli, tokens); break;
-		
-		case UKNW: sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), cmd)); break;
 		case KICK: handleKick(cli, tokens); break;
 		case MODE: handleMode(cli, tokens); break;
 		case INVITE: handleInvite(cli, tokens); break;
@@ -225,15 +186,14 @@ void Server::parseCommand(Client *cli, const std::string &command)
 		case WHO: handleWho(cli, tokens); break;
 		case PING: handlePing(cli, tokens); break;
 		case NOTICE: handleNotice(cli, tokens); break;
+		case UKNW: sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), cmd)); break;
 		default:
 			break;
 	}
 }
 
-CommandType Server::isCommand(const std::string &cmd)
-{
-
-	std::cout << ORANGE << cmd << std::endl;
+CommandType Server::isCommand(const std::string &cmd){
+	std::cout << ORANGE << cmd << NC << std::endl; //del
 	if (cmd == "JOIN")
 		return (JOIN);
 	else if (cmd == "WHO")

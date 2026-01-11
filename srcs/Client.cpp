@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 20:48:04 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 09:56:09 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
-//#include "Channel.hpp"
 
 Client::Client(){
     hasNick = false;
@@ -24,8 +23,8 @@ Client::Client(){
 Client::~Client() {}
 
 //setters
-void Client::setStatus(Status status){ _status = status; }
-void Client::setClientFd(int fd){ _clientFd = fd; }
+void Client::setStatus(Status status) { _status = status; }
+void Client::setClientFd(int fd) { _clientFd = fd; }
 void Client::setClientIP(const std::string &newIP) { _ip = newIP; }
 void Client::setPass() { hasPass = true; }
 void Client::setFirstNick(std::string nick){
@@ -43,8 +42,6 @@ void Client::setUser(std::string name){
 void Client::setRealName(std::string name) { _realname = name; }
 void Client::setChannel(Channel *channel) { _channels.push_back(channel->getName()); }
 
-
-
 //getters
 Status Client::getStatus() { return _status; }
 int Client::getClientFd() const { return _clientFd; }
@@ -53,11 +50,8 @@ std::string Client::getUsername() const { return _username; }
 std::string Client::getNickname() const { return _nickname;}
 std::string &Client::getBuff() { return _buffer; }
 std::string Client::getNick() const { return (_nickname); }
-std::string Client::getOldnick() const{ return (_oldnick); }
-std::string Client::getRealname() const{
-	return (_realname);
-}
-
+std::string Client::getOldnick() const { return (_oldnick); }
+std::string Client::getRealname() const { return (_realname); }
 
 //bools
 bool Client::hasAll() const{
@@ -69,9 +63,7 @@ bool Client::hasNickname() const { return (hasNick);}
 bool Client::hasUsername() const { return (hasUser); }
 bool Client::hasPassw() const { return (hasPass); }
 bool Client::isToRemove() const { return (_toRemove); }
-bool Client::isRegistered() const { return _status /* == AUTHENTICATED */; }
-
-
+bool Client::isRegistered() const { return _status; }
 
 //others
 void Client::markForRevome() { _toRemove = true; }
@@ -87,7 +79,4 @@ std::string Client::createMessage(){
 	res.append(_ip);
 	return (res);
 }
-std::vector<std::string> Client::getChannelVect(){
-	return (_channels);
-}
-
+std::vector<std::string> Client::getChannelVect() { return (_channels); }
