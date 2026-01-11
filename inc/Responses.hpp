@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Responses.hpp                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 10:14:37 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/11 17:27:39 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@
 #define ERR_NOTREGISTERED(nick) ("451 " + nick + " :You have not registered")
 
 //PART
-#define ERR_NOTONCHANNEL(nick, channel) ("442 " + nick + channel + " :You're not on that channel")
+#define ERR_NOTONCHANNEL(channel) ("442 " + channel + " :You're not on that channel")
 #define RPL_PART(message, channel, reason) (message + " PART " + channel + " " + reason)
 
 //KICK

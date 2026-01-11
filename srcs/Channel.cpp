@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:30:04 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 09:52:50 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/11 16:01:55 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 Channel::Channel(const std::string &name) :
 	_name(name),_topic(""),_key(""),
 	_maxUsers(0), _iMode(false), _tMode(false),
-	_kMode(false), _oMode(false), _lMode(false) {}
+	_kMode(false), _lMode(false) {} //_oMode(false), _lMode(false) {}
 
 /*getters*/
 std::string Channel::getName() const{ return _name; }
@@ -36,14 +36,14 @@ void Channel::setMaxUsers(int max){ _maxUsers = max; }
 void Channel::setModeI(bool flag){ _iMode = flag;}
 void Channel::setModeT(bool flag){ _tMode = flag;}
 void Channel::setModeK(bool flag){ _kMode = flag;}
-void Channel::setModeO(bool flag){ _oMode = flag;}
+//void Channel::setModeO(bool flag){ _oMode = flag;}
 void Channel::setModeL(bool flag){ _lMode = flag;}
 
 bool Channel::hasTopic() const {return !_topic.empty();}
 bool Channel::isModeI() const {return _iMode; }
 bool Channel::isModeT() const {return _tMode; }
 bool Channel::isModeK() const {return _kMode; }
-bool Channel::isModeO() const {return _oMode; }
+//bool Channel::isModeO() const {return _oMode; }
 bool Channel::isModeL() const {return _lMode; }
 
 void Channel::removeInvite(int fd){
@@ -128,7 +128,7 @@ int Channel::manageO(bool sign, int targetFd){
 		addOperator(targetFd);
 	else if (sign == false)
 		removeOperator(targetFd);
-	setModeO(sign);
+	//setModeO(sign);
 	return (0);
 }
 

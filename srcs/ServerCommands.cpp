@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ServerCommands.cpp                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:18:22 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 10:23:24 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/11 17:28:26 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,14 +47,13 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
 	chan->removeInvite(cli->getClientFd());
 	cli->setChannel(chan);
 	sendResponse(cli->getClientFd(), RPL_JOIN(cli->getNickname(), cli->getUsername(), cli->getClientIP(), channelName));
-
+	
 	const std::set<int> &members = chan->getClients();
 	for (std::set<int>::const_iterator it = members.begin(); it != members.end(); ++it){
-		if (*it != cli->getClientFd()){
-			Client *currCli = getClient(*it);
-			std::cout << ORANGE << "JOIN: sending msg to: " << cli->getNickname() << std::endl;
-			if (currCli)
-				sendResponse(currCli->getClientFd(), RPL_JOIN(cli->getNickname(), cli->getUsername(), cli->getClientIP(), channelName));
+		Client *currCli = getClient(*it);
+		if (currCli){
+			if (*it != cli->getClientFd())
+				sendResponse(*it, RPL_JOIN(cli->getNickname(), cli->getUsername(), cli->getClientIP(), channelName));
 		}
 	}
 	std::string nickList;
@@ -80,7 +79,7 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 	if (cli->getNickname().empty())
 		origin = "*";
 	else
-		cli->getNickname();
+		origin = cli->getNickname();
 	if (tokens.size() < 3){
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
 		return ;
@@ -105,11 +104,11 @@ void Server::handlePrivmsg(Client *cli, const std::vector<std::string> &tokens){
 				}
 			}
 			if (!chan){
-				sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(cli->getNickname()));
+				sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(dest));
 				continue;
 			}
 			if (!chan->isMember(cli->getClientFd())){
-				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), dest));
+				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(dest));
 				continue;
 			}
 			const std::set<int>& users = chan->getClients();
@@ -149,7 +148,7 @@ void Server::handlePart(Client *cli, const std::vector<std::string> &tokens){
 		if (channelExist((*it)) == true){
 			Channel *chan = findChannel((*it));
 			if (!chan->isMember(cli->getClientFd())){
-				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), (*it)));
+				sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL((*it)));
 				it++;
 				continue;
 			}
@@ -182,7 +181,7 @@ void Server::handleKick(Client *cli, std::vector<std::string> &tokens){
 		return;
 	}
 	if (!emitorInChannel(cli->getClientFd(), tokens[1])){
-		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(tokens[1]));
 		return;
 	}
 	if (!emitorOperator(cli->getClientFd(), tokens[1])){
@@ -218,7 +217,7 @@ void Server::handleMode(Client *cli, std::vector<std::string> &tokens){
 	}
 	Channel *channel = findChannel(tokens[1]);
 	if (!emitorInChannel(cli->getClientFd(), tokens[1])){
-		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(tokens[1]));
 		return;
 	}
 	if (isChangeMode(tokens[2]) && validMode(tokens[2])){
@@ -269,7 +268,7 @@ void Server::handleInvite(Client *cli, std::vector<std::string> &tokens){
 		return;
 	}
 	if (!emitorInChannel(cli->getClientFd(), tokens[2])){
-		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(tokens[1]));
 		return;
 	}
 	Channel *channel = findChannel(tokens[2]);
@@ -319,7 +318,7 @@ void Server::handleTopic(Client *cli, std::vector<std::string> &tokens)
 	}
 	Channel *channel = findChannel(tokens[1]);
 	if (!emitorInChannel(cli->getClientFd(), tokens[1])){
-		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(tokens[1]));
 		return;
 	}
 	if (tokens.size() > 2){
@@ -355,7 +354,7 @@ void Server::handleWho(Client *cli, std::vector<std::string> &tokens)
 		}
 		Channel *channel = findChannel(tokens[1]);
 		if (!channel->isMember(cli->getClientFd())){
-			sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(cli->getNickname(), tokens[1]));
+			sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(tokens[1]));
 			return;
 		}
 		std::set<int> clients = channel->getClients();

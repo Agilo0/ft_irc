@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 09:56:09 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/11 17:12:57 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,6 @@ bool Client::hasNickname() const { return (hasNick);}
 bool Client::hasUsername() const { return (hasUser); }
 bool Client::hasPassw() const { return (hasPass); }
 bool Client::isToRemove() const { return (_toRemove); }
-bool Client::isRegistered() const { return _status; }
 
 //others
 void Client::markForRevome() { _toRemove = true; }
@@ -77,6 +76,7 @@ std::string Client::createMessage(){
 	res.append(_username);
 	res.append("@");
 	res.append(_ip);
+	res.append(" ");
 	return (res);
 }
 std::vector<std::string> Client::getChannelVect() { return (_channels); }

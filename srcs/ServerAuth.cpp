@@ -3,18 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   ServerAuth.cpp                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:07:28 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 10:14:08 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/11 17:17:00 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 void Server::passAuth(Client *cli, const std::vector<std::string> &tokens){
-	std::cout << "PASS AUTHENTIFICATION" << std::endl;
 	std::string nick = cli->getNickname().empty() ? "*" : cli->getNickname();
+	if (cli->getStatus() == AUTHENTICATED){
+		sendResponse(cli->getClientFd(), ERR_ALREADYREGISTERED(cli->getNickname()));
+		return ;	
+	}
 	if (tokens.size() < 2){
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(nick, tokens[0]));
 		return;
@@ -89,6 +92,8 @@ void Server::handShake(Client *cli, const std::string &command){
 		nickAuth(cli, tokens);
 	else if (cmd == "USER")
 		userAuth(cli, tokens);
+	else if (cmd == "JOIN" && cli->getStatus() != AUTHENTICATED)
+		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED(cli->getNickname()));
 	else 
 		sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), cmd));
 	if (cli->hasAll()){
