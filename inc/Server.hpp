@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 00:08:51 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 09:49:11 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,6 @@ class Server{
 		std::vector<Client> _clients;
 		std::vector<Channel> _channels;
 
-
-	//DETELE THEM
-	void printChannels(const std::vector<Channel>& _channels);
-	void printClients(std::vector<Client>& _clients);
-
-
-
 	//utils.cpp
 		bool checkNick(std::string nick);
 		bool checkUser(const std::string &user) const;
@@ -57,7 +50,6 @@ class Server{
 		int whoType(std::string cmd);
 		std::string buildWhoMessage(int fd, bool op);
 		Channel* findChannel(std::string name);
-
 
 	//ServerAuth.cpp
 		void passAuth(Client *cli, const std::vector<std::string> &tokens);
@@ -90,7 +82,7 @@ class Server{
 		Client *getClientByNick(const std::string &dest);
 
 	//Notification.cpp
-		void broadcastNewNick(Client *cli);//works with channels
+		void broadcastNewNick(Client *cli);
 		std::vector<int> notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok);
 		void broadcastPart(std::string chann, std::string message, std::string reason);
 		void broadcastKick(std::string chann, std::string message, std::string nick, std::string reason);
@@ -98,9 +90,6 @@ class Server{
 		void broadcastQuit(Client *cli, std::string message, std::string reason);
 		std::vector<int> notifChannelQuit(Channel *chan, std::string message, std::string reason, std::vector<int> ok);
 		void broadcastTopic(std::string message, Channel *channel, std::string topic);
-		
-	
-	//ServerCommands.cpp
 		
     public:
 		Server();
@@ -113,8 +102,6 @@ class Server{
 		void checkNewData(int fd);
 		void clearClient(int fd);
 		void close_fds(std::vector<pollfd> &pollFds);
-
-	
 };
 
 #endif

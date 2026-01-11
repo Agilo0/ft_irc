@@ -3,17 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   Utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:15:51 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 23:31:50 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 10:27:38 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-/* FORMATING RESPONSES*/
-//this function will handle to convert all \n into \r\n, so everything will have the IRC format
 std::string convertResponse(const std::string &response){
 	std::string finalResponse;
 
@@ -34,13 +32,10 @@ std::string convertResponse(const std::string &response){
 
 void Server::sendResponse(int clientFd, const std::string &response){
 	std::string formatResponse = convertResponse(response);
-
-	if (send(clientFd, formatResponse.c_str(), formatResponse.size(), 0) == -1){
+	if (send(clientFd, formatResponse.c_str(), formatResponse.size(), 0) == -1)
 		std::cerr << RED << "Error sending response to: " << clientFd << " client." << NC << std::endl;
-	}
 }
 
-/* parsing */
 int Utils::check_port(char *port){
     int i = 0;
     long res = 0;
@@ -51,9 +46,8 @@ int Utils::check_port(char *port){
         res = res * 10 + (port[i] - '0');
         i++;
     }
-    if (res <= 1023 || res > 65535){
+    if (res <= 1023 || res > 65535)
         throw std::runtime_error("Error: Recommended port for IRC: 6667.");
-    }
     return (static_cast<int>(res));
 }
 
@@ -67,14 +61,12 @@ bool Utils::check_password(const std::string &password){
     return true;
 }
 
-std::vector<std::string> Utils::split(const std::string &str, char delimiter)
-{
+std::vector<std::string> Utils::split(const std::string &str, char delimiter){
     std::vector<std::string> tokens;
     std::stringstream ss(str);
     std::string token;
 
-    while (std::getline(ss, token, delimiter))
-    {
+    while (std::getline(ss, token, delimiter)){
         if (!token.empty() && token[token.size() - 1] == '\r')
             token.erase(token.size() - 1);
         if (!token.empty())
@@ -83,7 +75,6 @@ std::vector<std::string> Utils::split(const std::string &str, char delimiter)
     return tokens;
 }
 
-/*various checks*/
 bool Server::checkNick(std::string nick){
 	if (nick.empty())
 		return (false);
@@ -95,13 +86,10 @@ bool Server::checkNick(std::string nick){
 	}
 	return (true);
 }
-bool Server::checkUser(const std::string &user) const
-{
+bool Server::checkUser(const std::string &user) const{
     if (user.empty())
         return false;
-
-    for (size_t i = 0; i < user.size(); ++i)
-    {
+    for (size_t i = 0; i < user.size(); ++i){
         unsigned char c = static_cast<unsigned char>(user[i]);
         if (!std::isalnum(c) && c != '_' && c != '-' && c != '.')
             return false;
@@ -121,28 +109,21 @@ bool Server::nickTaken(std::string nick) const{
 }
 
 std::string Server::appendToks( const std::vector<std::string> &tokens, int start){
-
  	std::string res;
     unsigned int i = start;
-
     if (i >= tokens.size())
         return "";
-
-    if (!tokens[i].empty() && tokens[i][0] == ':')
-    {
+    if (!tokens[i].empty() && tokens[i][0] == ':'){
         if (tokens[i].size() > 1)
             res = tokens[i].substr(1);
         i++;
     }
-
-    while (i < tokens.size())
-    {
+    while (i < tokens.size()){
         if (!res.empty())
             res += " ";
         res += tokens[i];
         i++;
     }
-
     return res;
 }
 
@@ -175,6 +156,7 @@ void Server::removeChannel(std::string chan){
 		it++;
 	}
 }
+
 bool Server::checkKick(std::vector<std::string> &tokens){
 	if (tokens.size() < 3)
 		return (false);
@@ -243,6 +225,7 @@ void Server::removeTarget(std::string channel, int targetFd){
 	}
 	return;
 }
+
 Channel *Server::findChannel(std::string channel){
 	std::vector<Channel>::iterator it = _channels.begin();
 
@@ -253,6 +236,7 @@ Channel *Server::findChannel(std::string channel){
 	}
 	return (NULL);
 }
+
 bool Server::isChangeMode(std::string mode){
 	if (mode.size() == 2 && (mode[0] == '+' || mode[0] == '-'))
 		return (true);
@@ -280,13 +264,11 @@ int Server::findTarget(std::string nick){
 	return (-1);
 }
 
-void Server::deleteClient(Client* cli)
-{
+void Server::deleteClient(Client* cli){
     int fd = cli->getClientFd();
 	std::vector<Channel>::iterator it = _channels.begin();
 
-    while (it != _channels.end())
-    {
+    while (it != _channels.end()){
         it->removeClient(fd);
         if (it->isEmpty())
             it = _channels.erase(it);
@@ -294,10 +276,8 @@ void Server::deleteClient(Client* cli)
             ++it;
     }
 	std::vector<Client>::iterator itc = _clients.begin();
-	while (itc != _clients.end())
-	{
-		if (itc->getClientFd() == fd)
-		{
+	while (itc != _clients.end()){
+		if (itc->getClientFd() == fd){
 			_clients.erase(itc);
 			break;
 		}
@@ -306,22 +286,18 @@ void Server::deleteClient(Client* cli)
     close(fd);
 }
 
-int Server::whoType(std::string cmd)
-{
+int Server::whoType(std::string cmd){
 	if (cmd[0] == '#')
 		return(1);
 	return(2);
 }
 
-std::string Server::buildWhoMessage(int fd, bool op)
-{
+std::string Server::buildWhoMessage(int fd, bool op){
 	std::vector<Client>::iterator it = _clients.begin();
 	std::string message;
 
-	while (it != _clients.end())
-	{
-		if ((*it).getClientFd() == fd)
-		{
+	while (it != _clients.end()){
+		if ((*it).getClientFd() == fd){
 			message.append(" ");
 			message.append((*it).getUsername());
 			message.append(" ");

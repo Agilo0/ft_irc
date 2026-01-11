@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
+/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/09 22:44:53 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 09:45:52 by yaja             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,21 @@
 #define CLIENT_HPP
 
 #include <string>
-// #include "Server.hpp"
 #include "Channel.hpp"
 
-enum Status
-{
+enum Status{
     NOT_AUTHENTICATED,
     AUTHENTICATED
 };
 
-class Client
-{
+class Client{
 private:
     int _clientFd;
     std::string _nickname;
     std::string _oldnick;
     std::string _username;
     std::string _realname;
-    std::string _ip; // or host
+    std::string _ip;
     std::string _buffer;
     Status _status;
     bool hasNick, hasUser, hasPass;
@@ -44,14 +41,13 @@ public:
 
     // getters
     Status getStatus();
-    int getClientFd() const; //<--socket FD of the client
+    int getClientFd() const;
     std::string getUsername() const;
     std::string getNickname() const;
     std::string getClientIP() const;
     std::string &getBuff();
     std::string getNick() const;
     std::string getOldnick() const;
-    //Channel *getChannel(unsigned int index);
     std::string getRealname() const;
 
     // setters
@@ -76,7 +72,6 @@ public:
     // others
     void markForRevome();
     void addBuffer(const std::string &data);
-    //int quitChannel(std::string channel);
     std::string createMessage();
     std::vector<std::string> getChannelVect();
 };

@@ -11,6 +11,7 @@ void Server::broadcastNewNick(Client *cli){
 		it++;
 	}
 }
+
 std::vector<int> Server::notifChannel(Channel *chan, std::string old, std::string nick, std::vector<int> ok){
 	std::set<int> clients = chan->getClients();
 	std::set<int>::iterator it = clients.begin();
@@ -22,7 +23,6 @@ std::vector<int> Server::notifChannel(Channel *chan, std::string old, std::strin
 			ok.push_back(fd);
 		}
 		it++;
-
 	}
 	return (ok);
 }
@@ -75,15 +75,13 @@ void Server::broadcastMode(Channel *channel, const std::string message){
 	return;
 }
 
-void Server::broadcastQuit(Client *cli, std::string message, std::string reason)
-{
+void Server::broadcastQuit(Client *cli, std::string message, std::string reason){
 	std::vector<int> clientFdsOk;
     std::vector<Channel>::iterator it = _channels.begin();
     clientFdsOk.push_back(cli->getClientFd());
 
 	while (it != _channels.end()){
-        if ((*it).isMember(cli->getClientFd()))
-		{
+        if ((*it).isMember(cli->getClientFd())){
             clientFdsOk = notifChannelQuit(&(*it), message, reason, clientFdsOk);
 			if ((*it).isEmpty())
 				removeChannel((*it).getName());
@@ -92,32 +90,25 @@ void Server::broadcastQuit(Client *cli, std::string message, std::string reason)
 	}
 }
 
-std::vector<int> Server::notifChannelQuit(Channel *chan, std::string message, std::string reason, std::vector<int> ok)
-{
+std::vector<int> Server::notifChannelQuit(Channel *chan, std::string message, std::string reason, std::vector<int> ok){
 	std::set<int> clients = chan->getClients();
 	std::set<int>::iterator it = clients.begin();
 	
-	while (it != clients.end())
-	{
+	while (it != clients.end()){
 		int fd = *it;
-		if (std::find(ok.begin(), ok.end(), fd) == ok.end())
-		{
+		if (std::find(ok.begin(), ok.end(), fd) == ok.end()){
 			sendResponse(fd, QUIT(message, reason));
 			ok.push_back(fd);
 		}
 		it++;
-
 	}
 	return (ok);
 }
 
-void Server::broadcastTopic(std::string message, Channel *channel, std::string topic)
-{
-
+void Server::broadcastTopic(std::string message, Channel *channel, std::string topic){
 	std::set<int> clients = channel->getClients();
 	std::set<int>::iterator itc = clients.begin();
-	while (itc != clients.end())
-	{
+	while (itc != clients.end()){
 		int fd = *itc;
 		sendResponse(fd, TOPIC(message, channel->getName(), topic));
 		itc++;

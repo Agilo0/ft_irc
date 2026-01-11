@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:30:04 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 16:31:44 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 17:26:26 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,43 +33,32 @@ void Channel::setKey(const std::string &key){
 void Channel::setMaxUsers(int max){ _maxUsers = max; }
 
 /*MODES*/
-void Channel::setModeI(bool active){ _iMode = active;}
-void Channel::setModeT(bool active){ _tMode = active;}
-void Channel::setModeK(bool active){ _kMode = active;}
-void Channel::setModeO(bool active){ _oMode = active;}
-void Channel::setModeL(bool active){ _lMode = active;}
+void Channel::setModeI(bool flag){ _iMode = flag;}
+void Channel::setModeT(bool flag){ _tMode = flag;}
+void Channel::setModeK(bool flag){ _kMode = flag;}
+void Channel::setModeO(bool flag){ _oMode = flag;}
+void Channel::setModeL(bool flag){ _lMode = flag;}
 
 bool Channel::hasTopic() const {return !_topic.empty();}
-bool Channel::isModeI() const {return _iMode; }//this has been previously changed by his set function
+bool Channel::isModeI() const {return _iMode; }
 bool Channel::isModeT() const {return _tMode; }
 bool Channel::isModeK() const {return _kMode; }
 bool Channel::isModeO() const {return _oMode; }
 bool Channel::isModeL() const {return _lMode; }
 
-///						*WIP									*/
-//NOT quite sure if we should use clean or create an specific function
-// void Channel::removeClient(int fd){
-// 	(void)fd;//but we should use the fd to know the exact client we are talking about
-// 	_clients.clear();
-// 	_operators.clear();
-// }
 void Channel::removeInvite(int fd){
 	_invited.erase(fd);
 }
 void Channel::removeOperator(int fd){
-	(void)fd;
 	_operators.erase(fd);
 }
 
-
-//we add the client to the operators list (if they are on the list)
 void Channel::addOperator(int fd){
-	if (_clients.count(fd))//it give us the match of the client
+	if (_clients.count(fd))
 		_operators.insert(fd);
 }
 void Channel::inviteClient(int fd){ _invited.insert(fd); }
 
-//new client has been add if we still have space left
 bool Channel::addClient(int fd, bool isOperator){
 	if (_lMode && _clients.size() >= _maxUsers)
 		return false;
@@ -78,11 +67,8 @@ bool Channel::addClient(int fd, bool isOperator){
 		_operators.insert(fd);
 	return true;
 }
-//if we found this fd on the list, means that is a member
 bool Channel::isMember(int fd) const { return _clients.find(fd) != _clients.end(); }
 bool Channel::isOperator(int fd) const { return _operators.find(fd) != _operators.end(); }
-
-//bool Channel::isInvited(int fd) const { return _clients.find(fd) != _clients.end(); }
 bool Channel::isInvited(int fd) const { return _invited.find(fd) != _invited.end(); }
 
 void Channel::removeClient(int fd){

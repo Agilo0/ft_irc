@@ -6,22 +6,18 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 16:31:51 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 17:25:39 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-//#include "Server.hpp"
-//#include "Utils.hpp"
-
 enum CommandType{
 	PASS,
 	NICK,
 	USER,
 	PART,
-	//CAPEND,
 	JOIN,
 	WHO,
 	PRIVMSG,
@@ -36,27 +32,26 @@ enum CommandType{
 	UKNW
 };
 
-
 class Channel{
 	private:
 		std::string	_name;
 		std::string _topic;
-		std::string _key;//optional key to join the channel
+		std::string _key;
 		size_t		_maxUsers;
-		bool		_iMode;//(-/= invite only)
-		bool		_tMode;//(topic set by operators only)
+		bool		_iMode;
+		bool		_tMode;
 		bool		_kMode;
 		bool		_oMode;
 		bool		_lMode;
-		std::set<int> _clients;//all the clients that we have in the channel (store FDs)
-		std::set<int> _operators;//operator is the one that has more privileges in the channel
-		std::set<int> _invited;//clients that are invited to the channel
+		std::set<int> _clients;
+		std::set<int> _operators;
+		std::set<int> _invited;
 	
 	public:
 		Channel(const std::string &name);
 		
 		/*getters*/
-		std::string getName() const;//get channel name
+		std::string getName() const;
 		std::string getTopic() const;
 		std::string getKey() const;
 		size_t		getMaxUsers() const;
@@ -81,10 +76,7 @@ class Channel{
 		bool isModeK() const;
 		bool isModeO() const;
 		bool isModeL() const;
-		//bool hasKey() const;
-
 		bool isEmpty() const;
-
 		bool addClient(int fd, bool isOperator = false);
 		bool isMember(int fd) const;
 		bool isOperator(int fd) const;
@@ -104,6 +96,5 @@ class Channel{
 		int manageL(bool sign, std::string arg);
 		bool isStrictNumber(const std::string &s);
 };
-
 
 #endif

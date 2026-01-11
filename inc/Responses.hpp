@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 17:15:30 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 17:26:06 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,25 +34,14 @@
 #define ERR_NOSUCHNICK(servername, nickname) (std::string(":" + servername + " 401 " + nickname + " :No such nick/channel"))
 #define RPL_PRIVMSG(sender, receiver, message) (std::string(":" + sender + " PRIVMSG " + receiver + " " + message))
 
-
-
 // WELCOME
 #define RPL_WELCOME(nickname, servername, hostname) \
    (std::string(":" + servername + " 001 " + nickname + \
    " :Welcome to the " + servername + " Network, " + nickname + "! " + hostname))
-#define RPL_YOURHOST(servername, nickname) \
-    (std::string(":" + servername + " 002 " + nickname + " Your host is " + servername + ", running version 1.0"))
-#define RPL_CREATED(servername, time) \
-    (std::string(":" + servername + " 003 This server was created " + time))
-#define RPL_MYINFO(servername, nickname) \
-    (std::string(":" + servername + " 004 " + nickname + " " + servername))
-#endif
-
 
 //PASS
 #define ERR_ALREADYREGISTERED(nick) ("462 :You may not reregister" )
 #define ERR_PASSWDMISMATCH(nick) ("464 :Password incorrect" )
-
 
 //NICK
 #define ERR_NONICKNAMEGIVEN() (std::string("431 ") + " :No nickname given" )
@@ -98,3 +87,4 @@
 //NOTICE
 #define RPL_NOTICE(origin, target, msg) (":" + origin + " NOTICE " + target + " :" + msg)
 
+#endif
