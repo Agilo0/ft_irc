@@ -6,14 +6,13 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:18:22 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 17:33:42 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/11 17:59:53 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
 void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
-	std::cout << ORANGE << "Handel JOIN\n" << NC;
 	if (tokens.size() < 2){
         sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
 		return ;
@@ -65,8 +64,13 @@ void Server::handleJoin(Client *cli, const std::vector<std::string> &tokens){
             nickList += "@";
         nickList += m->getNickname() + " ";
 	}
-    if (!nickList.empty())
+    if (!nickList.empty()){
         nickList.erase(nickList.size() - 1);
+	}
+	if (chan->hasTopic())
+		sendResponse(cli->getClientFd(), RPL_TOPIC(cli->getNickname(), chan->getName(), chan->getTopic()));
+	else
+		sendResponse(cli->getClientFd(), RPL_NOTOPIC(cli->getNickname(), chan->getName()));
     sendResponse(cli->getClientFd(), RPL_NAMREPLY(_serverName, cli->getNickname(), channelName, nickList));
     sendResponse(cli->getClientFd(), RPL_ENDOFNAMES(_serverName, cli->getNickname(), channelName));
 }
@@ -218,7 +222,6 @@ void Server::handleMode(Client *cli, std::vector<std::string> &tokens){
 	Channel *channel = findChannel(tokens[1]);
 	if (tokens.size() == 2)
 	{
-		std::cout << "iciiii\n";
 		std::string modestr = channel->getModeStr();
 		if (modestr.empty())
     		modestr = "+";
@@ -302,8 +305,6 @@ void Server::handleInvite(Client *cli, std::vector<std::string> &tokens){
 
 void Server::handleQuit(Client *cli, std::vector<std::string> &tokens)
 {
-	/* (void)cli;
-	(void)tokens; */
 	std::string message = cli->createMessage();
 	std::string reason;
 

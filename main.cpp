@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/24 19:58:49 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 10:28:54 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/11 18:06:50 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ int main(int argc, char** argv)
     std::string line;
 	signal(SIGINT, Server::sigHandler);
 	signal(SIGQUIT, Server::sigHandler);
+	signal(SIGTSTP, Server::sigHandler);
 	
     if (argc != 3){
         std::cerr << ORANGE << "Usage: ./ircserv <port> <password>" << std::endl;
@@ -38,7 +39,6 @@ int main(int argc, char** argv)
 	    Server.initServer(port, password);
     }
     catch (const std::exception &ex){
-        //Server.close_fds() //ideal to close all files when get an exception
         std::cerr << RED << ex.what() << std::endl;
         return (1);
     }

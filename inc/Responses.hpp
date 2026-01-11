@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 12:37:17 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 17:33:10 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/11 17:40:07 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@
 #define KICK(message, channel, targetNick, reason) (message + " KICK " + channel + targetNick + reason)
 
 //MODE
-#define ERR_UNKNOWNCOMMAND(servername, nick, command) (":" + servername + " 421 " + nick + command + " :Unknown command")
+#define ERR_UNKNOWNCOMMAND(command) ("421 " + command + " :Unknown command")
 #define ERR_INVALIDMODEPARAM(servername, nick, channel, mode, argument) (":" + servername + " 696 " + nick + channel + mode + argument + " :Invalid mode parameter")
 #define RPL_CHANNELMODEIS(server, nick, channel, mode) (":" + server + " 324 " + nick + " " + channel + " " + mode + "\r\n")
 #define RPL_CREATIONTIME(server, nick, channel, time) (":" + server + " 329 " + nick + " " + channel + " " + time + "\r\n");

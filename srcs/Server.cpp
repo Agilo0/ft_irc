@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 17:33:34 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/11 18:10:20 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,6 @@ void Server::checkNewData(int fd){
 		std::string cmd = buff.substr(0, pos);
 		buff.erase(0, pos + 2);
 		if (!cmd.empty()){
-			std::cout << YELLOW << "<" << fd << "> << " << NC << cmd << std::endl;//del
 			parseCommand(cli, cmd);
 		}
 	}
@@ -144,9 +143,9 @@ void Server::initServer(int port, std::string pwd){
 				}
 				for (size_t j = 0; j < _channels.size(); ){
 					_channels[j].removeClient(fd);
-					if (_channels[j].getClients().empty()){ //if is the only member, delete channel too
+					if (_channels[j].getClients().empty()){
 						_channels.erase(_channels.begin() + j);
-						continue; //nothing to increment cause vector has delete a space
+						continue;
 					}
 					++j;
 				}
@@ -186,14 +185,13 @@ void Server::parseCommand(Client *cli, const std::string &command){
 		case WHO: handleWho(cli, tokens); break;
 		case PING: handlePing(cli, tokens); break;
 		case NOTICE: handleNotice(cli, tokens); break;
-		case UKNW: sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), cmd)); break;
+		case UKNW: sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(cmd)); break;
 		default:
 			break;
 	}
 }
 
 CommandType Server::isCommand(const std::string &cmd){
-	std::cout << ORANGE << cmd << NC << std::endl; //del
 	if (cmd == "JOIN")
 		return (JOIN);
 	else if (cmd == "WHO")

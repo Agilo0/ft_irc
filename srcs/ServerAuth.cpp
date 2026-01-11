@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:07:28 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 17:17:00 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/11 18:19:04 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ void Server::passAuth(Client *cli, const std::vector<std::string> &tokens){
 }
 
 void Server::nickAuth(Client *cli, const std::vector<std::string> &tokens){
-    std::cout << YELLOW << "1st status: " << NC << cli->getStatus();
 	if (tokens.size() < 2){
 		sendResponse(cli->getClientFd(), ERR_NONICKNAMEGIVEN());
 		return;
@@ -85,7 +84,7 @@ void Server::handShake(Client *cli, const std::string &command){
 	for(size_t i = 0; i < cmd.size(); ++i)
 		cmd[i] = std::toupper(cmd[i]);
 	if (cmd == "CAP")
-		std::cout << "cap\n";    
+		std::cout << "cap\n";
 	else if (cmd == "PASS")
 		passAuth(cli, tokens);
 	else if(cmd == "NICK")
@@ -94,8 +93,8 @@ void Server::handShake(Client *cli, const std::string &command){
 		userAuth(cli, tokens);
 	else if (cmd == "JOIN" && cli->getStatus() != AUTHENTICATED)
 		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED(cli->getNickname()));
-	else 
-		sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), cmd));
+	else
+		sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(cmd));
 	if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
 		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated: "
