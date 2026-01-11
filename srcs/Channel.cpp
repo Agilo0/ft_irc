@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 10:30:04 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 00:23:00 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 16:31:44 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,4 +173,14 @@ bool Channel::isStrictNumber(const std::string &s){
         i++;
     }
     return true;
+}
+
+std::string Channel::getModeStr() const
+{
+  std::string modes = "+";
+    if (_iMode) modes += "i";
+    if (_tMode) modes += "t";
+    if (_kMode) modes += "k";
+    if (_lMode) modes += "l";
+    return modes;
 }

@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 01:30:15 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 15:47:50 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ void Server::checkNewData(int fd){
 		return ;
 	}
 	if (bytes < 0)
-	{
+	{ 
 		clearClient(fd);
 		return ;
 	}

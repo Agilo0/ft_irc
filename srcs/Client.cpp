@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/26 14:36:25 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 20:48:04 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 16:39:06 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,7 @@ std::string Client::createMessage(){
 	res.append(_username);
 	res.append("@");
 	res.append(_ip);
+	res.append(" ");
 	return (res);
 }
 std::vector<std::string> Client::getChannelVect(){
