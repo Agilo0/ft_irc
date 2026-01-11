@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:07:28 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/10 23:34:55 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 00:55:31 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,13 +124,16 @@ void Server::handShake(Client *cli, const std::string &command){
 		nickAuth(cli, tokens);
 	else if (cmd == "USER")
 		userAuth(cli, tokens);
+	else 
+		sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), cmd));
+
 /* 	else if (cmd == "JOIN"){
 		std::cout << "handshake join\n";
 		handleJoin(cli, tokens);
 	} */
-	else
-	//check this error, because protocol has no params!!!!!
-		sendResponse(cli->getClientFd(), ERR_NOTREGISTERED((cli->getNickname())));
+	// else
+	// //check this error, because protocol has no params!!!!!
+	// 	sendResponse(cli->getClientFd(), ERR_NOTREGISTERED((cli->getNickname())));
 	if (cli->hasAll()){
 		cli->setStatus(AUTHENTICATED);
 		std::cout << YELLOW << "<" << cli->getClientFd() << "> " << "Authenticated: "

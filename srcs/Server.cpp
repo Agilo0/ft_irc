@@ -6,7 +6,7 @@
 /*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/13 16:35:09 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 00:09:24 by alounici         ###   ########.fr       */
+/*   Updated: 2026/01/11 01:30:15 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,13 +55,18 @@ void Server::checkNewData(int fd){
 	std::memset(buffer, 0, sizeof(buffer));//clears the buffer
 	
 	ssize_t bytes = recv(fd, buffer, sizeof(buffer) - 1, 0);
-	if (bytes <= 0)
+	Client *cli = getClient(fd);
+	std::vector<std::string> vec;
+	if (bytes == 0)
 	{
-		std::cout << "flag_3\n";
+		handleQuit(cli, vec);
+		return ;
+	}
+	if (bytes < 0)
+	{
 		clearClient(fd);
 		return ;
 	}
-	Client *cli = getClient(fd);
 	if (!cli)
 		return ;
 	cli->addBuffer(std::string(buffer, bytes));
