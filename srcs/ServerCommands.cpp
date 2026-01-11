@@ -6,7 +6,7 @@
 /*   By: yanaranj <yanaranj@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/02 11:18:22 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 17:28:26 by yanaranj         ###   ########.fr       */
+/*   Updated: 2026/01/11 17:33:42 by yanaranj         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,12 +203,12 @@ void Server::handleKick(Client *cli, std::vector<std::string> &tokens){
 }
 
 void Server::handleMode(Client *cli, std::vector<std::string> &tokens){
-	if (tokens.size() < 3){
+	if (tokens.size() < 2){
 		sendResponse(cli->getClientFd(), ERR_NEEDMOREPARAMS(cli->getNickname(), tokens[0]));
 		return;
 	}
 	if (tokens[1][0] != '#'){
-		sendResponse(cli->getClientFd(), ERR_UNKNOWNCOMMAND(_serverName, cli->getNickname(), tokens[0]));
+		sendResponse(cli->getClientFd(), ERR_NOSUCHCHANNEL(tokens[1]));
 		return;
 	}
 	if (!channelExist(tokens[1])){
@@ -216,6 +216,15 @@ void Server::handleMode(Client *cli, std::vector<std::string> &tokens){
 		return;
 	}
 	Channel *channel = findChannel(tokens[1]);
+	if (tokens.size() == 2)
+	{
+		std::cout << "iciiii\n";
+		std::string modestr = channel->getModeStr();
+		if (modestr.empty())
+    		modestr = "+";
+		sendResponse(cli->getClientFd(), RPL_CHANNELMODEIS(_serverName, cli->getNick(), channel->getName(), modestr));
+		return;
+	}
 	if (!emitorInChannel(cli->getClientFd(), tokens[1])){
 		sendResponse(cli->getClientFd(), ERR_NOTONCHANNEL(tokens[1]));
 		return;

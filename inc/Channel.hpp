@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: yaja <yaja@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: alounici <alounici@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/09 11:01:19 by yanaranj          #+#    #+#             */
-/*   Updated: 2026/01/11 09:43:34 by yaja             ###   ########.fr       */
+/*   Updated: 2026/01/11 17:25:39 by alounici         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ class Channel{
 		std::string getKey() const;
 		size_t		getMaxUsers() const;
 		const std::set<int> &getClients() const;
+		std::string getModeStr() const;
 		
 		/*setters*/
 		void setTopic(const std::string &topic);
